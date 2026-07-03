@@ -1,23 +1,18 @@
 import { supabase } from "./supabase";
 
-export async function uploadEscudoTime(arquivo) {
-  if (!arquivo) return null;
-
-  const extensao = arquivo.name.split(".").pop();
-  const nomeArquivo = `escudo-${Date.now()}.${extensao}`;
-
-  const { error } = await supabase.storage
-    .from("escudos-times")
-    .upload(nomeArquivo, arquivo, {
+export async function uploadImagem(bucket, caminho, arquivo) {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(caminho, arquivo, {
       cacheControl: "3600",
       upsert: true,
     });
 
   if (error) throw error;
+  return data;
+}
 
-  const { data } = supabase.storage
-    .from("escudos-times")
-    .getPublicUrl(nomeArquivo);
-
+export function obterUrlPublica(bucket, caminho) {
+  const { data } = supabase.storage.from(bucket).getPublicUrl(caminho);
   return data.publicUrl;
 }
