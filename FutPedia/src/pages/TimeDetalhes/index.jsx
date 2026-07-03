@@ -4,7 +4,6 @@ import { Link, useParams } from "react-router-dom";
 import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/cards/Card";
 
-import { supabase } from "../../services/supabase";
 import { listarPaises } from "../../services/paisesService";
 import { listarTimes } from "../../services/timesService";
 import { listarCompeticoes } from "../../services/competicoesService";
@@ -17,61 +16,7 @@ function TimeDetalhes() {
   const [pais, setPais] = useState(null);
   const [competicoes, setCompeticoes] = useState([]);
   const [edicoes, setEdicoes] = useState([]);
-  const [rivais, setRivais] = useState([]);
   const [carregando, setCarregando] = useState(true);
-
-  function calcularIdade(fundacao) {
-    if (!fundacao) return "-";
-
-    const dataFundacao = new Date(fundacao);
-
-    if (Number.isNaN(dataFundacao.getTime())) return "-";
-
-    const hoje = new Date();
-
-    let idade = hoje.getFullYear() - dataFundacao.getFullYear();
-
-    const aindaNaoFezAniversario =
-      hoje.getMonth() < dataFundacao.getMonth() ||
-      (hoje.getMonth() === dataFundacao.getMonth() &&
-        hoje.getDate() < dataFundacao.getDate());
-
-    if (aindaNaoFezAniversario) {
-      idade -= 1;
-    }
-
-    return idade;
-  }
-
-  function formatarIdade(fundacao) {
-    const idade = calcularIdade(fundacao);
-    return idade === "-" ? "Não informado" : `${idade} anos`;
-  }
-
-  async function carregarRivais(timeId) {
-    const { data, error } = await supabase
-      .from("times_rivais")
-      .select(`
-        rival_id,
-        rival:times!times_rivais_rival_id_fkey (
-          id,
-          nome,
-          escudo,
-          cidade,
-          estado,
-          fundacao
-        )
-      `)
-      .eq("time_id", timeId);
-
-    if (error) {
-      console.error("Erro ao carregar rivais:", error);
-      setRivais([]);
-      return;
-    }
-
-    setRivais(data || []);
-  }
 
   async function carregar() {
     try {
@@ -97,12 +42,6 @@ function TimeDetalhes() {
       setPais(paisEncontrado || null);
       setCompeticoes(listaCompeticoes || []);
       setEdicoes(listaEdicoes || []);
-
-      if (timeEncontrado?.id) {
-        await carregarRivais(timeEncontrado.id);
-      } else {
-        setRivais([]);
-      }
     } catch (erro) {
       console.error("Erro ao carregar detalhes do time:", erro);
       alert("Erro ao carregar detalhes do time.");
@@ -137,7 +76,10 @@ function TimeDetalhes() {
 
       if (!competicao) return;
 
-      const chave = competicao.tipo === "Estadual" ? "Estadual" : competicao.nome;
+      const chave =
+        competicao.tipo === "Estadual"
+          ? "Estadual"
+          : competicao.nome;
 
       if (!grupos[chave]) {
         grupos[chave] = {
@@ -161,9 +103,7 @@ function TimeDetalhes() {
         ...grupo,
         anos: grupo.anos.sort((a, b) => a - b),
       }))
-      .sort(
-        (a, b) => b.quantidade - a.quantidade || a.nome.localeCompare(b.nome)
-      );
+      .sort((a, b) => b.quantidade - a.quantidade || a.nome.localeCompare(b.nome));
   }
 
   const titulosAgrupados = agruparRegistros("campeao");
@@ -208,7 +148,7 @@ function TimeDetalhes() {
     <div>
       <PageHeader
         title={`⚽ ${time.nome}`}
-        subtitle="Informações cadastradas, idade, títulos, vice-campeonatos e rivais."
+        subtitle="Informações cadastradas, títulos e vice-campeonatos."
       />
 
       <Card>
@@ -258,11 +198,6 @@ function TimeDetalhes() {
               </div>
 
               <div className="col-md-4">
-                <strong>Estado:</strong>
-                <p>{time.estado || "Não informado"}</p>
-              </div>
-
-              <div className="col-md-4">
                 <strong>Estádio:</strong>
                 <p>{time.estadio || "Não informado"}</p>
               </div>
@@ -270,28 +205,6 @@ function TimeDetalhes() {
               <div className="col-md-4">
                 <strong>Fundação:</strong>
                 <p>{time.fundacao || "Não informado"}</p>
-              </div>
-
-              <div className="col-md-4">
-                <strong>Idade do clube:</strong>
-                <p>{formatarIdade(time.fundacao)}</p>
-              </div>
-
-              <div className="col-md-4">
-                <strong>Site oficial:</strong>
-                <p>
-                  {time.site_oficial ? (
-                    <a
-                      href={time.site_oficial}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Acessar site
-                    </a>
-                  ) : (
-                    "Não informado"
-                  )}
-                </p>
               </div>
 
               <div className="col-md-4">
@@ -306,58 +219,6 @@ function TimeDetalhes() {
             </div>
           </div>
         </div>
-      </Card>
-
-      <Card>
-        <h5 className="mb-3">⚔️ Rivais</h5>
-
-        {rivais.length === 0 ? (
-          <p className="mb-0 text-muted">Nenhum rival cadastrado para este time.</p>
-        ) : (
-          <div className="row">
-            {rivais.map((item, index) => (
-              <div className="col-md-4 mb-3" key={`${item.rival_id}-${index}`}>
-                <Link
-                  to={`/times/${item.rival?.id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <div className="card h-100 text-center shadow-sm">
-                    <div className="card-body">
-                      {item.rival?.escudo ? (
-                        <img
-                          src={item.rival.escudo}
-                          alt={item.rival.nome}
-                          style={{
-                            width: "70px",
-                            height: "70px",
-                            objectFit: "contain",
-                            marginBottom: "10px",
-                          }}
-                        />
-                      ) : (
-                        <div style={{ fontSize: "42px", marginBottom: "10px" }}>
-                          ⚽
-                        </div>
-                      )}
-
-                      <h6 className="mb-1">
-                        Rival {index + 1}: {item.rival?.nome}
-                      </h6>
-
-                      <small className="text-muted d-block">
-                        {item.rival?.cidade || "-"} {item.rival?.estado || ""}
-                      </small>
-
-                      <small className="text-muted d-block">
-                        Idade: {formatarIdade(item.rival?.fundacao)}
-                      </small>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            ))}
-          </div>
-        )}
       </Card>
 
       <Card>

@@ -6,16 +6,18 @@ import Card from "../../components/cards/Card";
 
 import EditarCompeticoes from "./EditarCompeticoes";
 import EditarTimes from "./EditarTimes";
+import EditarPaises from "./EditarPaises";
+import EditarContinentes from "./EditarContinentes";
 import EditarCampeoes from "../EditarCampeoes";
 
 function Edicoes() {
-  const [tipoEdicao, setTipoEdicao] = useState("");
+  const [tipoEdicao, setTipoEdicao] = useState("competicoes");
 
   return (
     <div>
       <PageHeader
         title="✏️ Edições"
-        subtitle="Escolha o que deseja editar no FutPédia."
+        subtitle="Edite ou exclua informações cadastradas no FutPédia."
       />
 
       <Card>
@@ -26,27 +28,22 @@ function Edicoes() {
               value={tipoEdicao}
               onChange={(e) => setTipoEdicao(e.target.value)}
               options={[
-                { id: "times", nome: "Times" },
                 { id: "competicoes", nome: "Competições" },
                 { id: "campeoes", nome: "Campeões e Vices" },
+                { id: "times", nome: "Times" },
+                { id: "paises", nome: "Países" },
+                { id: "continentes", nome: "Continentes" },
               ]}
-              placeholder="Selecione uma opção..."
             />
           </div>
         </div>
       </Card>
 
-      {!tipoEdicao && (
-        <Card>
-          <p className="mb-0 text-muted">
-            Selecione acima se deseja editar Times, Competições ou Campeões e Vices.
-          </p>
-        </Card>
-      )}
-
-      {tipoEdicao === "times" && <EditarTimes />}
       {tipoEdicao === "competicoes" && <EditarCompeticoes />}
       {tipoEdicao === "campeoes" && <EditarCampeoes />}
+      {tipoEdicao === "times" && <EditarTimes />}
+      {tipoEdicao === "paises" && <EditarPaises />}
+      {tipoEdicao === "continentes" && <EditarContinentes />}
     </div>
   );
 }

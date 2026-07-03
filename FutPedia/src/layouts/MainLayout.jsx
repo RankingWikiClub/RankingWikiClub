@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import Sidebar from "../components/layout/Sidebar";
@@ -7,20 +6,9 @@ import Header from "../components/layout/Header";
 import "./MainLayout.css";
 
 function MainLayout() {
-  const [menuAberto, setMenuAberto] = useState(false);
-
   return (
     <div className="main-layout">
-      <button
-        className="mobile-menu-btn"
-        onClick={() => setMenuAberto(!menuAberto)}
-      >
-        ☰ Menu
-      </button>
-
-      <aside className={menuAberto ? "sidebar-area aberto" : "sidebar-area"}>
-        <Sidebar />
-      </aside>
+      <Sidebar />
 
       <div className="main-content">
         <Header />

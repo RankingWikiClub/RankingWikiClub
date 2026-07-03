@@ -8,6 +8,7 @@ import SelectInput from "../../components/forms/SelectInput";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
 import Card from "../../components/cards/Card";
 
+import { supabase } from "../../services/supabase";
 import { listarPaises } from "../../services/paisesService";
 import {
   listarTimes,
@@ -36,14 +37,46 @@ function Times() {
   const [arquivoEscudo, setArquivoEscudo] = useState(null);
   const [previewEscudo, setPreviewEscudo] = useState("");
 
+  const [rivaisSelecionados, setRivaisSelecionados] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
+
   async function carregar() {
-    setTimes(await listarTimes());
-    setPaises(await listarPaises());
+    const listaTimes = await listarTimes();
+    const listaPaises = await listarPaises();
+
+    setTimes(listaTimes || []);
+    setPaises(listaPaises || []);
   }
 
   useEffect(() => {
     carregar();
   }, []);
+
+  function calcularIdade(fundacao) {
+    if (!fundacao) return "-";
+
+    const dataFundacao = new Date(fundacao);
+
+    if (Number.isNaN(dataFundacao.getTime())) return "-";
+
+    const hoje = new Date();
+
+    let idade = hoje.getFullYear() - dataFundacao.getFullYear();
+
+    const aindaNaoFezAniversario =
+      hoje.getMonth() < dataFundacao.getMonth() ||
+      (hoje.getMonth() === dataFundacao.getMonth() &&
+        hoje.getDate() < dataFundacao.getDate());
+
+    if (aindaNaoFezAniversario) idade -= 1;
+
+    return idade;
+  }
 
   function limparFormulario() {
     setEditandoId(null);
@@ -58,6 +91,7 @@ function Times() {
     setEscudo("");
     setArquivoEscudo(null);
     setPreviewEscudo("");
+    setRivaisSelecionados(["", "", "", "", ""]);
   }
 
   function selecionarEscudo(e) {
@@ -69,46 +103,128 @@ function Times() {
     setPreviewEscudo(URL.createObjectURL(arquivo));
   }
 
-  async function salvar(e) {
-    e.preventDefault();
+  function alterarRival(index, valor) {
+    const novosRivais = [...rivaisSelecionados];
 
-    if (!paisId || !nome.trim()) {
-      alert("Informe o país e o nome do time.");
+    novosRivais[index] = valor;
+
+    setRivaisSelecionados(novosRivais);
+  }
+
+  function obterRivaisValidos() {
+    const rivaisNumericos = rivaisSelecionados
+      .filter((id) => id !== "")
+      .map((id) => Number(id))
+      .filter((id) => id && id !== Number(editandoId));
+
+    return [...new Set(rivaisNumericos)];
+  }
+
+  async function salvarRivais(timeId, rivais) {
+    if (!timeId) return;
+
+    const { error: erroExcluir } = await supabase
+      .from("times_rivais")
+      .delete()
+      .eq("time_id", timeId);
+
+    if (erroExcluir) throw erroExcluir;
+
+    if (!rivais || rivais.length === 0) return;
+
+    const dados = rivais.map((rivalId) => ({
+      time_id: timeId,
+      rival_id: rivalId,
+    }));
+
+    const { error } = await supabase.from("times_rivais").insert(dados);
+
+    if (error) throw error;
+  }
+
+  async function carregarRivais(timeId) {
+    const { data, error } = await supabase
+      .from("times_rivais")
+      .select("rival_id")
+      .eq("time_id", timeId);
+
+    if (error) {
+      console.error("Erro ao carregar rivais:", error);
+      setRivaisSelecionados(["", "", "", "", ""]);
       return;
     }
 
-    let urlEscudo = escudo;
+    const cincoCampos = ["", "", "", "", ""];
 
-    if (arquivoEscudo) {
-      urlEscudo = await uploadEscudoTime(arquivoEscudo);
-    }
+    (data || []).slice(0, 5).forEach((item, index) => {
+      cincoCampos[index] = String(item.rival_id);
+    });
 
-    const dadosTime = {
-      pais_id: Number(paisId),
-      liga_id: null,
-      nome,
-      nome_curto: nomeCurto || null,
-      apelido: apelido || null,
-      cidade: cidade || null,
-      estado: estado || null,
-      fundacao: fundacao || null,
-      site_oficial: siteOficial || null,
-      escudo: urlEscudo || null,
-    };
-
-    if (editandoId) {
-      await atualizarTime(editandoId, dadosTime);
-      alert("Time atualizado com sucesso!");
-    } else {
-      await inserirTime(dadosTime);
-      alert("Time cadastrado com sucesso!");
-    }
-
-    limparFormulario();
-    carregar();
+    setRivaisSelecionados(cincoCampos);
   }
 
-  function editar(time) {
+  async function salvar(e) {
+    e.preventDefault();
+
+    try {
+      if (!paisId || !nome.trim()) {
+        alert("Informe o país e o nome do time.");
+        return;
+      }
+
+      let urlEscudo = escudo;
+
+      if (arquivoEscudo) {
+        try {
+          urlEscudo = await uploadEscudoTime(arquivoEscudo);
+        } catch (error) {
+          console.error("Erro ao enviar escudo:", error);
+          alert("Não foi possível enviar o escudo, mas o time será salvo sem imagem.");
+          urlEscudo = escudo || null;
+        }
+      }
+
+      const dadosTime = {
+        pais_id: Number(paisId),
+        nome: nome.trim(),
+        nome_curto: nomeCurto || null,
+        apelido: apelido || null,
+        cidade: cidade || null,
+        estado: estado || null,
+        fundacao: fundacao || null,
+        site_oficial: siteOficial || null,
+        escudo: urlEscudo || null,
+      };
+
+      const rivaisValidos = obterRivaisValidos();
+
+      if (editandoId) {
+        await atualizarTime(editandoId, dadosTime);
+        await salvarRivais(editandoId, rivaisValidos);
+        alert("Time atualizado com sucesso!");
+      } else {
+        const timeSalvo = await inserirTime(dadosTime);
+
+        const novoTimeId = Array.isArray(timeSalvo)
+          ? timeSalvo[0]?.id
+          : timeSalvo?.id;
+
+        if (novoTimeId) {
+          await salvarRivais(novoTimeId, rivaisValidos);
+        }
+
+        alert("Time cadastrado com sucesso!");
+      }
+
+      limparFormulario();
+      await carregar();
+    } catch (error) {
+      console.error("Erro ao salvar time:", error);
+      alert("Erro ao salvar time: " + error.message);
+    }
+  }
+
+  async function editar(time) {
     setEditandoId(time.id);
     setPaisId(time.pais_id || "");
     setNome(time.nome || "");
@@ -121,13 +237,20 @@ function Times() {
     setEscudo(time.escudo || "");
     setPreviewEscudo(time.escudo || "");
     setArquivoEscudo(null);
+
+    await carregarRivais(time.id);
   }
 
   async function remover(id) {
     if (!confirm("Deseja realmente excluir este time?")) return;
 
-    await excluirTime(id);
-    carregar();
+    try {
+      await excluirTime(id);
+      await carregar();
+    } catch (error) {
+      console.error("Erro ao excluir time:", error);
+      alert("Erro ao excluir time: " + error.message);
+    }
   }
 
   const dadosTabela = times
@@ -137,6 +260,7 @@ function Times() {
       return {
         ...time,
         pais: pais ? pais.nome : "",
+        idade: calcularIdade(time.fundacao),
       };
     })
     .filter((time) =>
@@ -182,13 +306,25 @@ function Times() {
     { key: "cidade", label: "Cidade" },
     { key: "estado", label: "Estado" },
     { key: "fundacao", label: "Fundação" },
+    {
+      key: "idade",
+      label: "Idade",
+      render: (item) => (item.idade === "-" ? "-" : `${item.idade} anos`),
+    },
   ];
+
+  const opcoesRivais = times
+    .filter((time) => time.id !== editandoId)
+    .map((time) => ({
+      id: time.id,
+      nome: time.nome,
+    }));
 
   return (
     <div>
       <PageHeader
         title="⚽ Cadastro de Times"
-        subtitle="Cadastre clubes com escudo, país e informações gerais."
+        subtitle="Cadastre clubes com escudo, país, rivais e informações gerais."
       />
 
       <Card>
@@ -260,6 +396,33 @@ function Times() {
                 value={siteOficial}
                 onChange={(e) => setSiteOficial(e.target.value)}
               />
+            </div>
+
+            <div className="col-md-12">
+              <h5 className="mt-3 mb-3">⚔️ Rivais do time</h5>
+            </div>
+
+            {[0, 1, 2, 3, 4].map((index) => (
+              <div className="col-md-4" key={index}>
+                <label className="form-label">Rival {index + 1}</label>
+                <select
+                  className="form-select"
+                  value={rivaisSelecionados[index]}
+                  onChange={(e) => alterarRival(index, e.target.value)}
+                >
+                  <option value="">Selecione o Rival {index + 1}</option>
+
+                  {opcoesRivais.map((time) => (
+                    <option key={time.id} value={time.id}>
+                      {time.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+
+            <div className="col-md-12">
+              <hr />
             </div>
 
             <div className="col-md-4">
