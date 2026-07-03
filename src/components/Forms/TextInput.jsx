@@ -1,15 +1,7 @@
-function TextInput({
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-  required = false,
-}) {
+function TextInput({ label, value, onChange, placeholder, type = "text", required = false }) {
   return (
     <div className="mb-3">
-      <label className="form-label fw-semibold">{label}</label>
-
+      {label && <label className="form-label">{label}</label>}
       <input
         type={type}
         className="form-control"
