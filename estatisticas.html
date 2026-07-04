@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutPedia - Estatísticas</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topo">
+  <div class="logo">⚽ FutPedia</div>
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="clubes.html">Clubes</a>
+    <a href="selecoes.html">Seleções</a>
+    <a href="competicoes.html">Competições</a>
+    <a href="cadastros.html">Cadastros</a>
+    <a href="estatisticas.html">Estatísticas</a>
+    <a href="banco.html">Banco de Dados</a>
+  </nav>
+</header>
+
+<main class="pagina estatisticas-pagina">
+  <h2>Estatísticas</h2>
+
+  <div class="cards cards-estatisticas-centro">
+    <div class="card"><h3>Países</h3><p id="totalPaises">0</p></div>
+    <div class="card"><h3>Clubes</h3><p id="totalClubes">0</p></div>
+    <div class="card"><h3>Seleções</h3><p id="totalSelecoes">0</p></div>
+    <div class="card"><h3>Competições</h3><p id="totalCompeticoes">0</p></div>
+    <div class="card"><h3>Campeões e Vices</h3><p id="totalTitulos">0</p></div>
+  </div>
+
+  <br><br>
+
+  <h2>Histórico das Competições</h2>
+
+  <div class="filtros">
+    <div class="grupo">
+      <label>Abrangência</label>
+      <select id="filtroAbrangenciaEstatisticas">
+        <option value="">Todas as abrangências</option>
+        <option value="Mundial">Mundo</option>
+        <option value="Continental">Continente</option>
+        <option value="País">País</option>
+        <option value="Estadual">Estadual</option>
+        <option value="Regional">Regional</option>
+      </select>
+    </div>
+
+    <div id="grupoFiltroLocalEstatisticas" class="grupo oculto">
+      <label id="labelFiltroLocalEstatisticas">Local</label>
+      <select id="filtroLocalEstatisticas">
+        <option value="">Todos</option>
+      </select>
+    </div>
+
+    <div class="grupo">
+      <label>Competição</label>
+      <select id="filtroCompeticaoEstatisticas">
+        <option value="">Todas as competições</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="resumoCompeticaoEstatisticas" class="cards cards-resumo-competicoes"></div>
+
+  <br>
+
+  <div id="campeoesCompeticaoSelecionada"></div>
+
+  <br>
+
+  <div id="historicoCompeticoesEstatisticas"></div>
+</main>
+
+<script src="js/dados.js"></script>
+<script src="js/detalhes.js"></script>
+<script src="js/estatisticas.js"></script>
+</body>
+</html>
