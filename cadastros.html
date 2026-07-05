@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutPedia - Cadastros</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<header class="topo">
+  <div class="logo">⚽ FutPedia</div>
+  <nav class="menu">
+    <a href="./index.html">Início</a>
+    <a href="./clubes.html">Clubes</a>
+    <a href="./selecoes.html">Seleções</a>
+    <a href="./competicoes.html">Competições</a>
+    <a href="./cadastros.html">Cadastros</a>
+    <a href="./estatisticas.html">Estatísticas</a>
+    <a href="./banco.html">Banco de Dados</a>
+  </nav>
+</header>
+
+<main class="pagina">
+  <h2>Cadastros</h2>
+
+  <form id="formCadastro" class="formulario">
+    <div class="grupo">
+      <label>O que deseja cadastrar?</label>
+      <select id="tipoCadastro">
+        <option value="clube">Time</option>
+        <option value="selecao">Seleção</option>
+        <option value="competicao">Competição</option>
+        <option value="titulo">Campeão e Vice de Competição</option>
+      </select>
+    </div>
+
+    <div id="grupoNome" class="grupo">
+      <label>Nome</label>
+      <input type="text" id="nome" placeholder="Digite o nome">
+    </div>
+
+    <div id="grupoPais" class="grupo">
+      <label>País</label>
+      <select id="pais"></select>
+    </div>
+
+    <div id="grupoSelecao" class="grupo">
+      <label>Continente da seleção</label>
+      <select id="continenteSelecao"></select>
+
+      <label>País da seleção</label>
+      <select id="paisSelecao"></select>
+
+      <label>Escudo da seleção</label>
+      <input type="file" id="escudoSelecao" accept="image/*">
+
+      <small>As seleções são organizadas por continente. Ao escolher o continente, a lista carrega apenas os países correspondentes.</small>
+    </div>
+
+    <div id="grupoClube" class="grupo">
+      <label>Nome curto do time</label>
+      <input type="text" id="nomeCurto" placeholder="Ex: Corinthians">
+
+      <label>Nome completo do time</label>
+      <input type="text" id="nomeCompleto" placeholder="Ex: Sport Club Corinthians Paulista">
+
+      <div id="grupoEstadoClube" class="grupo">
+        <label>Estado do time</label>
+        <select id="estado"></select>
+        <input type="text" id="siglaEstado" placeholder="Sigla do Estado" readonly>
+      </div>
+
+      <label>Cidade</label>
+      <input type="text" id="cidade" placeholder="Cidade">
+
+      <label>Ano de fundação</label>
+      <input type="text" id="fundacao" placeholder="DD/MM/AAAA" maxlength="10" inputmode="numeric" autocomplete="off">
+      <small>Digite no formato DD/MM/AAAA ou selecione no calendário abaixo.</small>
+      <input type="date" id="fundacaoCalendario">
+
+      <label>Estádio</label>
+      <input type="text" id="estadio" placeholder="Estádio">
+
+      <label>Capacidade do estádio</label>
+      <input type="number" id="capacidade" placeholder="Capacidade">
+
+      <label>Escudo do time</label>
+      <input type="file" id="escudo" accept="image/*">
+
+      <label>Rival 1</label>
+      <select id="rival1"></select>
+
+      <label>Rival 2</label>
+      <select id="rival2"></select>
+
+      <label>Rival 3</label>
+      <select id="rival3"></select>
+
+      <label>Rival 4</label>
+      <select id="rival4"></select>
+
+      <label>Rival 5</label>
+      <select id="rival5"></select>
+    </div>
+
+    <div id="grupoCompeticao" class="grupo">
+      <label>Abrangência da competição</label>
+      <select id="abrangencia">
+        <option value="">Selecione a abrangência</option>
+        <option value="Mundial">Mundo</option>
+        <option value="Continental">Continente</option>
+        <option value="País">País</option>
+      </select>
+
+      <div id="grupoContinenteCompeticao" class="grupo">
+        <label>Continente</label>
+        <select id="continenteCompeticao"></select>
+      </div>
+
+      <div id="grupoPaisCompeticao" class="grupo">
+        <label>País da competição</label>
+        <select id="paisCompeticao"></select>
+      </div>
+
+      <div id="grupoCompeticoesPaisExistentes" class="grupo">
+        <label>Competições já cadastradas neste país</label>
+        <select id="competicoesPaisExistentes">
+          <option value="">Nenhuma competição selecionada</option>
+        </select>
+      </div>
+
+      <label>Nome da competição</label>
+      <input type="text" id="nomeCompeticao" placeholder="Digite o nome da competição">
+
+      <label>Tipo da competição</label>
+      <select id="tipoCompeticao">
+        <option value="">Selecione o tipo da competição</option>
+        <option value="Liga">Liga</option>
+        <option value="Copa">Copa</option>
+        <option value="Supercopa">Supercopa</option>
+        <option value="Recopa">Recopa</option>
+        <option value="Taça">Taça</option>
+        <option value="Torneio">Torneio</option>
+        <option value="Campeonato">Campeonato</option>
+        <option value="Mundial de Clubes">Mundial de Clubes</option>
+        <option value="Copa Continental">Copa Continental</option>
+        <option value="Copa Regional">Copa Regional</option>
+        <option value="Estadual">Estadual</option>
+        <option value="Interestadual">Interestadual</option>
+        <option value="Amistoso">Amistoso</option>
+        <option value="Outros">Outros</option>
+      </select>
+
+      <label>Escudo da competição</label>
+      <input type="file" id="escudoCompeticao" accept="image/*">
+    </div>
+
+    <div id="grupoTitulo" class="grupo">
+      <label>Abrangência</label>
+      <select id="abrangenciaTitulo">
+        <option value="">Todas as abrangências</option>
+        <option value="Mundial">Mundo</option>
+        <option value="Continental">Continente</option>
+        <option value="País">País</option>
+        <option value="Estadual">Estadual</option>
+        <option value="Regional">Regional</option>
+      </select>
+
+      <label>Ano</label>
+      <input type="number" id="ano" placeholder="Ano">
+
+      <label>Competição cadastrada</label>
+      <select id="competicaoTitulo"></select>
+
+      <label>Time campeão</label>
+      <select id="campeao"></select>
+
+      <label>Time vice-campeão</label>
+      <select id="vice"></select>
+    </div>
+
+    <button type="submit">Cadastrar</button>
+  </form>
+</main>
+
+<script src="./js/dados.js"></script>
+<script src="./js/detalhes.js"></script>
+<script src="./js/app.js"></script>
+<script src="./js/cadastros.js"></script>
+</body>
+</html>
