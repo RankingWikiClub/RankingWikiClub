@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutPedia - Competições</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<header class="topo">
+  <div class="logo"><img class="logo-futpedia-topo" src="./assets/logo-futpedia.png" alt="FutPedia Banco de Dados"></div>
+  <nav class="menu">
+    <a href="./index.html">Início</a>
+    <a href="./clubes.html">Clubes</a>
+    <a href="./selecoes.html">Seleções</a>
+    <a href="./competicoes.html">Competições</a>
+    <a href="./estatisticas.html">Estatísticas</a>
+    <a href="./cadastros.html">Inserir</a>
+    <a href="./edicoes.html">Edições</a>
+  </nav>
+</header>
+<main class="pagina">
+  <h2>Competições</h2>
+
+  <div class="filtros">
+    <div class="grupo">
+      <label>Categoria</label>
+      <select id="filtroCategoriaCompeticoes">
+        <option value="todas">Todas</option>
+        <option value="clube">Clubes</option>
+        <option value="selecao">Seleções</option>
+      </select>
+    </div>
+
+    <div id="grupoAbrangenciaCompeticoes" class="grupo">
+      <label>Abrangência</label>
+      <select id="filtroAbrangenciaCompeticoes">
+        <option value="Mundial">Mundo</option>
+        <option value="Continental">Continentes</option>
+      </select>
+    </div>
+
+    <div id="grupoContinenteCompeticoes" class="grupo oculto">
+      <label>Continente</label>
+      <select id="filtroContinenteCompeticoes">
+        <option value="">Selecione um continente</option>
+      </select>
+    </div>
+
+    <div id="grupoPaisCompeticoes" class="grupo oculto">
+      <label>País</label>
+      <select id="filtroPaisCompeticoes">
+        <option value="">Selecione um país</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="listaCompeticoes" class="cards"></div>
+  <div id="detalhesCompeticao" class="detalhes" style="display:none;">
+    <h2 id="tituloCompeticao"></h2>
+    <div id="infoCompeticao"></div>
+  </div>
+</main>
+<script src="./js/dados.js"></script>
+<script src="./js/detalhes.js"></script>
+<script src="./js/competicoes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase.js"></script>
+<script src="./js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutPedia - Clubes</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<header class="topo">
+  <div class="logo"><img class="logo-futpedia-topo" src="./assets/logo-futpedia.png" alt="FutPedia Banco de Dados"></div>
+  <nav class="menu">
+    <a href="./index.html">Início</a>
+    <a href="./clubes.html">Clubes</a>
+    <a href="./selecoes.html">Seleções</a>
+    <a href="./competicoes.html">Competições</a>
+    <a href="./estatisticas.html">Estatísticas</a>
+    <a href="./cadastros.html">Inserir</a>
+    <a href="./edicoes.html">Edições</a>
+  </nav>
+</header>
+<main class="pagina">
+  <h2>Clubes</h2>
+
+  <div class="filtros">
+    <div class="grupo">
+      <label>Abrangência</label>
+      <select id="filtroAbrangenciaClubes">
+        <option value="todos">Todos os clubes</option>
+        <option value="continentes">Continentes</option>
+      </select>
+    </div>
+
+    <div id="grupoFiltroContinenteClubes" class="grupo oculto">
+      <label>Continente</label>
+      <select id="filtroContinenteClubes">
+        <option value="">Selecione um continente</option>
+      </select>
+    </div>
+
+    <div id="grupoFiltroPaisClubes" class="grupo oculto">
+      <label>País</label>
+      <select id="filtroPaisClubes">
+        <option value="">Selecione um país</option>
+      </select>
+    </div>
+
+    <div id="grupoFiltroEstadoClubes" class="grupo oculto">
+      <label>Filtrar por estado</label>
+      <select id="filtroEstadoClubes">
+        <option value="">Todos os estados</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="listaClubes" class="cards"></div>
+  <div id="detalhesClube" class="detalhes" style="display:none;">
+    <h2 id="tituloClube"></h2>
+    <div id="infoClube"></div>
+  </div>
+</main>
+<script src="./js/dados.js"></script>
+<script src="./js/detalhes.js"></script>
+<script src="./js/clubes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase.js"></script>
+<script src="./js/auth.js"></script>
+</body>
+</html>
