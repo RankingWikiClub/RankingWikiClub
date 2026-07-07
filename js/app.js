@@ -158,7 +158,7 @@ function carregarAniversariantesHoje() {
         <div class="aniversario-escudo">${escudo}</div>
         <div class="aniversario-info">
           <h3>🎂 ${limparTexto(clube.nome)}</h3>
-          <p>📅 Fundação: ${limparTexto(fundacao)}</p>
+          <p>Fundação: ${limparTexto(fundacao)}</p>
           <p class="aniversario-idade">${limparTexto(textoIdade)}</p>
         </div>
       </div>
@@ -330,7 +330,7 @@ function carregarTimesMaisVelhosPorPais() {
         <div class="time-velho-info">
           <h3>${limparTexto(clube.nome)}</h3>
           <p>${bandeira} ${limparTexto(pais)}</p>
-          <p>📅 Fundação: ${limparTexto(formatarDataFundacao(clube.fundacao))}${limparTexto(idadeTexto)}</p>
+          <p>Fundação: ${limparTexto(formatarDataFundacao(clube.fundacao))}${limparTexto(idadeTexto)}</p>
         </div>
       </div>
     `;

@@ -4415,3 +4415,91 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
     padding: 10px;
   }
 }
+
+/* Correção: estrelas quebram linha dentro da própria coluna, sem sobrepor outras colunas */
+.total-titulos-com-estrelas,
+.total-vices-com-estrelas,
+.total-ranking-com-estrelas {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+.total-titulos-com-estrelas .titulo-estrelas,
+.total-vices-com-estrelas .vice-estrelas,
+.tabela-ranking-estrelas-competicao .ranking-estrelas {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-all !important;
+  line-height: 1.25 !important;
+  letter-spacing: 1px !important;
+  text-align: center !important;
+}
+
+.tabela-titulos-vices-compacta .total-titulos-com-estrelas,
+.tabela-titulos-vices-compacta .total-vices-com-estrelas,
+.tabela-ranking-estrelas-competicao .total-ranking-com-estrelas {
+  overflow: hidden !important;
+}
+
+.tabela-titulos-vices-compacta td,
+.tabela-ranking-estrelas-competicao td {
+  height: auto !important;
+}
+
+
+/* Correção página Início: aniversariantes e times mais antigos lado a lado */
+.pagina-inicio main.inicio {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.pagina-inicio .aniversarios-hoje,
+.pagina-inicio .times-mais-velhos-pais {
+  width: 100%;
+  max-width: none;
+  margin: 28px 0 0;
+  box-sizing: border-box;
+}
+
+.pagina-inicio .status-inicio {
+  grid-column: 1 / -1;
+}
+
+/* Escudos em formato original, sem máscara circular, mantendo o tamanho */
+.pagina-inicio .aniversario-escudo img,
+.pagina-inicio .time-velho-escudo img {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 0 !important;
+  object-fit: contain !important;
+  background: #f3f6fb;
+  display: block;
+}
+
+.pagina-inicio .aniversario-fallback,
+.pagina-inicio .time-velho-fallback {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 0 !important;
+  object-fit: contain !important;
+}
+
+@media (max-width: 900px) {
+  .pagina-inicio main.inicio {
+    grid-template-columns: 1fr;
+  }
+
+  .pagina-inicio .aniversarios-hoje,
+  .pagina-inicio .times-mais-velhos-pais {
+    margin-top: 18px;
+  }
+}

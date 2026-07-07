@@ -306,9 +306,99 @@ function renderizarResumoEstatisticas(competicoes, edicoes) {
         </tbody>
       </table>
     </div>
+    ${renderizarTabelaClubesMaisTempoSemTitulo(edicoes)}
   `;
 
   renderizarRankingsEstatisticas(edicoes);
+}
+
+
+function renderizarTabelaClubesMaisTempoSemTitulo(edicoes) {
+  const ranking = calcularClubesMaisTempoSemTitulo(edicoes);
+
+  if (!ranking.length) {
+    return `
+      <h3 class="titulo-tabela-estatistica">⏳ Clubes há mais tempo sem ganhar títulos</h3>
+      <div class="tabela-container">
+        <table class="tabela-estatisticas-campeoes tabela-ranking-estatisticas tabela-clubes-sem-titulo">
+          <thead>
+            <tr>
+              <th>Clube</th>
+              <th>Último título</th>
+              <th>Ano</th>
+              <th>Tempo sem título</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4">Nenhum clube campeão encontrado no filtro selecionado.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  return `
+    <h3 class="titulo-tabela-estatistica">⏳ Clubes há mais tempo sem ganhar títulos</h3>
+    <div class="tabela-container">
+      <table class="tabela-estatisticas-campeoes tabela-ranking-estatisticas tabela-clubes-sem-titulo">
+        <thead>
+          <tr>
+            <th>Posição</th>
+            <th>Clube</th>
+            <th>Último título</th>
+            <th>Ano</th>
+            <th>Tempo sem título</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${ranking.slice(0, 10).map((item, index) => `
+            <tr>
+              <td>${index + 1}º</td>
+              <td>${linkParticipanteTabelaEstatistica(item.id)}</td>
+              <td>${limparTexto(item.competicaoNome || "Não informado")}</td>
+              <td><strong>${limparTexto(item.ano)}</strong></td>
+              <td>${item.anosSemTitulo} ano(s)</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function calcularClubesMaisTempoSemTitulo(edicoes) {
+  const anoAtual = new Date().getFullYear();
+  const ultimosTitulos = {};
+
+  (edicoes || []).forEach(edicao => {
+    const participante = buscarParticipanteEstatistica(edicao.campeaoId);
+    if (!participante || participante.tipo !== "clube") return;
+
+    const ano = Number(String(edicao.ano || "").match(/\d{4}/)?.[0]);
+    if (!ano || Number.isNaN(ano)) return;
+
+    const atual = ultimosTitulos[participante.id];
+    if (!atual || ano > atual.ano) {
+      ultimosTitulos[participante.id] = {
+        id: participante.id,
+        ano,
+        competicaoNome: edicao.competicaoNome || nomeCompeticaoEstatistica(edicao.competicaoId),
+        anosSemTitulo: Math.max(0, anoAtual - ano)
+      };
+    }
+  });
+
+  return Object.values(ultimosTitulos).sort((a, b) => {
+    if (b.anosSemTitulo !== a.anosSemTitulo) return b.anosSemTitulo - a.anosSemTitulo;
+    if (a.ano !== b.ano) return a.ano - b.ano;
+    return nomeParticipanteEstatistica(a.id).localeCompare(nomeParticipanteEstatistica(b.id));
+  });
+}
+
+function nomeCompeticaoEstatistica(id) {
+  const banco = carregarBanco();
+  const competicao = (banco.competicoes || []).find(c => String(c.id) === String(id));
+  return competicao?.nome || "";
 }
 
 function renderizarRankingsEstatisticas(edicoes) {

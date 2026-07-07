@@ -248,6 +248,8 @@ function listarParticipantesTitulo(banco, selectId = "") {
     nome: c.nome,
     pais: c.pais || "",
     bandeira: c.bandeira || "",
+    estado: c.estado || "",
+    siglaEstado: c.siglaEstado || "",
     tipo: "clube"
   }));
 
@@ -393,7 +395,16 @@ function carregarParticipantesTituloNoSelect(selectId) {
     participantes,
     placeholder,
     item => item.id,
-    item => item.nome
+    item => {
+      // No cadastro de campeões/vices, os times brasileiros devem exibir
+      // somente o nome do time e a sigla do estado ao lado.
+      // Exemplo: Corinthians — SP
+      if (categoria === "clube" && item.pais === "Brasil") {
+        const sigla = item.siglaEstado || buscarEstado(item.estado || "").sigla || "";
+        return sigla ? `${item.nome} — ${sigla}` : item.nome;
+      }
+      return item.nome;
+    }
   );
 }
 
