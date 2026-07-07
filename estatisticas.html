@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutPedia - Estatísticas</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<header class="topo">
+  <nav class="menu">
+    <a href="./index.html" class="logo-menu" aria-label="FutPédia Início"><img class="logo-futpedia-topo" src="./assets/logo-futpedia.png" alt="FutPedia Banco de Dados"></a>
+    <a href="./index.html">Início</a>
+    <a href="./clubes.html">Clubes</a>
+    <a href="./selecoes.html">Seleções</a>
+    <a href="./competicoes.html">Competições</a>
+    <a href="./estatisticas.html">Estatísticas</a>
+    <a href="./cadastros.html">Inserir</a>
+    <a href="./edicoes.html">Edições</a>
+  </nav>
+</header>
+<div class="campo-pesquisa-principal pesquisa-topo">
+  <label for="pesquisaEstatisticas">Pesquisar no histórico</label>
+  <input type="search" id="pesquisaEstatisticas" placeholder="Digite o nome da competição, campeão, vice ou ano...">
+</div>
+
+
+<main class="pagina estatisticas-pagina estatisticas-dashboard">
+  <h2>Estatísticas</h2>
+
+  <section class="estatisticas-card estatisticas-filtros-card">
+    <h3>Filtros</h3>
+    <div class="filtros filtros-dashboard">
+      <div class="grupo">
+        <label>Categoria</label>
+        <select id="filtroCategoriaEstatisticas">
+          <option value="clube">Competições de clubes</option>
+          <option value="selecao">Competições de seleções</option>
+          <option value="todas">Todas as categorias</option>
+        </select>
+      </div>
+
+      <div class="grupo">
+        <label>Abrangência</label>
+        <select id="filtroAbrangenciaEstatisticas">
+          <option value="Todas">Todas</option>
+          <option value="Continental">Continente</option>
+          <option value="País">País</option>
+        </select>
+      </div>
+
+      <div id="grupoFiltroLocalEstatisticas" class="grupo oculto">
+        <label id="labelFiltroLocalEstatisticas">Local</label>
+        <select id="filtroLocalEstatisticas">
+          <option value="">Todos</option>
+        </select>
+      </div>
+
+      <div class="grupo">
+        <label>Competição</label>
+        <select id="filtroCompeticaoEstatisticas">
+          <option value="">Todas as competições</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="estatisticas-card estatisticas-resumo-geral">
+    <h3>Resumo geral</h3>
+    <div class="tabela-container">
+      <table class="tabela-estatisticas-campeoes tabela-estatisticas-resumo">
+        <thead>
+          <tr>
+            <th>Clubes</th>
+            <th>Seleções</th>
+            <th>Competições</th>
+            <th>Campeões e Vices</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="totalClubes">0</td>
+            <td id="totalSelecoes">0</td>
+            <td id="totalCompeticoes">0</td>
+            <td id="totalTitulos">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="estatisticas-card estatisticas-resumo-filtro">
+    <h3>Resumo do filtro</h3>
+    <div id="resumoCompeticaoEstatisticas"></div>
+  </section>
+
+  <section class="estatisticas-card estatisticas-historico-card">
+    <h3>Histórico da Competição</h3>
+    <div id="campeoesCompeticaoSelecionada"></div>
+    <div id="historicoCompeticoesEstatisticas"></div>
+  </section>
+
+  <section class="estatisticas-card estatisticas-rankings-card">
+    <h3>Rankings</h3>
+    <div id="rankingsEstatisticas"></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase.js"></script>
+<script src="./js/dados.js"></script>
+<script src="./js/detalhes.js"></script>
+<script src="./js/estatisticas.js"></script>
+<script src="./js/auth.js"></script>
+</body>
+</html>
