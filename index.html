@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FutPedia - Início</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="pagina-inicio">
+<header class="topo">
+  <nav class="menu">
+    <a href="./index.html" class="logo-menu" aria-label="FutPédia Início"><img class="logo-futpedia-topo" src="./assets/logo-futpedia.png" alt="FutPedia Banco de Dados"></a>
+    <a href="./index.html">Início</a>
+    <a href="./clubes.html">Clubes</a>
+    <a href="./selecoes.html">Seleções</a>
+    <a href="./competicoes.html">Competições</a>
+    <a href="./estatisticas.html">Estatísticas</a>
+    <a href="./cadastros.html">Inserir</a>
+    <a href="./edicoes.html">Edições</a>
+  </nav>
+</header>
+<div class="campo-pesquisa-principal pesquisa-topo">
+  <label for="pesquisaInicio">Pesquisar no FutPédia</label>
+  <input type="search" id="pesquisaInicio" placeholder="Digite clube, país, competição ou seleção...">
+</div>
+
+<main class="inicio">
+  <section class="aniversarios-hoje aniversarios-destaque-topo">
+    <div class="aniversarios-topo">
+      <h2>🎂 Aniversariantes de hoje</h2>
+      <span id="dataAniversariosHoje"></span>
+    </div>
+    <div id="listaAniversariantesHoje" class="lista-aniversariantes">
+      <p class="mensagem-vazia">Carregando aniversariantes...</p>
+    </div>
+  </section>
+
+  <section class="times-mais-velhos-pais">
+    <div class="times-velhos-topo">
+      <h2>🏛️ Time mais antigo de cada país</h2>
+      <div class="filtros-times-antigos">
+        <label for="abrangenciaTimesAntigos">Abrangência</label>
+        <select id="abrangenciaTimesAntigos">
+          <option value="todos">Todos</option>
+          <option value="continente">Continente</option>
+        </select>
+        <select id="continenteTimesAntigos" style="display:none;">
+          <option value="">Selecione o continente</option>
+        </select>
+      </div>
+    </div>
+    <div id="listaTimesMaisVelhosPais" class="lista-times-velhos-pais">
+      <p class="mensagem-vazia">Carregando times mais antigos...</p>
+    </div>
+  </section>
+
+  <div class="status-inicio">
+    <div class="status-card"><h3>🏆 Competições</h3><p id="inicioCompeticoes">0</p></div>
+    <div class="status-card"><h3>🏟 Clubes</h3><p id="inicioClubes">0</p></div>
+    <div class="status-card"><h3>🌎 Seleções</h3><p id="inicioSelecoes">0</p></div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./js/supabase.js"></script>
+<script src="./js/dados.js"></script>
+<script src="./js/detalhes.js"></script>
+<script src="./js/app.js"></script>
+<script src="./js/auth.js"></script>
+</body>
+</html>
