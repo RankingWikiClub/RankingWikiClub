@@ -54,6 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarRivais();
   });
 
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById(`rivalContinente${i}`)?.addEventListener("change", () => carregarPaisesRival(i));
+    document.getElementById(`rivalPais${i}`)?.addEventListener("change", () => carregarTimesRival(i));
+  }
+
   document.getElementById("estado")?.addEventListener("change", preencherSiglaClube);
 
   document.getElementById("continenteSelecao")?.addEventListener("change", carregarPaisesSelecaoPorContinente);
@@ -243,6 +248,8 @@ function listarParticipantesTitulo(banco, selectId = "") {
     nome: c.nome,
     pais: c.pais || "",
     bandeira: c.bandeira || "",
+    estado: c.estado || "",
+    siglaEstado: c.siglaEstado || "",
     tipo: "clube"
   }));
 
@@ -388,7 +395,16 @@ function carregarParticipantesTituloNoSelect(selectId) {
     participantes,
     placeholder,
     item => item.id,
-    item => item.nome
+    item => {
+      // No cadastro de campeões/vices, os times brasileiros devem exibir
+      // somente o nome do time e a sigla do estado ao lado.
+      // Exemplo: Corinthians — SP
+      if (categoria === "clube" && item.pais === "Brasil") {
+        const sigla = item.siglaEstado || buscarEstado(item.estado || "").sigla || "";
+        return sigla ? `${item.nome} — ${sigla}` : item.nome;
+      }
+      return item.nome;
+    }
   );
 }
 
@@ -403,16 +419,106 @@ function carregarListasTitulo() {
 
 function carregarRivais() {
   const banco = carregarBanco();
-  const clubes = banco.clubes.slice().sort((a, b) => a.nome.localeCompare(b.nome));
+  const clubes = (banco.clubes || []).filter(c => c.id && c.nome && c.pais);
+
+  const continentes = [...new Set(clubes
+    .map(c => obterContinenteDoPais(c.pais))
+    .filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
 
   for (let i = 1; i <= 5; i++) {
+    const selectContinente = document.getElementById(`rivalContinente${i}`);
+    const valorContinente = selectContinente?.value || "";
+
     preencherSelect(
-      `rival${i}`,
-      clubes,
-      `Selecione o Rival ${i}`,
-      c => c.id,
-      c => `${c.nome} - ${c.pais || ""}`
+      `rivalContinente${i}`,
+      continentes,
+      `Selecione o continente do Rival ${i}`,
+      c => c,
+      c => c
     );
+
+    if (valorContinente && continentes.includes(valorContinente)) {
+      document.getElementById(`rivalContinente${i}`).value = valorContinente;
+    }
+
+    carregarPaisesRival(i, true);
+  }
+}
+
+function obterContinenteDoPais(nomePais) {
+  if (!nomePais) return "";
+
+  const banco = carregarBanco();
+  const paisBanco = (banco.paises || []).find(p => p.nome === nomePais);
+  if (paisBanco?.continente) return paisBanco.continente;
+
+  const paisBase = (typeof PAISES_MUNDO_COMPLETO !== "undefined" ? PAISES_MUNDO_COMPLETO : [])
+    .find(p => p.nome === nomePais);
+  if (paisBase?.continente) return paisBase.continente;
+
+  const paisPadrao = (typeof PAISES_PADRAO !== "undefined" ? PAISES_PADRAO : [])
+    .find(p => p.nome === nomePais);
+
+  return paisPadrao?.continente || "";
+}
+
+function carregarPaisesRival(indice, preservarSelecao = false) {
+  const banco = carregarBanco();
+  const continente = document.getElementById(`rivalContinente${indice}`)?.value || "";
+  const selectPais = document.getElementById(`rivalPais${indice}`);
+  const valorPais = preservarSelecao ? (selectPais?.value || "") : "";
+
+  if (!selectPais) return;
+
+  const paises = [...new Set((banco.clubes || [])
+    .filter(c => c.id && c.nome && c.pais)
+    .filter(c => !continente || obterContinenteDoPais(c.pais) === continente)
+    .map(c => c.pais))]
+    .map(nome => {
+      const pais = buscarPais(nome);
+      return { nome, bandeira: pais.bandeira || "" };
+    })
+    .sort((a, b) => a.nome.localeCompare(b.nome));
+
+  preencherSelect(
+    `rivalPais${indice}`,
+    paises,
+    continente ? `Selecione o país do Rival ${indice}` : `Selecione primeiro o continente do Rival ${indice}`,
+    p => p.nome,
+    p => `${p.bandeira || ""} ${p.nome}`
+  );
+
+  if (valorPais && paises.some(p => p.nome === valorPais)) {
+    selectPais.value = valorPais;
+  }
+
+  carregarTimesRival(indice, preservarSelecao);
+}
+
+function carregarTimesRival(indice, preservarSelecao = false) {
+  const banco = carregarBanco();
+  const pais = document.getElementById(`rivalPais${indice}`)?.value || "";
+  const selectTime = document.getElementById(`rival${indice}`);
+  const valorTime = preservarSelecao ? (selectTime?.value || "") : "";
+
+  if (!selectTime) return;
+
+  const clubes = (banco.clubes || [])
+    .filter(c => c.id && c.nome)
+    .filter(c => pais && c.pais === pais)
+    .sort((a, b) => a.nome.localeCompare(b.nome));
+
+  preencherSelect(
+    `rival${indice}`,
+    clubes,
+    pais ? `Selecione o Rival ${indice}` : `Selecione primeiro o país do Rival ${indice}`,
+    c => c.id,
+    c => c.nome
+  );
+
+  if (valorTime && clubes.some(c => c.id === valorTime)) {
+    selectTime.value = valorTime;
   }
 }
 

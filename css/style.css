@@ -4336,49 +4336,116 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
   }
 }
 
-/* Botões Editar e Fechar no canto superior direito das páginas de detalhes */
-.conteudo-detalhes-global {
-  position: relative;
+/* Filtros dos campos Rival 1 a Rival 5 no cadastro de times */
+.grupo-rival {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
 }
 
-.detalhes-acoes-topo {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
+.grupo-rival:first-of-type {
+  border-top: 0;
+}
+
+/* Ajuste solicitado: escudos dos aniversariantes sem recorte circular */
+.aniversario-escudo img {
+  border-radius: 0 !important;
+  object-fit: contain !important;
+}
+
+/* Detalhes: menus suspensos para reduzir informações na tela */
+.detalhe-menu-suspenso {
   width: 100%;
-  margin-bottom: 12px;
+  margin: 14px 0;
+  border: 1px solid #d7e1f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
-.detalhes-acoes-topo .btn-editar-detalhes-global,
-.detalhes-acoes-topo .fechar-detalhes-global {
-  float: none !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 86px;
-  min-width: 86px;
-  height: 38px;
-  margin: 0 !important;
-  padding: 8px 12px !important;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  line-height: 1;
+.detalhe-menu-titulo {
   cursor: pointer;
+  list-style: none;
+  padding: 13px 16px;
+  font-weight: 700;
+  text-align: center;
+  background: #0b3d91;
+  color: #ffffff;
+  user-select: none;
 }
 
-@media (max-width: 520px) {
-  .detalhes-acoes-topo {
-    justify-content: flex-end;
-    gap: 6px;
+.detalhe-menu-titulo::-webkit-details-marker {
+  display: none;
+}
+
+.detalhe-menu-titulo::after {
+  content: "▼";
+  float: right;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.detalhe-menu-suspenso[open] .detalhe-menu-titulo::after {
+  content: "▲";
+}
+
+.detalhe-menu-conteudo {
+  padding: 14px;
+  background: #ffffff;
+}
+
+.detalhe-menu-conteudo .tabela-container {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.detalhe-menu-conteudo .tabela-detalhe-time,
+.detalhe-menu-conteudo .tabela-competicao-detalhe {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  .detalhe-menu-titulo {
+    padding: 12px 14px;
+    font-size: 15px;
   }
 
-  .detalhes-acoes-topo .btn-editar-detalhes-global,
-  .detalhes-acoes-topo .fechar-detalhes-global {
-    width: 78px;
-    min-width: 78px;
-    height: 36px;
-    font-size: 0.9rem;
+  .detalhe-menu-conteudo {
+    padding: 10px;
   }
+}
+
+/* Correção: estrelas quebram linha dentro da própria coluna, sem sobrepor outras colunas */
+.total-titulos-com-estrelas,
+.total-vices-com-estrelas,
+.total-ranking-com-estrelas {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+.total-titulos-com-estrelas .titulo-estrelas,
+.total-vices-com-estrelas .vice-estrelas,
+.tabela-ranking-estrelas-competicao .ranking-estrelas {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-all !important;
+  line-height: 1.25 !important;
+  letter-spacing: 1px !important;
+  text-align: center !important;
+}
+
+.tabela-titulos-vices-compacta .total-titulos-com-estrelas,
+.tabela-titulos-vices-compacta .total-vices-com-estrelas,
+.tabela-ranking-estrelas-competicao .total-ranking-com-estrelas {
+  overflow: hidden !important;
+}
+
+.tabela-titulos-vices-compacta td,
+.tabela-ranking-estrelas-competicao td {
+  height: auto !important;
 }

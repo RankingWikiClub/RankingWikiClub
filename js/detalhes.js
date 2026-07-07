@@ -35,10 +35,7 @@ function garantirPainelDetalhes() {
   painel.className = "painel-detalhes-global";
   painel.innerHTML = `
     <div class="conteudo-detalhes-global">
-      <div class="detalhes-acoes-topo">
-        <button id="btnEditarDetalhesGlobal" class="btn-editar btn-editar-detalhes-global" type="button" style="display:none">Editar</button>
-        <button class="fechar-detalhes-global" type="button" onclick="fecharDetalhesGlobal()">Fechar</button>
-      </div>
+      <button class="fechar-detalhes-global" onclick="fecharDetalhesGlobal()">Fechar</button>
       <div id="conteudoDetalhesGlobal"></div>
     </div>
   `;
@@ -57,49 +54,19 @@ function fecharDetalhesGlobal() {
   if (painel) painel.classList.remove("ativo");
 }
 
-async function usuarioPodeEditarDetalhes() {
-  try {
-    if (typeof obterSessao === "function" && typeof podeEditar === "function") {
-      const { user, perfil } = await obterSessao();
-      return !!user && podeEditar(perfil);
-    }
 
-    const supa = typeof clienteSupabase === "function" ? clienteSupabase() : null;
-    if (!supa) return false;
-    const { data } = await supa.auth.getSession();
-    return !!data?.session?.user;
-  } catch (erro) {
-    console.warn("Não foi possível verificar o login para o botão Editar:", erro);
-    return false;
-  }
+
+
+function detalheSecaoSuspensa(titulo, conteudoHtml, aberta = false) {
+  return `
+    <details class="detalhe-menu-suspenso" ${aberta ? "open" : ""}>
+      <summary class="detalhe-menu-titulo">${titulo}</summary>
+      <div class="detalhe-menu-conteudo">
+        ${conteudoHtml}
+      </div>
+    </details>
+  `;
 }
-
-function tipoEdicaoParaUrlDetalhes(tipo) {
-  if (tipo === "time") return "clubes";
-  if (tipo === "selecao") return "selecoes";
-  if (tipo === "competicao") return "competicoes";
-  return tipo || "";
-}
-
-async function configurarBotaoEditarDetalhes(tipo, id) {
-  const botao = document.getElementById("btnEditarDetalhesGlobal");
-  if (!botao) return;
-
-  botao.style.display = "none";
-  botao.onclick = null;
-
-  const podeEditarDetalhe = await usuarioPodeEditarDetalhes();
-  if (!podeEditarDetalhe) return;
-
-  botao.style.display = "inline-flex";
-  botao.onclick = () => {
-    const tipoUrl = tipoEdicaoParaUrlDetalhes(tipo);
-    const params = new URLSearchParams({ tipo: tipoUrl, id: String(id || "") });
-    window.location.href = `./edicoes.html?${params.toString()}`;
-  };
-}
-
-
 
 function abrirDetalhesTime(id) {
   const banco = carregarBanco();
@@ -169,71 +136,68 @@ function abrirDetalhesTime(id) {
       </table>
     </div>    <br>
 
-    <h3>Títulos e vices por competição</h3>
-
-    ${
-      desempenhoPorCompeticao.length
-        ? `
-          <div class="tabela-container">
-            <table class="tabela-detalhe-time tabela-titulos-compacta tabela-titulos-vices-compacta">
-              <thead>
-                <tr>
-                  <th>Competição</th>
-                  <th class="th-total-titulos">Títulos</th>
-                  <th class="th-total-vices">Vices</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                ${desempenhoPorCompeticao.map(item => `
+    ${detalheSecaoSuspensa("Títulos e vices por competição", `
+      ${
+        desempenhoPorCompeticao.length
+          ? `
+            <div class="tabela-container">
+              <table class="tabela-detalhe-time tabela-titulos-compacta tabela-titulos-vices-compacta">
+                <thead>
                   <tr>
-                    <td>${linkLiga(item.competicaoId)}</td>
-                    <td class="total-titulos-com-estrelas">
-                      <div class="numero-total-titulos">${item.titulos}</div>
-                      <div class="titulo-estrelas">${item.titulos ? "★".repeat(item.titulos) : "-"}</div>
-                    </td>
-                    <td class="total-vices-com-estrelas">
-                      <div class="numero-total-vices">${item.vices}</div>
-                      <div class="vice-estrelas">${item.vices ? "☆".repeat(item.vices) : "-"}</div>
-                    </td>
+                    <th>Competição</th>
+                    <th class="th-total-titulos">Títulos</th>
+                    <th class="th-total-vices">Vices</th>
                   </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </div>
-        `
-        : `<div class="time-sem-titulos">Nenhum título ou vice cadastrado.</div>`
-    }
+                </thead>
 
-    <br>
+                <tbody>
+                  ${desempenhoPorCompeticao.map(item => `
+                    <tr>
+                      <td>${linkLiga(item.competicaoId)}</td>
+                      <td class="total-titulos-com-estrelas">
+                        <div class="numero-total-titulos">${item.titulos}</div>
+                        <div class="titulo-estrelas">${item.titulos ? "★".repeat(item.titulos) : "-"}</div>
+                      </td>
+                      <td class="total-vices-com-estrelas">
+                        <div class="numero-total-vices">${item.vices}</div>
+                        <div class="vice-estrelas">${item.vices ? "☆".repeat(item.vices) : "-"}</div>
+                      </td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          `
+          : `<div class="time-sem-titulos">Nenhum título ou vice cadastrado.</div>`
+      }
+    `)}
 
-    <h3>Histórico de títulos</h3>
-    ${
-      titulos.length
-        ? titulos
-            .slice()
-            .sort((a, b) => Number(a.ano) - Number(b.ano))
-            .map(t => `<div class="linha-historico"><span>${limparTexto(t.ano)} - ${linkLiga(t.competicaoId)}</span></div>`)
-            .join("")
-        : `<p>Nenhum título cadastrado.</p>`
-    }
+    ${detalheSecaoSuspensa("Histórico de títulos", `
+      ${
+        titulos.length
+          ? titulos
+              .slice()
+              .sort((a, b) => Number(a.ano) - Number(b.ano))
+              .map(t => `<div class="linha-historico"><span>${limparTexto(t.ano)} - ${linkLiga(t.competicaoId)}</span></div>`)
+              .join("")
+          : `<p>Nenhum título cadastrado.</p>`
+      }
+    `)}
 
-    <br>
-
-    <h3>Vice-campeonatos</h3>
-    ${
-      vices.length
-        ? vices
-            .slice()
-            .sort((a, b) => Number(a.ano) - Number(b.ano))
-            .map(t => `<div class="linha-historico"><span>${limparTexto(t.ano)} - ${linkLiga(t.competicaoId)}</span></div>`)
-            .join("")
-        : `<p>Nenhum vice-campeonato cadastrado.</p>`
-    }
+    ${detalheSecaoSuspensa("Vice-campeonatos", `
+      ${
+        vices.length
+          ? vices
+              .slice()
+              .sort((a, b) => Number(a.ano) - Number(b.ano))
+              .map(t => `<div class="linha-historico"><span>${limparTexto(t.ano)} - ${linkLiga(t.competicaoId)}</span></div>`)
+              .join("")
+          : `<p>Nenhum vice-campeonato cadastrado.</p>`
+      }
+    `)}
   `;
 
   painel.classList.add("ativo");
-  configurarBotaoEditarDetalhes("time", id);
 }
 
 function contarTitulosPorCompeticao(titulos, banco) {
@@ -498,27 +462,26 @@ function abrirDetalhesLiga(id) {
     ${liga.estado ? `<p><strong>Estado:</strong> ${limparTexto(liga.estado)}</p>` : ""}
     <p><strong>Edições:</strong> ${edicoes.length}</p>
 
-    <br>
-    <h3 class="titulo-secao-competicao-detalhe">Ranking de Campeões</h3>
-    ${tabelaRankingSimplesCompeticaoDetalhe("Campeão", rankingCampeoes, "Nenhum campeão cadastrado.")}
+    ${detalheSecaoSuspensa("Ranking de Campeões", `
+      ${tabelaRankingSimplesCompeticaoDetalhe("Campeão", rankingCampeoes, "Nenhum campeão cadastrado.")}
+    `)}
 
-    <br>
-    <h3 class="titulo-secao-competicao-detalhe">Ranking de Vices</h3>
-    ${tabelaRankingSimplesCompeticaoDetalhe("Vice", rankingVices, "Nenhum vice cadastrado.")}
+    ${detalheSecaoSuspensa("Ranking de Vices", `
+      ${tabelaRankingSimplesCompeticaoDetalhe("Vice", rankingVices, "Nenhum vice cadastrado.")}
+    `)}
 
-    <br>
-    <h3 class="titulo-secao-competicao-detalhe">Ranking de Finalistas</h3>
-    ${tabelaRankingFinalistasCompeticaoDetalhe(rankingFinalistas)}
+    ${detalheSecaoSuspensa("Ranking de Finalistas", `
+      ${tabelaRankingFinalistasCompeticaoDetalhe(rankingFinalistas)}
+    `)}
 
-    <br>
-    <h3 class="titulo-secao-competicao-detalhe">Campeões e Vices</h3>
-    <div id="listaEdicoesCompeticaoDetalhe">
-      ${tabelaEdicoesCompeticaoDetalhe(edicoes)}
-    </div>
+    ${detalheSecaoSuspensa("Campeões e Vices", `
+      <div id="listaEdicoesCompeticaoDetalhe">
+        ${tabelaEdicoesCompeticaoDetalhe(edicoes)}
+      </div>
+    `)}
   `;
 
   painel.classList.add("ativo");
-  configurarBotaoEditarDetalhes("competicao", id);
 }
 
 function filtrarEdicoesCompeticaoDetalhe(valor) {
@@ -701,68 +664,66 @@ function abrirDetalhesSelecao(id) {
 
     <br>
 
-    <h3>Títulos e vices por competição</h3>
-    ${
-      desempenhoPorCompeticao.length
-        ? `
-          <div class="tabela-container">
-            <table class="tabela-detalhe-time tabela-titulos-compacta tabela-titulos-vices-compacta">
-              <thead>
-                <tr>
-                  <th>Competição</th>
-                  <th class="th-total-titulos">Títulos</th>
-                  <th class="th-total-vices">Vices</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                ${desempenhoPorCompeticao.map(item => `
+    ${detalheSecaoSuspensa("Títulos e vices por competição", `
+      ${
+        desempenhoPorCompeticao.length
+          ? `
+            <div class="tabela-container">
+              <table class="tabela-detalhe-time tabela-titulos-compacta tabela-titulos-vices-compacta">
+                <thead>
                   <tr>
-                    <td>${linkLiga(item.competicaoId)}</td>
-                    <td class="total-titulos-com-estrelas">
-                      <div class="numero-total-titulos">${item.titulos}</div>
-                      <div class="titulo-estrelas">${item.titulos ? "★".repeat(item.titulos) : "-"}</div>
-                    </td>
-                    <td class="total-vices-com-estrelas">
-                      <div class="numero-total-vices">${item.vices}</div>
-                      <div class="vice-estrelas">${item.vices ? "☆".repeat(item.vices) : "-"}</div>
-                    </td>
+                    <th>Competição</th>
+                    <th class="th-total-titulos">Títulos</th>
+                    <th class="th-total-vices">Vices</th>
                   </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </div>
-        `
-        : `<div class="time-sem-titulos">Nenhum título ou vice cadastrado.</div>`
-    }
+                </thead>
 
-    <br>
+                <tbody>
+                  ${desempenhoPorCompeticao.map(item => `
+                    <tr>
+                      <td>${linkLiga(item.competicaoId)}</td>
+                      <td class="total-titulos-com-estrelas">
+                        <div class="numero-total-titulos">${item.titulos}</div>
+                        <div class="titulo-estrelas">${item.titulos ? "★".repeat(item.titulos) : "-"}</div>
+                      </td>
+                      <td class="total-vices-com-estrelas">
+                        <div class="numero-total-vices">${item.vices}</div>
+                        <div class="vice-estrelas">${item.vices ? "☆".repeat(item.vices) : "-"}</div>
+                      </td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          `
+          : `<div class="time-sem-titulos">Nenhum título ou vice cadastrado.</div>`
+      }
+    `)}
 
-    <h3>Histórico de títulos</h3>
-    ${
-      titulosSelecao.length
-        ? titulosSelecao
-            .slice()
-            .sort((a, b) => Number(a.ano) - Number(b.ano))
-            .map(t => `<div class="linha-historico"><span>${limparTexto(t.ano)} - ${linkLiga(t.competicaoId)}</span></div>`)
-            .join("")
-        : `<p>Nenhum título cadastrado.</p>`
-    }
+    ${detalheSecaoSuspensa("Histórico de títulos", `
+      ${
+        titulosSelecao.length
+          ? titulosSelecao
+              .slice()
+              .sort((a, b) => Number(a.ano) - Number(b.ano))
+              .map(t => `<div class="linha-historico"><span>${limparTexto(t.ano)} - ${linkLiga(t.competicaoId)}</span></div>`)
+              .join("")
+          : `<p>Nenhum título cadastrado.</p>`
+      }
+    `)}
 
-    <br>
-
-    <h3>Vice-campeonatos</h3>
-    ${
-      vicesSelecao.length
-        ? vicesSelecao
-            .slice()
-            .sort((a, b) => Number(a.ano) - Number(b.ano))
-            .map(t => `<div class="linha-historico"><span>${limparTexto(t.ano)} - ${linkLiga(t.competicaoId)}</span></div>`)
-            .join("")
-        : `<p>Nenhum vice-campeonato cadastrado.</p>`
-    }
+    ${detalheSecaoSuspensa("Vice-campeonatos", `
+      ${
+        vicesSelecao.length
+          ? vicesSelecao
+              .slice()
+              .sort((a, b) => Number(a.ano) - Number(b.ano))
+              .map(t => `<div class="linha-historico"><span>${limparTexto(t.ano)} - ${linkLiga(t.competicaoId)}</span></div>`)
+              .join("")
+          : `<p>Nenhum vice-campeonato cadastrado.</p>`
+      }
+    `)}
   `;
 
   painel.classList.add("ativo");
-  configurarBotaoEditarDetalhes("selecao", id);
 }

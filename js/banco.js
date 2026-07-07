@@ -2955,3 +2955,444 @@ function tabelaCompeticoes(banco) {
 }
 
 window.tabelaCompeticoes = tabelaCompeticoes;
+
+/* ===== Correção final: Edições > Campeões e Vices =====
+   - Não altera as abrangências dos outros cadastros.
+   - Em categoria clube, permite escolher país do campeão e país do vice.
+   - Ao escolher abrangência País, os dois países são preenchidos automaticamente
+     com o país selecionado no filtro da competição.
+   - Opções de campeão/vice mostram somente o nome do time, sem o país ao lado.
+   - Mundo mostra competições mundiais cadastradas; Continente mostra competições
+     continentais cadastradas; País mostra competições do país selecionado.
+*/
+function fpEdTituloNorm(v) {
+  return String(v || '').trim().toLowerCase();
+}
+function fpEdTituloCategoriaCompeticao(c) {
+  return c?.categoria || (typeof normalizarCategoriaCompeticao === 'function' ? normalizarCategoriaCompeticao(c) : 'clube') || 'clube';
+}
+function fpEdTituloEhMundo(c) {
+  const a = fpEdTituloNorm(c?.abrangencia), t = fpEdTituloNorm(c?.tipo), l = fpEdTituloNorm(c?.local);
+  return a === 'mundial' || a === 'mundo' || l === 'mundial' || l === 'mundo' || t.includes('mund');
+}
+function fpEdTituloPaisCompeticao(c) {
+  if (!c) return '';
+  if (c.pais) return c.pais;
+  const a = fpEdTituloNorm(c.abrangencia);
+  if (a === 'país' || a === 'pais') return c.local || '';
+  return '';
+}
+function fpEdTituloContinenteCompeticao(c) {
+  if (!c) return '';
+  if (c.continente) return c.continente;
+  const pais = fpEdTituloPaisCompeticao(c);
+  if (pais && typeof buscarPaisSelecao === 'function') return buscarPaisSelecao(pais)?.continente || '';
+  const a = fpEdTituloNorm(c.abrangencia);
+  if (a === 'continental' || a === 'continente') return c.local || '';
+  return '';
+}
+function fpEdTituloEhContinental(c) {
+  if (!c || fpEdTituloEhMundo(c)) return false;
+  const a = fpEdTituloNorm(c.abrangencia), t = fpEdTituloNorm(c.tipo);
+  return a === 'continental' || a === 'continente' || t.includes('continental') || !!fpEdTituloContinenteCompeticao(c);
+}
+function fpEdTituloPaisesComClubes(banco) {
+  const mapa = new Map();
+  (banco.clubes || []).forEach(clube => {
+    if (!clube?.pais) return;
+    const paisBase = typeof buscarPaisSelecao === 'function' ? buscarPaisSelecao(clube.pais) : {};
+    mapa.set(clube.pais, { nome: clube.pais, bandeira: clube.bandeira || paisBase?.bandeira || '', continente: paisBase?.continente || '' });
+  });
+  return Array.from(mapa.values()).sort((a, b) => a.nome.localeCompare(b.nome));
+}
+function fpEdTituloOptionsPaisesClubes(banco, valorAtual = '', continente = '') {
+  return fpEdTituloPaisesComClubes(banco)
+    .filter(p => !continente || p.continente === continente)
+    .map(p => `<option value="${limparTexto(p.nome)}" ${p.nome === valorAtual ? 'selected' : ''}>${p.bandeira || ''} ${limparTexto(p.nome)}</option>`)
+    .join('');
+}
+function fpEdTituloOptionsParticipantes(banco, tipo, paisAtual = '') {
+  if (tipo === 'selecao') {
+    return (banco.selecoes || [])
+      .map(s => ({ id: s.id, nome: s.nome || s.pais }))
+      .filter(s => s.id && s.nome)
+      .sort((a, b) => a.nome.localeCompare(b.nome))
+      .map(s => `<option value="${s.id}">${limparTexto(s.nome)}</option>`)
+      .join('');
+  }
+  return (banco.clubes || [])
+    .filter(c => c.id && c.nome && (!paisAtual || c.pais === paisAtual))
+    .sort((a, b) => a.nome.localeCompare(b.nome))
+    .map(c => `<option value="${c.id}" data-pais="${limparTexto(c.pais || '')}">${limparTexto(c.nome)}</option>`)
+    .join('');
+}
+function fpEdTituloAbrangenciaFromCompeticao(c) {
+  if (!c) return 'Mundial';
+  const a = fpEdTituloNorm(c.abrangencia);
+  if (fpEdTituloEhMundo(c)) return 'Mundial';
+  if (a === 'país' || a === 'pais' || fpEdTituloPaisCompeticao(c)) return 'País';
+  return 'Continental';
+}
+
+function formularioEditarTitulo(titulo, banco) {
+  const compAtual = (banco.competicoes || []).find(c => c.id === titulo.competicaoId);
+  const categoriaAtual = titulo.campeaoTipo || titulo.viceTipo || fpEdTituloCategoriaCompeticao(compAtual) || 'clube';
+  const abrangenciaAtual = fpEdTituloAbrangenciaFromCompeticao(compAtual || { abrangencia: titulo.abrangencia });
+  const continenteAtual = fpEdTituloContinenteCompeticao(compAtual) || '';
+  const paisAtual = fpEdTituloPaisCompeticao(compAtual) || '';
+  const campeaoAtual = buscarParticipanteEdicaoTitulo(banco, titulo.campeaoId);
+  const viceAtual = buscarParticipanteEdicaoTitulo(banco, titulo.viceId);
+  const paisCampeaoAtual = categoriaAtual === 'clube' ? (campeaoAtual?.pais || paisAtual || '') : '';
+  const paisViceAtual = categoriaAtual === 'clube' ? (viceAtual?.pais || paisAtual || '') : '';
+
+  const opcoesCompeticoes = (banco.competicoes || []).slice().sort((a, b) => a.nome.localeCompare(b.nome)).map(c => {
+    const categoria = fpEdTituloCategoriaCompeticao(c);
+    const pais = fpEdTituloPaisCompeticao(c);
+    const continente = fpEdTituloContinenteCompeticao(c);
+    const abrangencia = fpEdTituloEhMundo(c) ? 'Mundial' : (pais ? 'País' : 'Continental');
+    return `<option value="${c.id}" data-categoria="${limparTexto(categoria)}" data-abrangencia="${limparTexto(abrangencia)}" data-continente="${limparTexto(continente)}" data-pais="${limparTexto(pais)}" ${c.id === titulo.competicaoId ? 'selected' : ''}>${limparTexto(c.nome)}</option>`;
+  }).join('');
+
+  setTimeout(() => {
+    const cat = document.getElementById('editCategoriaTitulo');
+    const abr = document.getElementById('editAbrangenciaTitulo');
+    const cont = document.getElementById('editContinenteTitulo');
+    const pais = document.getElementById('editPaisTitulo');
+    if (cat) cat.value = categoriaAtual;
+    if (abr) abr.value = abrangenciaAtual;
+    atualizarCamposLocalEdicaoTitulo();
+    if (cont) cont.value = continenteAtual;
+    carregarPaisesEdicaoTitulo();
+    if (pais) pais.value = paisAtual;
+    filtrarCompeticoesEdicaoTitulo();
+    const paisCamp = document.getElementById('editPaisCampeaoTitulo');
+    const paisVice = document.getElementById('editPaisViceTitulo');
+    if (paisCamp) paisCamp.value = paisCampeaoAtual;
+    if (paisVice) paisVice.value = paisViceAtual;
+    carregarParticipantesEdicaoTituloSelect('campeao');
+    carregarParticipantesEdicaoTituloSelect('vice');
+    const camp = document.getElementById('editCampeao');
+    const vice = document.getElementById('editVice');
+    if (camp) camp.value = titulo.campeaoId || '';
+    if (vice) vice.value = titulo.viceId || '';
+  }, 60);
+
+  return `<form class="form-edicao" onsubmit="salvarEdicaoTitulo(event, '${titulo.id}')"><h2>Editar Campeão e Vice</h2>
+    <label>Categoria da competição</label>
+    <select id="editCategoriaTitulo" onchange="atualizarCamposLocalEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="clube" ${categoriaAtual === 'clube' ? 'selected' : ''}>Competição de clubes</option><option value="selecao" ${categoriaAtual === 'selecao' ? 'selected' : ''}>Competição de seleções</option></select>
+    <label>Ano</label><input type="number" id="editAno" value="${limparTexto(titulo.ano || '')}">
+    <label>Abrangência</label><select id="editAbrangenciaTitulo" onchange="atualizarCamposLocalEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="Mundial" ${abrangenciaAtual === 'Mundial' ? 'selected' : ''}>Mundo</option><option value="Continental" ${abrangenciaAtual === 'Continental' ? 'selected' : ''}>Continente</option><option value="País" ${abrangenciaAtual === 'País' ? 'selected' : ''}>País</option></select>
+    <div id="grupoEditContinenteTitulo" class="grupo"><label>Continente</label><select id="editContinenteTitulo" onchange="carregarPaisesEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="">Selecione um continente</option>${fpEdicaoListaContinentesNormais().map(c => `<option value="${limparTexto(c)}">${limparTexto(c)}</option>`).join('')}</select></div>
+    <div id="grupoEditPaisTitulo" class="grupo"><label>País da competição</label><select id="editPaisTitulo" onchange="filtrarCompeticoesEdicaoTitulo()"><option value="">Selecione um país</option></select></div>
+    <label>Competição</label><select id="editCompeticaoTitulo"><option value="">Selecione a competição</option>${opcoesCompeticoes}</select>
+    <div id="grupoEditPaisCampeaoTitulo" class="grupo"><label>País do campeão</label><select id="editPaisCampeaoTitulo" onchange="carregarParticipantesEdicaoTituloSelect('campeao')"><option value="">Selecione o país do campeão</option>${fpEdTituloOptionsPaisesClubes(banco, paisCampeaoAtual)}</select></div>
+    <label>Campeão</label><select id="editCampeao"><option value="">Selecione o campeão</option></select>
+    <div id="grupoEditPaisViceTitulo" class="grupo"><label>País do vice</label><select id="editPaisViceTitulo" onchange="carregarParticipantesEdicaoTituloSelect('vice')"><option value="">Selecione o país do vice</option>${fpEdTituloOptionsPaisesClubes(banco, paisViceAtual)}</select></div>
+    <label>Vice-campeão</label><select id="editVice"><option value="">Selecione o vice</option></select>
+    <button type="submit">Salvar alterações</button><button type="button" onclick="mostrarEdicao('titulos')">Cancelar</button></form>`;
+}
+
+function atualizarCamposLocalEdicaoTitulo() {
+  const categoria = document.getElementById('editCategoriaTitulo')?.value || 'clube';
+  const abrangencia = document.getElementById('editAbrangenciaTitulo')?.value || 'Mundial';
+  const grupoCont = document.getElementById('grupoEditContinenteTitulo');
+  const grupoPais = document.getElementById('grupoEditPaisTitulo');
+  const grupoPaisCamp = document.getElementById('grupoEditPaisCampeaoTitulo');
+  const grupoPaisVice = document.getElementById('grupoEditPaisViceTitulo');
+  if (grupoCont) grupoCont.classList.toggle('oculto', !(categoria === 'clube' && abrangencia === 'Continental'));
+  if (grupoPais) grupoPais.classList.toggle('oculto', !(categoria === 'clube' && abrangencia === 'País'));
+  if (grupoPaisCamp) grupoPaisCamp.classList.toggle('oculto', categoria !== 'clube');
+  if (grupoPaisVice) grupoPaisVice.classList.toggle('oculto', categoria !== 'clube');
+  if (categoria !== 'clube') {
+    const pc = document.getElementById('editPaisCampeaoTitulo');
+    const pv = document.getElementById('editPaisViceTitulo');
+    if (pc) pc.value = '';
+    if (pv) pv.value = '';
+  }
+  carregarParticipantesEdicaoTituloSelect('campeao');
+  carregarParticipantesEdicaoTituloSelect('vice');
+}
+
+function carregarPaisesEdicaoTitulo() {
+  const banco = carregarBanco();
+  const selectPais = document.getElementById('editPaisTitulo');
+  if (!selectPais) return;
+  const continente = document.getElementById('editContinenteTitulo')?.value || '';
+  const atual = selectPais.value;
+  selectPais.innerHTML = `<option value="">Selecione um país</option>${fpEdTituloOptionsPaisesClubes(banco, atual, continente)}`;
+  if ([...selectPais.options].some(o => o.value === atual)) selectPais.value = atual;
+}
+
+function carregarParticipantesEdicaoTituloSelect(tipo) {
+  const banco = carregarBanco();
+  const categoria = document.getElementById('editCategoriaTitulo')?.value || 'clube';
+  const select = document.getElementById(tipo === 'vice' ? 'editVice' : 'editCampeao');
+  if (!select) return;
+  const atual = select.value;
+  let pais = '';
+  if (categoria === 'clube') {
+    pais = document.getElementById(tipo === 'vice' ? 'editPaisViceTitulo' : 'editPaisCampeaoTitulo')?.value || '';
+  }
+  const placeholder = tipo === 'vice' ? (categoria === 'clube' && !pais ? 'Selecione primeiro o país do vice' : 'Selecione o vice') : (categoria === 'clube' && !pais ? 'Selecione primeiro o país do campeão' : 'Selecione o campeão');
+  select.innerHTML = `<option value="">${placeholder}</option>${fpEdTituloOptionsParticipantes(banco, categoria, pais)}`;
+  if ([...select.options].some(o => o.value === atual)) select.value = atual;
+}
+
+function filtrarCompeticoesEdicaoTitulo() {
+  const categoria = document.getElementById('editCategoriaTitulo')?.value || 'clube';
+  const abrangencia = document.getElementById('editAbrangenciaTitulo')?.value || 'Mundial';
+  const continente = document.getElementById('editContinenteTitulo')?.value || '';
+  const pais = document.getElementById('editPaisTitulo')?.value || '';
+  const competicao = document.getElementById('editCompeticaoTitulo');
+
+  // Quando a abrangência da competição for País, aplica o país escolhido também
+  // nos países de campeão e vice para carregar os times daquele país.
+  if (categoria === 'clube' && abrangencia === 'País' && pais) {
+    const pc = document.getElementById('editPaisCampeaoTitulo');
+    const pv = document.getElementById('editPaisViceTitulo');
+    if (pc) pc.value = pais;
+    if (pv) pv.value = pais;
+  }
+
+  if (competicao) {
+    let primeira = '';
+    Array.from(competicao.options).forEach(option => {
+      if (!option.value) { option.hidden = false; return; }
+      let mostrar = option.dataset.categoria === categoria;
+      if (categoria === 'clube') {
+        if (abrangencia === 'Mundial') mostrar = mostrar && option.dataset.abrangencia === 'Mundial';
+        if (abrangencia === 'Continental') mostrar = mostrar && option.dataset.abrangencia === 'Continental' && (!continente || option.dataset.continente === continente);
+        if (abrangencia === 'País') mostrar = mostrar && option.dataset.abrangencia === 'País' && (!pais || option.dataset.pais === pais);
+      }
+      option.hidden = !mostrar;
+      if (mostrar && !primeira) primeira = option.value;
+    });
+    if (competicao.selectedOptions[0]?.hidden) competicao.value = primeira || '';
+  }
+  carregarParticipantesEdicaoTituloSelect('campeao');
+  carregarParticipantesEdicaoTituloSelect('vice');
+}
+
+window.formularioEditarTitulo = formularioEditarTitulo;
+window.atualizarCamposLocalEdicaoTitulo = atualizarCamposLocalEdicaoTitulo;
+window.carregarPaisesEdicaoTitulo = carregarPaisesEdicaoTitulo;
+window.carregarParticipantesEdicaoTituloSelect = carregarParticipantesEdicaoTituloSelect;
+window.filtrarCompeticoesEdicaoTitulo = filtrarCompeticoesEdicaoTitulo;
+
+/* ===== Correção: Edições > Editar Campeões e Vices com filtro em cascata =====
+   Abrangência País -> seleciona país -> mostra competições desse país.
+   Abrangência Continente -> seleciona continente -> mostra competições continentais.
+   Abrangência Mundo -> mostra competições mundiais.
+   Ao selecionar competição, lista somente os registros daquela competição.
+*/
+function fpEdTitulosLocalCompeticao(c) {
+  const categoria = (typeof fpEdTituloCategoriaCompeticao === 'function') ? fpEdTituloCategoriaCompeticao(c) : (c?.categoria || 'clube');
+  let abrangencia = 'Mundial';
+  let pais = '';
+  let continente = '';
+
+  if (typeof fpEdTituloEhMundo === 'function' && fpEdTituloEhMundo(c)) {
+    abrangencia = 'Mundial';
+  } else if (typeof fpEdTituloPaisCompeticao === 'function' && fpEdTituloPaisCompeticao(c)) {
+    abrangencia = 'País';
+    pais = fpEdTituloPaisCompeticao(c);
+    continente = (typeof fpEdTituloContinenteCompeticao === 'function') ? (fpEdTituloContinenteCompeticao(c) || '') : '';
+  } else if (typeof fpEdTituloEhContinental === 'function' && fpEdTituloEhContinental(c)) {
+    abrangencia = 'Continental';
+    continente = (typeof fpEdTituloContinenteCompeticao === 'function') ? (fpEdTituloContinenteCompeticao(c) || '') : (c?.continente || c?.local || '');
+  } else {
+    const a = String(c?.abrangencia || '').trim();
+    if (a === 'País' || a.toLowerCase() === 'pais') {
+      abrangencia = 'País';
+      pais = c?.pais || c?.local || '';
+      continente = (typeof fpEdTituloContinenteCompeticao === 'function') ? (fpEdTituloContinenteCompeticao(c) || '') : '';
+    } else if (a === 'Continental' || a === 'Continente') {
+      abrangencia = 'Continental';
+      continente = c?.continente || c?.local || '';
+    } else if (a) {
+      abrangencia = a;
+    }
+  }
+
+  if (!continente && pais && typeof buscarPaisSelecao === 'function') {
+    continente = buscarPaisSelecao(pais)?.continente || '';
+  }
+  return { categoria, abrangencia, pais, continente };
+}
+
+function fpEdTitulosCompeticoesFiltradas(banco, categoria, abrangencia, continente, pais) {
+  return (banco.competicoes || [])
+    .map(c => ({ ...c, __local: fpEdTitulosLocalCompeticao(c) }))
+    .filter(c => {
+      const l = c.__local;
+      if (categoria && l.categoria !== categoria) return false;
+      if (abrangencia && l.abrangencia !== abrangencia) return false;
+      if (categoria === 'clube' && abrangencia === 'Continental' && continente && l.continente !== continente) return false;
+      if (categoria === 'clube' && abrangencia === 'País' && pais && l.pais !== pais) return false;
+      return true;
+    })
+    .sort((a, b) => String(a.nome || '').localeCompare(String(b.nome || '')));
+}
+
+function fpEdTitulosPaisesComCompeticoes(banco, categoria = 'clube', continente = '') {
+  const mapa = new Map();
+  (banco.competicoes || []).forEach(c => {
+    const l = fpEdTitulosLocalCompeticao(c);
+    if (categoria && l.categoria !== categoria) return;
+    if (l.abrangencia !== 'País' || !l.pais) return;
+    if (continente && l.continente !== continente) return;
+    const paisBase = typeof buscarPaisSelecao === 'function' ? buscarPaisSelecao(l.pais) : {};
+    mapa.set(l.pais, { nome: l.pais, bandeira: paisBase?.bandeira || '', continente: l.continente || paisBase?.continente || '' });
+  });
+  return Array.from(mapa.values()).sort((a, b) => a.nome.localeCompare(b.nome));
+}
+
+function tabelaTitulos(banco) {
+  const linhas = (banco.titulos || []).map(t => {
+    const competicao = (banco.competicoes || []).find(c => c.id === t.competicaoId);
+    const local = fpEdTitulosLocalCompeticao(competicao || { abrangencia: t.abrangencia, categoria: t.campeaoTipo || t.viceTipo || 'clube' });
+    const categoria = t.campeaoTipo || t.viceTipo || local.categoria || 'clube';
+    return `<tr data-categoria="${limparTexto(categoria)}" data-abrangencia="${limparTexto(local.abrangencia || t.abrangencia || '')}" data-continente="${limparTexto(local.continente || '')}" data-pais="${limparTexto(local.pais || '')}" data-competicao="${limparTexto(t.competicaoId || '')}">
+      <td>${limparTexto(t.ano || '')}</td>
+      <td>${categoria === 'selecao' ? 'Seleções' : 'Clubes'}</td>
+      <td>${limparTexto(local.abrangencia || t.abrangencia || '')}</td>
+      <td>${linkLiga(t.competicaoId)}</td>
+      <td>${linkParticipanteEdicao(t.campeaoId, t.campeaoTipo, t.campeaoNome)}</td>
+      <td>${linkParticipanteEdicao(t.viceId, t.viceTipo, t.viceNome)}</td>
+      <td>${botoesEditarExcluir('titulos', t.id)}</td>
+    </tr>`;
+  }).join('');
+
+  if (!linhas) return `<div class="tabela-container"><p>Nenhum campeão ou vice cadastrado para editar.</p></div>`;
+
+  const continentes = (typeof fpEdicaoListaContinentesNormais === 'function' ? fpEdicaoListaContinentesNormais() : [])
+    .map(c => `<option value="${limparTexto(c)}">${limparTexto(c)}</option>`).join('');
+
+  return `
+    <div class="filtros filtros-edicao filtros-edicao-titulos">
+      <div>
+        <label>Categoria</label>
+        <select id="filtroEdicaoTitulosCategoria" onchange="atualizarFiltrosEdicaoTitulos()">
+          <option value="">Clubes e seleções</option>
+          <option value="clube">Competições de clubes</option>
+          <option value="selecao">Competições de seleções</option>
+        </select>
+      </div>
+      <div>
+        <label>Abrangência</label>
+        <select id="filtroEdicaoTitulosAbrangencia" onchange="atualizarFiltrosEdicaoTitulos()">
+          <option value="">Todas as abrangências</option>
+          <option value="Mundial">Mundo</option>
+          <option value="Continental">Continente</option>
+          <option value="País">País</option>
+        </select>
+      </div>
+      <div id="grupoFiltroEdicaoTitulosContinente" class="oculto">
+        <label>Continente</label>
+        <select id="filtroEdicaoTitulosContinente" onchange="atualizarFiltrosEdicaoTitulos()">
+          <option value="">Selecione o continente</option>${continentes}
+        </select>
+      </div>
+      <div id="grupoFiltroEdicaoTitulosPais" class="oculto">
+        <label>País</label>
+        <select id="filtroEdicaoTitulosPais" onchange="atualizarFiltrosEdicaoTitulos()">
+          <option value="">Selecione o país</option>
+        </select>
+      </div>
+      <div>
+        <label>Competição</label>
+        <select id="filtroEdicaoTitulosCompeticao" onchange="aplicarFiltrosEdicaoTitulos()">
+          <option value="">Todas as competições</option>
+        </select>
+      </div>
+    </div>
+    <div class="tabela-container">
+      <table class="tabela" id="tabelaEdicaoTitulos">
+        <tr><th>Ano</th><th>Categoria</th><th>Abrangência</th><th>Competição</th><th>Campeão</th><th>Vice</th><th>Ações</th></tr>
+        ${linhas}
+      </table>
+    </div>
+    <script>setTimeout(function(){ if (typeof atualizarFiltrosEdicaoTitulos === 'function') atualizarFiltrosEdicaoTitulos(); }, 0);</script>
+  `;
+}
+
+function atualizarFiltrosEdicaoTitulos() {
+  const banco = carregarBanco();
+  const categoria = document.getElementById('filtroEdicaoTitulosCategoria')?.value || '';
+  const abrangencia = document.getElementById('filtroEdicaoTitulosAbrangencia')?.value || '';
+  const grupoContinente = document.getElementById('grupoFiltroEdicaoTitulosContinente');
+  const grupoPais = document.getElementById('grupoFiltroEdicaoTitulosPais');
+  const selectContinente = document.getElementById('filtroEdicaoTitulosContinente');
+  const selectPais = document.getElementById('filtroEdicaoTitulosPais');
+  const selectCompeticao = document.getElementById('filtroEdicaoTitulosCompeticao');
+
+  if (grupoContinente) grupoContinente.classList.toggle('oculto', !(categoria === 'clube' && abrangencia === 'Continental'));
+  if (grupoPais) grupoPais.classList.toggle('oculto', !(categoria === 'clube' && abrangencia === 'País'));
+
+  if (!(categoria === 'clube' && abrangencia === 'Continental') && selectContinente) selectContinente.value = '';
+
+  const continente = selectContinente?.value || '';
+  const paisAtual = selectPais?.value || '';
+
+  if (selectPais) {
+    const paises = (categoria === 'clube' && abrangencia === 'País') ? fpEdTitulosPaisesComCompeticoes(banco, 'clube', continente) : [];
+    selectPais.innerHTML = `<option value="">Selecione o país</option>` + paises.map(p => `<option value="${limparTexto(p.nome)}" ${p.nome === paisAtual ? 'selected' : ''}>${p.bandeira || ''} ${limparTexto(p.nome)}</option>`).join('');
+    if (![...selectPais.options].some(o => o.value === paisAtual)) selectPais.value = '';
+  }
+
+  const pais = selectPais?.value || '';
+  if (selectCompeticao) {
+    const competicoes = fpEdTitulosCompeticoesFiltradas(banco, categoria, abrangencia, continente, pais);
+    const atual = selectCompeticao.value;
+    selectCompeticao.innerHTML = `<option value="">Todas as competições</option>` + competicoes.map(c => `<option value="${c.id}" ${c.id === atual ? 'selected' : ''}>${limparTexto(c.nome || '')}</option>`).join('');
+    if (![...selectCompeticao.options].some(o => o.value === atual)) selectCompeticao.value = '';
+  }
+
+  aplicarFiltrosEdicaoTitulos();
+}
+
+function aplicarFiltrosEdicaoTitulos() {
+  const categoria = document.getElementById('filtroEdicaoTitulosCategoria')?.value || '';
+  const abrangencia = document.getElementById('filtroEdicaoTitulosAbrangencia')?.value || '';
+  const continente = document.getElementById('filtroEdicaoTitulosContinente')?.value || '';
+  const pais = document.getElementById('filtroEdicaoTitulosPais')?.value || '';
+  const competicao = document.getElementById('filtroEdicaoTitulosCompeticao')?.value || '';
+  const linhas = document.querySelectorAll('#tabelaEdicaoTitulos tr[data-categoria]');
+
+  linhas.forEach(linha => {
+    let mostrar = true;
+    if (categoria) mostrar = mostrar && linha.dataset.categoria === categoria;
+    if (abrangencia) mostrar = mostrar && linha.dataset.abrangencia === abrangencia;
+    if (categoria === 'clube' && abrangencia === 'Continental' && continente) mostrar = mostrar && linha.dataset.continente === continente;
+    if (categoria === 'clube' && abrangencia === 'País' && pais) mostrar = mostrar && linha.dataset.pais === pais;
+    if (competicao) mostrar = mostrar && linha.dataset.competicao === competicao;
+    linha.style.display = mostrar ? '' : 'none';
+  });
+}
+
+window.tabelaTitulos = tabelaTitulos;
+window.atualizarFiltrosEdicaoTitulos = atualizarFiltrosEdicaoTitulos;
+window.aplicarFiltrosEdicaoTitulos = aplicarFiltrosEdicaoTitulos;
+
+/* Reaplica inicialização dos filtros ao abrir a aba de Campeões e Vices. */
+function mostrarEdicao(tipo) {
+  const banco = carregarBanco();
+  const area = document.getElementById("areaEdicao");
+  if (!area) return;
+
+  area.innerHTML = "";
+
+  if (tipo === "clubes") area.innerHTML = tabelaClubes(banco);
+  else if (tipo === "selecoes") area.innerHTML = tabelaSelecoesSimplificada(banco);
+  else if (tipo === "competicoes") area.innerHTML = tabelaCompeticoes(banco);
+  else if (tipo === "titulos") {
+    area.innerHTML = tabelaTitulos(banco);
+    setTimeout(() => {
+      if (typeof atualizarFiltrosEdicaoTitulos === 'function') atualizarFiltrosEdicaoTitulos();
+    }, 0);
+  }
+  else area.innerHTML = "<p>Opção de edição não encontrada.</p>";
+
+  area.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+window.mostrarEdicao = mostrarEdicao;
