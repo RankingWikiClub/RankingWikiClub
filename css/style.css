@@ -4451,55 +4451,45 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
 }
 
 
-/* Correção página Início: aniversariantes e times mais antigos lado a lado */
-.pagina-inicio main.inicio {
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 22px;
-  align-items: start;
+/* Botões Editar e Fechar em coluna nas páginas de detalhes */
+.conteudo-detalhes-global {
+  position: relative;
 }
 
-.pagina-inicio .aniversarios-hoje,
-.pagina-inicio .times-mais-velhos-pais {
+.detalhes-acoes-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 8px;
   width: 100%;
-  max-width: none;
-  margin: 28px 0 0;
-  box-sizing: border-box;
+  margin-bottom: 12px;
 }
 
-.pagina-inicio .status-inicio {
-  grid-column: 1 / -1;
+.detalhes-acoes-vertical .btn-editar-detalhes-global,
+.detalhes-acoes-vertical .fechar-detalhes-global {
+  float: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  min-width: 96px;
+  height: 38px;
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
 }
 
-/* Escudos em formato original, sem máscara circular, mantendo o tamanho */
-.pagina-inicio .aniversario-escudo img,
-.pagina-inicio .time-velho-escudo img {
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 0 !important;
-  object-fit: contain !important;
-  background: #f3f6fb;
-  display: block;
-}
-
-.pagina-inicio .aniversario-fallback,
-.pagina-inicio .time-velho-fallback {
-  width: 42px !important;
-  height: 42px !important;
-  border-radius: 0 !important;
-  object-fit: contain !important;
-}
-
-@media (max-width: 900px) {
-  .pagina-inicio main.inicio {
-    grid-template-columns: 1fr;
-  }
-
-  .pagina-inicio .aniversarios-hoje,
-  .pagina-inicio .times-mais-velhos-pais {
-    margin-top: 18px;
+@media (max-width: 520px) {
+  .detalhes-acoes-vertical .btn-editar-detalhes-global,
+  .detalhes-acoes-vertical .fechar-detalhes-global {
+    width: 88px;
+    min-width: 88px;
+    height: 36px;
+    font-size: 0.9rem;
   }
 }

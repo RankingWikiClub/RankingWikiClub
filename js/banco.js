@@ -2958,7 +2958,7 @@ window.tabelaCompeticoes = tabelaCompeticoes;
 
 /* ===== Correção final: Edições > Campeões e Vices =====
    - Não altera as abrangências dos outros cadastros.
-   - Em categoria clube, permite escolher país do campeão e país do vice.
+   - Em categoria clube, permite escolher país e país do vice.
    - Ao escolher abrangência País, os dois países são preenchidos automaticamente
      com o país selecionado no filtro da competição.
    - Opções de campeão/vice mostram somente o nome do time, sem o país ao lado.
@@ -3080,12 +3080,12 @@ function formularioEditarTitulo(titulo, banco) {
   return `<form class="form-edicao" onsubmit="salvarEdicaoTitulo(event, '${titulo.id}')"><h2>Editar Campeão e Vice</h2>
     <label>Categoria da competição</label>
     <select id="editCategoriaTitulo" onchange="atualizarCamposLocalEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="clube" ${categoriaAtual === 'clube' ? 'selected' : ''}>Competição de clubes</option><option value="selecao" ${categoriaAtual === 'selecao' ? 'selected' : ''}>Competição de seleções</option></select>
-    <label>Ano</label><input type="number" id="editAno" value="${limparTexto(titulo.ano || '')}">
     <label>Abrangência</label><select id="editAbrangenciaTitulo" onchange="atualizarCamposLocalEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="Mundial" ${abrangenciaAtual === 'Mundial' ? 'selected' : ''}>Mundo</option><option value="Continental" ${abrangenciaAtual === 'Continental' ? 'selected' : ''}>Continente</option><option value="País" ${abrangenciaAtual === 'País' ? 'selected' : ''}>País</option></select>
     <div id="grupoEditContinenteTitulo" class="grupo"><label>Continente</label><select id="editContinenteTitulo" onchange="carregarPaisesEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="">Selecione um continente</option>${fpEdicaoListaContinentesNormais().map(c => `<option value="${limparTexto(c)}">${limparTexto(c)}</option>`).join('')}</select></div>
     <div id="grupoEditPaisTitulo" class="grupo"><label>País da competição</label><select id="editPaisTitulo" onchange="filtrarCompeticoesEdicaoTitulo()"><option value="">Selecione um país</option></select></div>
-    <label>Competição</label><select id="editCompeticaoTitulo"><option value="">Selecione a competição</option>${opcoesCompeticoes}</select>
-    <div id="grupoEditPaisCampeaoTitulo" class="grupo"><label>País do campeão</label><select id="editPaisCampeaoTitulo" onchange="carregarParticipantesEdicaoTituloSelect('campeao')"><option value="">Selecione o país do campeão</option>${fpEdTituloOptionsPaisesClubes(banco, paisCampeaoAtual)}</select></div>
+    <div id="grupoEditPaisCampeaoTitulo" class="grupo"><label>País</label><select id="editPaisCampeaoTitulo" onchange="carregarParticipantesEdicaoTituloSelect('campeao')"><option value="">Selecione o país</option>${fpEdTituloOptionsPaisesClubes(banco, paisCampeaoAtual)}</select></div>
+    <label>Ano</label><input type="number" id="editAno" value="${limparTexto(titulo.ano || '')}">
+    <label>Competição cadastrada</label><select id="editCompeticaoTitulo"><option value="">Selecione a competição</option>${opcoesCompeticoes}</select>
     <label>Campeão</label><select id="editCampeao"><option value="">Selecione o campeão</option></select>
     <div id="grupoEditPaisViceTitulo" class="grupo"><label>País do vice</label><select id="editPaisViceTitulo" onchange="carregarParticipantesEdicaoTituloSelect('vice')"><option value="">Selecione o país do vice</option>${fpEdTituloOptionsPaisesClubes(banco, paisViceAtual)}</select></div>
     <label>Vice-campeão</label><select id="editVice"><option value="">Selecione o vice</option></select>
@@ -3133,7 +3133,7 @@ function carregarParticipantesEdicaoTituloSelect(tipo) {
   if (categoria === 'clube') {
     pais = document.getElementById(tipo === 'vice' ? 'editPaisViceTitulo' : 'editPaisCampeaoTitulo')?.value || '';
   }
-  const placeholder = tipo === 'vice' ? (categoria === 'clube' && !pais ? 'Selecione primeiro o país do vice' : 'Selecione o vice') : (categoria === 'clube' && !pais ? 'Selecione primeiro o país do campeão' : 'Selecione o campeão');
+  const placeholder = tipo === 'vice' ? (categoria === 'clube' && !pais ? 'Selecione primeiro o país do vice' : 'Selecione o vice') : (categoria === 'clube' && !pais ? 'Selecione primeiro o país' : 'Selecione o campeão');
   select.innerHTML = `<option value="">${placeholder}</option>${fpEdTituloOptionsParticipantes(banco, categoria, pais)}`;
   if ([...select.options].some(o => o.value === atual)) select.value = atual;
 }
@@ -3396,3 +3396,216 @@ function mostrarEdicao(tipo) {
   area.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 window.mostrarEdicao = mostrarEdicao;
+
+
+/* ===== Correção final: ordem dos campos em Edições > Editar Campeões e Vices =====
+   Ordem solicitada: País, Ano, Competição cadastrada, Campeão, País do vice e Vice-campeão.
+   Também renomeia "País" para apenas "País".
+*/
+function formularioEditarTitulo(titulo, banco) {
+  const compAtual = (banco.competicoes || []).find(c => c.id === titulo.competicaoId);
+  const categoriaAtual = titulo.campeaoTipo || titulo.viceTipo || fpEdTituloCategoriaCompeticao(compAtual) || 'clube';
+  const abrangenciaAtual = fpEdTituloAbrangenciaFromCompeticao(compAtual || { abrangencia: titulo.abrangencia });
+  const continenteAtual = fpEdTituloContinenteCompeticao(compAtual) || '';
+  const paisAtual = fpEdTituloPaisCompeticao(compAtual) || '';
+  const campeaoAtual = buscarParticipanteEdicaoTitulo(banco, titulo.campeaoId);
+  const viceAtual = buscarParticipanteEdicaoTitulo(banco, titulo.viceId);
+  const paisCampeaoAtual = categoriaAtual === 'clube' ? (campeaoAtual?.pais || paisAtual || '') : '';
+  const paisViceAtual = categoriaAtual === 'clube' ? (viceAtual?.pais || paisAtual || '') : '';
+
+  const opcoesCompeticoes = (banco.competicoes || []).slice().sort((a, b) => String(a.nome || '').localeCompare(String(b.nome || ''))).map(c => {
+    const categoria = fpEdTituloCategoriaCompeticao(c);
+    const pais = fpEdTituloPaisCompeticao(c);
+    const continente = fpEdTituloContinenteCompeticao(c);
+    const abrangencia = fpEdTituloEhMundo(c) ? 'Mundial' : (pais ? 'País' : 'Continental');
+    return `<option value="${c.id}" data-categoria="${limparTexto(categoria)}" data-abrangencia="${limparTexto(abrangencia)}" data-continente="${limparTexto(continente)}" data-pais="${limparTexto(pais)}" ${c.id === titulo.competicaoId ? 'selected' : ''}>${limparTexto(c.nome)}</option>`;
+  }).join('');
+
+  setTimeout(() => {
+    const cat = document.getElementById('editCategoriaTitulo');
+    const abr = document.getElementById('editAbrangenciaTitulo');
+    const cont = document.getElementById('editContinenteTitulo');
+    const pais = document.getElementById('editPaisTitulo');
+    if (cat) cat.value = categoriaAtual;
+    if (abr) abr.value = abrangenciaAtual;
+    atualizarCamposLocalEdicaoTitulo();
+    if (cont) cont.value = continenteAtual;
+    carregarPaisesEdicaoTitulo();
+    if (pais) pais.value = paisAtual;
+    filtrarCompeticoesEdicaoTitulo();
+    const paisCamp = document.getElementById('editPaisCampeaoTitulo');
+    const paisVice = document.getElementById('editPaisViceTitulo');
+    if (paisCamp) paisCamp.value = paisCampeaoAtual;
+    if (paisVice) paisVice.value = paisViceAtual;
+    carregarParticipantesEdicaoTituloSelect('campeao');
+    carregarParticipantesEdicaoTituloSelect('vice');
+    const camp = document.getElementById('editCampeao');
+    const vice = document.getElementById('editVice');
+    if (camp) camp.value = titulo.campeaoId || '';
+    if (vice) vice.value = titulo.viceId || '';
+  }, 80);
+
+  return `<form class="form-edicao" onsubmit="salvarEdicaoTitulo(event, '${titulo.id}')"><h2>Editar Campeão e Vice</h2>
+    <label>Categoria da competição</label>
+    <select id="editCategoriaTitulo" onchange="atualizarCamposLocalEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="clube" ${categoriaAtual === 'clube' ? 'selected' : ''}>Competição de clubes</option><option value="selecao" ${categoriaAtual === 'selecao' ? 'selected' : ''}>Competição de seleções</option></select>
+    <label>Abrangência</label><select id="editAbrangenciaTitulo" onchange="atualizarCamposLocalEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="Mundial" ${abrangenciaAtual === 'Mundial' ? 'selected' : ''}>Mundo</option><option value="Continental" ${abrangenciaAtual === 'Continental' ? 'selected' : ''}>Continente</option><option value="País" ${abrangenciaAtual === 'País' ? 'selected' : ''}>País</option></select>
+    <div id="grupoEditContinenteTitulo" class="grupo"><label>Continente</label><select id="editContinenteTitulo" onchange="carregarPaisesEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="">Selecione um continente</option>${fpEdicaoListaContinentesNormais().map(c => `<option value="${limparTexto(c)}">${limparTexto(c)}</option>`).join('')}</select></div>
+    <div id="grupoEditPaisTitulo" class="grupo"><label>País da competição</label><select id="editPaisTitulo" onchange="filtrarCompeticoesEdicaoTitulo()"><option value="">Selecione um país</option></select></div>
+    <div id="grupoEditPaisCampeaoTitulo" class="grupo"><label>País</label><select id="editPaisCampeaoTitulo" onchange="carregarParticipantesEdicaoTituloSelect('campeao')"><option value="">Selecione o país</option>${fpEdTituloOptionsPaisesClubes(banco, paisCampeaoAtual)}</select></div>
+    <label>Ano</label><input type="number" id="editAno" value="${limparTexto(titulo.ano || '')}">
+    <label>Competição cadastrada</label><select id="editCompeticaoTitulo"><option value="">Selecione a competição</option>${opcoesCompeticoes}</select>
+    <label>Campeão</label><select id="editCampeao"><option value="">Selecione o campeão</option></select>
+    <div id="grupoEditPaisViceTitulo" class="grupo"><label>País do vice</label><select id="editPaisViceTitulo" onchange="carregarParticipantesEdicaoTituloSelect('vice')"><option value="">Selecione o país do vice</option>${fpEdTituloOptionsPaisesClubes(banco, paisViceAtual)}</select></div>
+    <label>Vice-campeão</label><select id="editVice"><option value="">Selecione o vice</option></select>
+    <button type="submit">Salvar alterações</button><button type="button" onclick="mostrarEdicao('titulos')">Cancelar</button></form>`;
+}
+window.formularioEditarTitulo = formularioEditarTitulo;
+
+/* ===== Correção final solicitada: Edições > Campeão e Vice =====
+   O campo visível "País" passa a controlar também o filtro de competições.
+   Quando a abrangência for País, ao selecionar o País são exibidas apenas as
+   competições cadastradas daquele país. */
+function fpSyncPaisVisivelCompeticaoTitulo() {
+  const categoria = document.getElementById('editCategoriaTitulo')?.value || 'clube';
+  const abrangencia = document.getElementById('editAbrangenciaTitulo')?.value || 'Mundial';
+  if (!(categoria === 'clube' && abrangencia === 'País')) return;
+
+  const paisVisivel = document.getElementById('editPaisCampeaoTitulo');
+  const paisCompeticao = document.getElementById('editPaisTitulo');
+  const paisVice = document.getElementById('editPaisViceTitulo');
+  const valor = paisVisivel?.value || '';
+
+  if (paisCompeticao) paisCompeticao.value = valor;
+  if (paisVice && valor) paisVice.value = valor;
+}
+
+function formularioEditarTitulo(titulo, banco) {
+  const compAtual = (banco.competicoes || []).find(c => c.id === titulo.competicaoId);
+  const categoriaAtual = titulo.campeaoTipo || titulo.viceTipo || fpEdTituloCategoriaCompeticao(compAtual) || 'clube';
+  const abrangenciaAtual = fpEdTituloAbrangenciaFromCompeticao(compAtual || { abrangencia: titulo.abrangencia });
+  const continenteAtual = fpEdTituloContinenteCompeticao(compAtual) || '';
+  const paisAtual = fpEdTituloPaisCompeticao(compAtual) || '';
+  const campeaoAtual = buscarParticipanteEdicaoTitulo(banco, titulo.campeaoId);
+  const viceAtual = buscarParticipanteEdicaoTitulo(banco, titulo.viceId);
+  const paisCampeaoAtual = categoriaAtual === 'clube' ? (campeaoAtual?.pais || paisAtual || '') : '';
+  const paisViceAtual = categoriaAtual === 'clube' ? (viceAtual?.pais || paisAtual || '') : '';
+
+  const opcoesCompeticoes = (banco.competicoes || []).slice().sort((a, b) => String(a.nome || '').localeCompare(String(b.nome || ''))).map(c => {
+    const categoria = fpEdTituloCategoriaCompeticao(c);
+    const pais = fpEdTituloPaisCompeticao(c);
+    const continente = fpEdTituloContinenteCompeticao(c);
+    const abrangencia = fpEdTituloEhMundo(c) ? 'Mundial' : (pais ? 'País' : 'Continental');
+    return `<option value="${c.id}" data-categoria="${limparTexto(categoria)}" data-abrangencia="${limparTexto(abrangencia)}" data-continente="${limparTexto(continente)}" data-pais="${limparTexto(pais)}" ${c.id === titulo.competicaoId ? 'selected' : ''}>${limparTexto(c.nome || '')}</option>`;
+  }).join('');
+
+  setTimeout(() => {
+    const cat = document.getElementById('editCategoriaTitulo');
+    const abr = document.getElementById('editAbrangenciaTitulo');
+    const cont = document.getElementById('editContinenteTitulo');
+    const paisCompeticao = document.getElementById('editPaisTitulo');
+    if (cat) cat.value = categoriaAtual;
+    if (abr) abr.value = abrangenciaAtual;
+    atualizarCamposLocalEdicaoTitulo();
+    if (cont) cont.value = continenteAtual;
+    carregarPaisesEdicaoTitulo();
+    if (paisCompeticao) paisCompeticao.value = paisAtual;
+
+    const paisCamp = document.getElementById('editPaisCampeaoTitulo');
+    const paisVice = document.getElementById('editPaisViceTitulo');
+    if (paisCamp) paisCamp.value = paisCampeaoAtual || paisAtual || '';
+    if (paisVice) paisVice.value = paisViceAtual || paisAtual || '';
+
+    fpSyncPaisVisivelCompeticaoTitulo();
+    filtrarCompeticoesEdicaoTitulo();
+    carregarParticipantesEdicaoTituloSelect('campeao');
+    carregarParticipantesEdicaoTituloSelect('vice');
+
+    const camp = document.getElementById('editCampeao');
+    const vice = document.getElementById('editVice');
+    if (camp) camp.value = titulo.campeaoId || '';
+    if (vice) vice.value = titulo.viceId || '';
+  }, 80);
+
+  return `<form class="form-edicao" onsubmit="salvarEdicaoTitulo(event, '${titulo.id}')"><h2>Editar Campeão e Vice</h2>
+    <label>Categoria da competição</label>
+    <select id="editCategoriaTitulo" onchange="atualizarCamposLocalEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="clube" ${categoriaAtual === 'clube' ? 'selected' : ''}>Competição de clubes</option><option value="selecao" ${categoriaAtual === 'selecao' ? 'selected' : ''}>Competição de seleções</option></select>
+    <label>Abrangência</label><select id="editAbrangenciaTitulo" onchange="atualizarCamposLocalEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="Mundial" ${abrangenciaAtual === 'Mundial' ? 'selected' : ''}>Mundo</option><option value="Continental" ${abrangenciaAtual === 'Continental' ? 'selected' : ''}>Continente</option><option value="País" ${abrangenciaAtual === 'País' ? 'selected' : ''}>País</option></select>
+    <div id="grupoEditContinenteTitulo" class="grupo"><label>Continente</label><select id="editContinenteTitulo" onchange="carregarPaisesEdicaoTitulo(); filtrarCompeticoesEdicaoTitulo()"><option value="">Selecione um continente</option>${fpEdicaoListaContinentesNormais().map(c => `<option value="${limparTexto(c)}">${limparTexto(c)}</option>`).join('')}</select></div>
+    <div id="grupoEditPaisTitulo" class="grupo oculto"><label>País da competição</label><select id="editPaisTitulo" onchange="filtrarCompeticoesEdicaoTitulo()"><option value="">Selecione um país</option></select></div>
+    <div id="grupoEditPaisCampeaoTitulo" class="grupo"><label>País</label><select id="editPaisCampeaoTitulo" onchange="fpSyncPaisVisivelCompeticaoTitulo(); filtrarCompeticoesEdicaoTitulo(); carregarParticipantesEdicaoTituloSelect('campeao')"><option value="">Selecione o país</option>${fpEdTituloOptionsPaisesClubes(banco, paisCampeaoAtual || paisAtual)}</select></div>
+    <label>Ano</label><input type="number" id="editAno" value="${limparTexto(titulo.ano || '')}">
+    <label>Competição cadastrada</label><select id="editCompeticaoTitulo"><option value="">Selecione a competição</option>${opcoesCompeticoes}</select>
+    <label>Campeão</label><select id="editCampeao"><option value="">Selecione o campeão</option></select>
+    <div id="grupoEditPaisViceTitulo" class="grupo"><label>País do vice</label><select id="editPaisViceTitulo" onchange="carregarParticipantesEdicaoTituloSelect('vice')"><option value="">Selecione o país do vice</option>${fpEdTituloOptionsPaisesClubes(banco, paisViceAtual || paisAtual)}</select></div>
+    <label>Vice-campeão</label><select id="editVice"><option value="">Selecione o vice</option></select>
+    <button type="submit">Salvar alterações</button><button type="button" onclick="mostrarEdicao('titulos')">Cancelar</button></form>`;
+}
+
+function atualizarCamposLocalEdicaoTitulo() {
+  const categoria = document.getElementById('editCategoriaTitulo')?.value || 'clube';
+  const abrangencia = document.getElementById('editAbrangenciaTitulo')?.value || 'Mundial';
+  const grupoCont = document.getElementById('grupoEditContinenteTitulo');
+  const grupoPaisCompeticao = document.getElementById('grupoEditPaisTitulo');
+  const grupoPaisCamp = document.getElementById('grupoEditPaisCampeaoTitulo');
+  const grupoPaisVice = document.getElementById('grupoEditPaisViceTitulo');
+
+  if (grupoCont) grupoCont.classList.toggle('oculto', !(categoria === 'clube' && abrangencia === 'Continental'));
+  // O país da competição fica oculto porque o campo visível "País" faz esse papel.
+  if (grupoPaisCompeticao) grupoPaisCompeticao.classList.add('oculto');
+  if (grupoPaisCamp) grupoPaisCamp.classList.toggle('oculto', categoria !== 'clube');
+  if (grupoPaisVice) grupoPaisVice.classList.toggle('oculto', categoria !== 'clube');
+
+  if (categoria !== 'clube') {
+    const pc = document.getElementById('editPaisCampeaoTitulo');
+    const pv = document.getElementById('editPaisViceTitulo');
+    const pcomp = document.getElementById('editPaisTitulo');
+    if (pc) pc.value = '';
+    if (pv) pv.value = '';
+    if (pcomp) pcomp.value = '';
+  }
+
+  fpSyncPaisVisivelCompeticaoTitulo();
+  carregarParticipantesEdicaoTituloSelect('campeao');
+  carregarParticipantesEdicaoTituloSelect('vice');
+}
+
+function filtrarCompeticoesEdicaoTitulo() {
+  const categoria = document.getElementById('editCategoriaTitulo')?.value || 'clube';
+  const abrangencia = document.getElementById('editAbrangenciaTitulo')?.value || 'Mundial';
+  const continente = document.getElementById('editContinenteTitulo')?.value || '';
+  const paisVisivel = document.getElementById('editPaisCampeaoTitulo')?.value || '';
+  const paisCompeticao = document.getElementById('editPaisTitulo')?.value || '';
+  const pais = (categoria === 'clube' && abrangencia === 'País') ? (paisVisivel || paisCompeticao) : paisCompeticao;
+  const competicao = document.getElementById('editCompeticaoTitulo');
+
+  if (categoria === 'clube' && abrangencia === 'País') {
+    const pcomp = document.getElementById('editPaisTitulo');
+    const pvice = document.getElementById('editPaisViceTitulo');
+    if (pcomp) pcomp.value = pais || '';
+    if (pvice && pais) pvice.value = pais;
+  }
+
+  if (competicao) {
+    let primeira = '';
+    Array.from(competicao.options).forEach(option => {
+      if (!option.value) { option.hidden = false; return; }
+      let mostrar = option.dataset.categoria === categoria;
+      if (categoria === 'clube') {
+        if (abrangencia === 'Mundial') mostrar = mostrar && option.dataset.abrangencia === 'Mundial';
+        if (abrangencia === 'Continental') mostrar = mostrar && option.dataset.abrangencia === 'Continental' && (!continente || option.dataset.continente === continente);
+        if (abrangencia === 'País') mostrar = mostrar && option.dataset.abrangencia === 'País' && !!pais && option.dataset.pais === pais;
+      }
+      option.hidden = !mostrar;
+      if (mostrar && !primeira) primeira = option.value;
+    });
+    if (!competicao.value || competicao.selectedOptions[0]?.hidden) competicao.value = primeira || '';
+  }
+
+  carregarParticipantesEdicaoTituloSelect('campeao');
+  carregarParticipantesEdicaoTituloSelect('vice');
+}
+
+window.fpSyncPaisVisivelCompeticaoTitulo = fpSyncPaisVisivelCompeticaoTitulo;
+window.formularioEditarTitulo = formularioEditarTitulo;
+window.atualizarCamposLocalEdicaoTitulo = atualizarCamposLocalEdicaoTitulo;
+window.filtrarCompeticoesEdicaoTitulo = filtrarCompeticoesEdicaoTitulo;

@@ -35,7 +35,10 @@ function garantirPainelDetalhes() {
   painel.className = "painel-detalhes-global";
   painel.innerHTML = `
     <div class="conteudo-detalhes-global">
-      <button class="fechar-detalhes-global" onclick="fecharDetalhesGlobal()">Fechar</button>
+      <div class="detalhes-acoes-vertical">
+        <button id="btnEditarDetalhesGlobal" class="btn-editar btn-editar-detalhes-global" type="button" style="display:none">Editar</button>
+        <button class="fechar-detalhes-global" type="button" onclick="fecharDetalhesGlobal()">Fechar</button>
+      </div>
       <div id="conteudoDetalhesGlobal"></div>
     </div>
   `;
@@ -52,6 +55,49 @@ function garantirPainelDetalhes() {
 function fecharDetalhesGlobal() {
   const painel = document.getElementById("painelDetalhesGlobal");
   if (painel) painel.classList.remove("ativo");
+}
+
+async function usuarioPodeEditarDetalhes() {
+  try {
+    if (typeof obterSessao === "function" && typeof podeEditar === "function") {
+      const { user, perfil } = await obterSessao();
+      return !!user && podeEditar(perfil);
+    }
+
+    const supa = typeof clienteSupabase === "function" ? clienteSupabase() : null;
+    if (!supa) return false;
+
+    const { data } = await supa.auth.getSession();
+    return !!data?.session?.user;
+  } catch (erro) {
+    console.warn("Não foi possível verificar o login para o botão Editar:", erro);
+    return false;
+  }
+}
+
+function tipoEdicaoParaUrlDetalhes(tipo) {
+  if (tipo === "time") return "clubes";
+  if (tipo === "selecao") return "selecoes";
+  if (tipo === "competicao") return "competicoes";
+  return tipo || "";
+}
+
+async function configurarBotaoEditarDetalhes(tipo, id) {
+  const botao = document.getElementById("btnEditarDetalhesGlobal");
+  if (!botao) return;
+
+  botao.style.display = "none";
+  botao.onclick = null;
+
+  const podeEditarDetalhe = await usuarioPodeEditarDetalhes();
+  if (!podeEditarDetalhe) return;
+
+  botao.style.display = "inline-flex";
+  botao.onclick = () => {
+    const tipoUrl = tipoEdicaoParaUrlDetalhes(tipo);
+    const params = new URLSearchParams({ tipo: tipoUrl, id: String(id || "") });
+    window.location.href = `./edicoes.html?${params.toString()}`;
+  };
 }
 
 
@@ -198,6 +244,7 @@ function abrirDetalhesTime(id) {
   `;
 
   painel.classList.add("ativo");
+  configurarBotaoEditarDetalhes("time", id);
 }
 
 function contarTitulosPorCompeticao(titulos, banco) {
@@ -482,6 +529,7 @@ function abrirDetalhesLiga(id) {
   `;
 
   painel.classList.add("ativo");
+  configurarBotaoEditarDetalhes("competicao", id);
 }
 
 function filtrarEdicoesCompeticaoDetalhe(valor) {
@@ -726,4 +774,5 @@ function abrirDetalhesSelecao(id) {
   `;
 
   painel.classList.add("ativo");
+  configurarBotaoEditarDetalhes("selecao", id);
 }

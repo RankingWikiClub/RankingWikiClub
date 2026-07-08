@@ -346,8 +346,35 @@ function dadosIniciais() {
 }
 
 const FUTPEDIA_STORAGE_KEY = "futpedia_v8";
+// O banco do FutPédia cresceu bastante e pode ultrapassar o limite do localStorage.
+// A partir desta versão, o navegador mantém os dados em memória e sincroniza com o Supabase.
+// O localStorage fica apenas como cache pequeno, quando couber, sem travar o site.
+const FUTPEDIA_STORAGE_MAX_BYTES = 2500000;
 let FUTPEDIA_SALVAMENTO_TIMER = null;
 let FUTPEDIA_CARREGOU_NUVEM = false;
+let FUTPEDIA_BANCO_MEMORIA = null;
+
+function salvarBancoLocalSeguro(banco) {
+  try {
+    const texto = JSON.stringify(banco);
+    if (texto.length > FUTPEDIA_STORAGE_MAX_BYTES) {
+      localStorage.removeItem(FUTPEDIA_STORAGE_KEY);
+      return false;
+    }
+    localStorage.setItem(FUTPEDIA_STORAGE_KEY, texto);
+    return true;
+  } catch (erro) {
+    console.warn("Banco local grande demais. Usando memória/Supabase em vez de localStorage.", erro?.message || erro);
+    try { localStorage.removeItem(FUTPEDIA_STORAGE_KEY); } catch (_) {}
+    return false;
+  }
+}
+
+function definirBancoMemoria(banco) {
+  FUTPEDIA_BANCO_MEMORIA = banco;
+  window.FUTPEDIA_BANCO_MEMORIA = banco;
+  return banco;
+}
 
 function prepararBancoFutpedia(banco) {
   banco ||= dadosIniciais();
@@ -390,24 +417,41 @@ function prepararBancoFutpedia(banco) {
 }
 
 function carregarBancoLocalBruto() {
-  const salvo = localStorage.getItem(FUTPEDIA_STORAGE_KEY);
+  if (FUTPEDIA_BANCO_MEMORIA) return FUTPEDIA_BANCO_MEMORIA;
+
+  let salvo = null;
+  try {
+    salvo = localStorage.getItem(FUTPEDIA_STORAGE_KEY);
+  } catch (erro) {
+    console.warn("Não foi possível acessar o banco local do FutPédia.", erro?.message || erro);
+    return null;
+  }
+
   if (!salvo) return null;
   try {
     return JSON.parse(salvo);
   } catch (erro) {
     console.warn("Não foi possível ler o banco local do FutPédia.", erro);
+    try { localStorage.removeItem(FUTPEDIA_STORAGE_KEY); } catch (_) {}
     return null;
   }
 }
 
 function carregarBanco() {
+  if (FUTPEDIA_BANCO_MEMORIA) return prepararBancoFutpedia(FUTPEDIA_BANCO_MEMORIA);
+
   const bancoLocal = carregarBancoLocalBruto();
   if (!bancoLocal) {
     const inicial = prepararBancoFutpedia(dadosIniciais());
-    localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(inicial));
+    definirBancoMemoria(inicial);
+    salvarBancoLocalSeguro(inicial);
     return inicial;
   }
-  return prepararBancoFutpedia(bancoLocal);
+
+  const preparado = prepararBancoFutpedia(bancoLocal);
+  definirBancoMemoria(preparado);
+  salvarBancoLocalSeguro(preparado);
+  return preparado;
 }
 
 function quantidadeRegistrosFutpedia(banco) {
@@ -425,7 +469,8 @@ function salvarBanco(banco) {
   // dados antigos do Supabase sobrescrevam uma edição feita agora.
   preparado.atualizadoLocalEm = new Date().toISOString();
 
-  localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(preparado));
+  definirBancoMemoria(preparado);
+  salvarBancoLocalSeguro(preparado);
 
   clearTimeout(FUTPEDIA_SALVAMENTO_TIMER);
   FUTPEDIA_SALVAMENTO_TIMER = setTimeout(() => {
@@ -494,10 +539,12 @@ async function carregarBancoDaNuvem() {
     if (dataLocal && (!dataNuvem || dataLocal > dataNuvem)) {
       await salvarBancoNaNuvem(local);
     } else if (nuvem && dataNuvem && dataNuvem >= dataLocal && qtdNuvem > 0) {
-      localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(nuvem));
+      definirBancoMemoria(nuvem);
+      salvarBancoLocalSeguro(nuvem);
       atualizarTelasAposSincronizacao();
     } else if (nuvem && qtdNuvem >= qtdLocal && qtdNuvem > 0) {
-      localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(nuvem));
+      definirBancoMemoria(nuvem);
+      salvarBancoLocalSeguro(nuvem);
       atualizarTelasAposSincronizacao();
     } else if (qtdLocal > qtdNuvem) {
       await salvarBancoNaNuvem(local);

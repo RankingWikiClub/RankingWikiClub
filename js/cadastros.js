@@ -54,11 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarRivais();
   });
 
-  for (let i = 1; i <= 5; i++) {
-    document.getElementById(`rivalContinente${i}`)?.addEventListener("change", () => carregarPaisesRival(i));
-    document.getElementById(`rivalPais${i}`)?.addEventListener("change", () => carregarTimesRival(i));
-  }
-
   document.getElementById("estado")?.addEventListener("change", preencherSiglaClube);
 
   document.getElementById("continenteSelecao")?.addEventListener("change", carregarPaisesSelecaoPorContinente);
@@ -78,9 +73,25 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarListasTitulo();
     carregarCompeticoesPorAbrangencia();
   });
-  document.getElementById("abrangenciaTitulo")?.addEventListener("change", carregarCompeticoesPorAbrangencia);
-  document.getElementById("paisCampeaoTitulo")?.addEventListener("change", () => carregarParticipantesTituloNoSelect("campeao"));
-  document.getElementById("paisViceTitulo")?.addEventListener("change", () => carregarParticipantesTituloNoSelect("vice"));
+  document.getElementById("abrangenciaTitulo")?.addEventListener("change", () => {
+    carregarCompeticoesPorAbrangencia();
+    sincronizarPaisCampeaoEVicePorAbrangencia("campeao");
+  });
+  document.getElementById("competicaoTitulo")?.addEventListener("change", () => {
+    aplicarPaisDaCompeticaoTitulo();
+    carregarParticipantesTituloNoSelect("campeao");
+    carregarParticipantesTituloNoSelect("vice");
+  });
+  document.getElementById("paisCampeaoTitulo")?.addEventListener("change", () => {
+    sincronizarPaisCampeaoEVicePorAbrangencia("campeao");
+    carregarParticipantesTituloNoSelect("campeao");
+    carregarParticipantesTituloNoSelect("vice");
+  });
+  document.getElementById("paisViceTitulo")?.addEventListener("change", () => {
+    sincronizarPaisCampeaoEVicePorAbrangencia("vice");
+    carregarParticipantesTituloNoSelect("campeao");
+    carregarParticipantesTituloNoSelect("vice");
+  });
 
   form.addEventListener("submit", salvarCadastro);
 });
@@ -321,7 +332,7 @@ function carregarPaisesTitulo() {
   preencherSelect(
     "paisCampeaoTitulo",
     paises,
-    "Selecione o país do campeão",
+    "Selecione o país",
     p => p.nome,
     p => `${p.bandeira || ""} ${p.nome}`
   );
@@ -343,6 +354,50 @@ function buscarParticipanteTitulo(banco, id) {
   if (selecao) return { ...selecao, nome: selecao.nome || selecao.pais, tipo: "selecao" };
 
   return null;
+}
+
+function obterSiglaEstadoClube(clube) {
+  if (!clube) return "";
+  return clube.siglaEstado || buscarEstado(clube.estado || "").sigla || "";
+}
+
+function formatarNomeClubeComEstado(clube) {
+  const sigla = obterSiglaEstadoClube(clube);
+  return sigla ? `${clube.nome} — ${sigla}` : clube.nome;
+}
+
+function sincronizarPaisCampeaoEVicePorAbrangencia(origem = "campeao") {
+  const categoria = document.getElementById("categoriaTitulo")?.value || "clube";
+  const abrangencia = document.getElementById("abrangenciaTitulo")?.value || "";
+  if (categoria !== "clube" || abrangencia !== "País") return;
+
+  const paisCampeao = document.getElementById("paisCampeaoTitulo");
+  const paisVice = document.getElementById("paisViceTitulo");
+  if (!paisCampeao || !paisVice) return;
+
+  if (origem === "vice" && paisVice.value) {
+    paisCampeao.value = paisVice.value;
+  } else if (paisCampeao.value) {
+    paisVice.value = paisCampeao.value;
+  }
+}
+
+function aplicarPaisDaCompeticaoTitulo() {
+  const banco = carregarBanco();
+  const categoria = document.getElementById("categoriaTitulo")?.value || "clube";
+  const competicaoId = document.getElementById("competicaoTitulo")?.value || "";
+  const paisCampeao = document.getElementById("paisCampeaoTitulo");
+  const paisVice = document.getElementById("paisViceTitulo");
+
+  if (categoria !== "clube" || !competicaoId || !paisCampeao || !paisVice) return;
+
+  const competicao = (banco.competicoes || []).find(c => c.id === competicaoId);
+  const paisCompeticao = competicao?.abrangencia === "País" ? (competicao.pais || competicao.local || "") : "";
+
+  if (paisCompeticao) {
+    paisCampeao.value = paisCompeticao;
+    paisVice.value = paisCompeticao;
+  }
 }
 
 function atualizarAbrangenciasTitulo() {
@@ -387,7 +442,7 @@ function carregarParticipantesTituloNoSelect(selectId) {
   if (categoria === "clube" && !paisSelecionado) {
     placeholder = selectId === "vice"
       ? "Selecione primeiro o país do vice"
-      : "Selecione primeiro o país do campeão";
+      : "Selecione primeiro o país";
   }
 
   preencherSelect(
@@ -399,9 +454,8 @@ function carregarParticipantesTituloNoSelect(selectId) {
       // No cadastro de campeões/vices, os times brasileiros devem exibir
       // somente o nome do time e a sigla do estado ao lado.
       // Exemplo: Corinthians — SP
-      if (categoria === "clube" && item.pais === "Brasil") {
-        const sigla = item.siglaEstado || buscarEstado(item.estado || "").sigla || "";
-        return sigla ? `${item.nome} — ${sigla}` : item.nome;
+      if (categoria === "clube") {
+        return formatarNomeClubeComEstado(item);
       }
       return item.nome;
     }
@@ -419,30 +473,37 @@ function carregarListasTitulo() {
 
 function carregarRivais() {
   const banco = carregarBanco();
-  const clubes = (banco.clubes || []).filter(c => c.id && c.nome && c.pais);
+  const paisSelecionado = document.getElementById("pais")?.value || "";
 
-  const continentes = [...new Set(clubes
-    .map(c => obterContinenteDoPais(c.pais))
-    .filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b));
+  const clubesDoPais = (banco.clubes || [])
+    .filter(c => c.id && c.nome)
+    .filter(c => paisSelecionado && c.pais === paisSelecionado)
+    .sort((a, b) => a.nome.localeCompare(b.nome));
 
   for (let i = 1; i <= 5; i++) {
-    const selectContinente = document.getElementById(`rivalContinente${i}`);
-    const valorContinente = selectContinente?.value || "";
+    const selectTime = document.getElementById(`rival${i}`);
+    if (!selectTime) continue;
 
-    preencherSelect(
-      `rivalContinente${i}`,
-      continentes,
-      `Selecione o continente do Rival ${i}`,
-      c => c,
-      c => c
-    );
+    const valorAtual = selectTime.value || "";
+    let placeholder = paisSelecionado
+      ? `Selecione o Rival ${i}`
+      : "Selecione primeiro o país do time";
 
-    if (valorContinente && continentes.includes(valorContinente)) {
-      document.getElementById(`rivalContinente${i}`).value = valorContinente;
+    if (paisSelecionado && clubesDoPais.length === 0) {
+      placeholder = "Nenhum time cadastrado neste país";
     }
 
-    carregarPaisesRival(i, true);
+    preencherSelect(
+      `rival${i}`,
+      clubesDoPais,
+      placeholder,
+      c => c.id,
+      c => formatarNomeClubeComEstado(c)
+    );
+
+    if (valorAtual && clubesDoPais.some(c => c.id === valorAtual)) {
+      selectTime.value = valorAtual;
+    }
   }
 }
 
@@ -587,6 +648,10 @@ function carregarCompeticoesPorAbrangencia() {
     c => c.id,
     c => `${c.nome}`
   );
+
+  aplicarPaisDaCompeticaoTitulo();
+  carregarParticipantesTituloNoSelect("campeao");
+  carregarParticipantesTituloNoSelect("vice");
 }
 
 function salvarCadastro(e) {
