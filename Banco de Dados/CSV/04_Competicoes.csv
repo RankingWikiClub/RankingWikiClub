@@ -1,0 +1,21 @@
+﻿nome,sigla,tipo,abrangencia,pais,continente,confederacao,divisao,genero,categoria,primeira_edicao,periodicidade,status,site_oficial
+Copa do Mundo FIFA,World Cup,selecoes,mundo,,,FIFA,1,masculino,Profissional,1930,4 anos,Ativa,https://www.fifa.com
+Copa América,CA,selecoes,continente,,América do Sul,CONMEBOL,1,masculino,Profissional,1916,4 anos,Ativa,https://www.conmebol.com
+Eurocopa,EURO,selecoes,continente,,Europa,UEFA,1,masculino,Profissional,1960,4 anos,Ativa,https://www.uefa.com
+Copa Ouro,Gold Cup,selecoes,continente,,América do Norte,CONCACAF,1,masculino,Profissional,1963,2 anos,Ativa,https://www.concacaf.com
+Copa Africana de Nações,AFCON,selecoes,continente,,África,CAF,1,masculino,Profissional,1957,2 anos,Ativa,https://www.cafonline.com
+Copa da Ásia,Asian Cup,selecoes,continente,,Ásia,AFC,1,masculino,Profissional,1956,4 anos,Ativa,https://www.the-afc.com
+Copa das Nações da OFC,OFC Nations,selecoes,continente,,Oceania,OFC,1,masculino,Profissional,1973,4 anos,Ativa,https://www.oceaniafootball.com
+UEFA Champions League,UCL,clubes,continente,,Europa,UEFA,1,masculino,Profissional,1955,Anual,Ativa,https://www.uefa.com
+Copa Libertadores,LIB,clubes,continente,,América do Sul,CONMEBOL,1,masculino,Profissional,1960,Anual,Ativa,https://www.conmebol.com
+Copa Sul-Americana,SUD,clubes,continente,,América do Sul,CONMEBOL,2,masculino,Profissional,2002,Anual,Ativa,https://www.conmebol.com
+Campeonato Brasileiro Série A,Brasileirão,clubes,pais,Brasil,América do Sul,CBF,1,masculino,Profissional,1959,Anual,Ativa,https://www.cbf.com.br
+Copa do Brasil,CDB,clubes,pais,Brasil,América do Sul,CBF,1,masculino,Profissional,1989,Anual,Ativa,https://www.cbf.com.br
+Campeonato Paulista,Paulistão,clubes,pais,Brasil,América do Sul,FPF,1,masculino,Profissional,1902,Anual,Ativa,https://futebolpaulista.com.br
+Premier League,EPL,clubes,pais,Inglaterra,Europa,FA,1,masculino,Profissional,1992,Anual,Ativa,https://www.premierleague.com
+La Liga,LaLiga,clubes,pais,Espanha,Europa,RFEF,1,masculino,Profissional,1929,Anual,Ativa,https://www.laliga.com
+Serie A,Serie A,clubes,pais,Itália,Europa,FIGC,1,masculino,Profissional,1898,Anual,Ativa,https://www.legaseriea.it
+Bundesliga,Bundesliga,clubes,pais,Alemanha,Europa,DFB,1,masculino,Profissional,1963,Anual,Ativa,https://www.bundesliga.com
+Ligue 1,Ligue 1,clubes,pais,França,Europa,FFF,1,masculino,Profissional,1932,Anual,Ativa,https://www.ligue1.com
+Primeira Liga,Liga Portugal,clubes,pais,Portugal,Europa,FPF,1,masculino,Profissional,1934,Anual,Ativa,https://www.ligaportugal.pt
+Liga MX,Liga MX,clubes,pais,México,América do Norte,FMF,1,masculino,Profissional,1943,Anual,Ativa,https://ligamx.net

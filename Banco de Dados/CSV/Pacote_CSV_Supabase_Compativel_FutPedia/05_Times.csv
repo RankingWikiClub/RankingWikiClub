@@ -1,0 +1,16 @@
+﻿pais_id,nome,nome_curto,apelido,cidade,estado,fundacao,site_oficial,escudo_url,estadio,cores,ativo
+80,Flamengo,Flamengo,,Rio de Janeiro,RJ,1895,,,Maracanã,rubro-negro,True
+80,Corinthians,Corinthians,,São Paulo,SP,1910,,,Neo Química Arena,preto e branco,True
+80,Palmeiras,Palmeiras,,São Paulo,SP,1914,,,Allianz Parque,verde e branco,True
+80,São Paulo,São Paulo,,São Paulo,SP,1930,,,Morumbi,tricolor,True
+80,Santos,Santos,,Santos,SP,1912,,,Vila Belmiro,preto e branco,True
+78,Boca Juniors,Boca Juniors,,Buenos Aires,,1905,,,La Bombonera,azul e amarelo,True
+78,River Plate,River Plate,,Buenos Aires,,1901,,,Monumental,branco e vermelho,True
+150,Real Madrid,Real Madrid,,Madrid,,1902,,,Santiago Bernabéu,branco,True
+150,Barcelona,Barcelona,,Barcelona,,1899,,,Camp Nou,azul e grená,True
+156,Manchester United,Manchester United,,Manchester,,1878,,,Old Trafford,vermelho,True
+156,Liverpool,Liverpool,,Liverpool,,1892,,,Anfield,vermelho,True
+160,Juventus,Juventus,,Turim,,1897,,,Allianz Stadium,preto e branco,True
+160,Milan,Milan,,Milão,,1899,,,San Siro,vermelho e preto,True
+137,Bayern de Munique,Bayern de Munique,,Munique,,1900,,,Allianz Arena,vermelho e branco,True
+153,Paris Saint-Germain,Paris Saint-Germain,,Paris,,1970,,,Parc des Princes,"azul, vermelho e branco",True

@@ -1,0 +1,37 @@
+﻿nome,tipo,abrangencia,logo_url,ativa,temporada_inicio,temporada_fim,organizador,nivel,genero,sigla,descricao,divisao,periodicidade,primeira_edicao,site_oficial,status,categoria
+Copa do Mundo FIFA,selecoes,mundo,,True,,,FIFA,mundial,masculino,World Cup,Principal competição mundial de seleções masculinas.,1,4 anos,1930,https://www.fifa.com,Ativa,Profissional
+Copa do Mundo Feminina FIFA,selecoes,mundo,,True,,,FIFA,mundial,feminino,WWC,Principal competição mundial de seleções femininas.,1,4 anos,1991,https://www.fifa.com,Ativa,Profissional
+Mundial de Clubes FIFA,clubes,mundo,,True,,,FIFA,mundial,masculino,CWC,Competição mundial de clubes organizada pela FIFA.,1,Anual,2000,https://www.fifa.com,Ativa,Profissional
+Copa América,selecoes,continente,,True,,,CONMEBOL,continental,masculino,CA,Principal competição de seleções da América do Sul.,1,4 anos,1916,https://www.conmebol.com,Ativa,Profissional
+Copa Libertadores,clubes,continente,,True,,,CONMEBOL,continental,masculino,LIB,Principal competição de clubes da América do Sul.,1,Anual,1960,https://www.conmebol.com,Ativa,Profissional
+Copa Sul-Americana,clubes,continente,,True,,,CONMEBOL,continental,masculino,SUD,Segunda competição de clubes da América do Sul.,2,Anual,2002,https://www.conmebol.com,Ativa,Profissional
+Recopa Sul-Americana,clubes,continente,,True,,,CONMEBOL,continental,masculino,REC,Supercopa entre campeões da Libertadores e Sul-Americana.,1,Anual,1989,https://www.conmebol.com,Ativa,Profissional
+UEFA Champions League,clubes,continente,,True,,,UEFA,continental,masculino,UCL,Principal competição de clubes da Europa.,1,Anual,1955,https://www.uefa.com,Ativa,Profissional
+UEFA Europa League,clubes,continente,,True,,,UEFA,continental,masculino,UEL,Segunda competição de clubes da Europa.,2,Anual,1971,https://www.uefa.com,Ativa,Profissional
+UEFA Conference League,clubes,continente,,True,,,UEFA,continental,masculino,UECL,Terceira competição de clubes da Europa.,3,Anual,2021,https://www.uefa.com,Ativa,Profissional
+Supercopa da UEFA,clubes,continente,,True,,,UEFA,continental,masculino,USC,Supercopa europeia entre campeões continentais.,1,Anual,1973,https://www.uefa.com,Ativa,Profissional
+Eurocopa,selecoes,continente,,True,,,UEFA,continental,masculino,EURO,Principal competição de seleções da Europa.,1,4 anos,1960,https://www.uefa.com,Ativa,Profissional
+CONCACAF Champions Cup,clubes,continente,,True,,,CONCACAF,continental,masculino,CCC,Principal competição de clubes da CONCACAF.,1,Anual,1962,https://www.concacaf.com,Ativa,Profissional
+Copa Ouro,selecoes,continente,,True,,,CONCACAF,continental,masculino,Gold Cup,Principal competição de seleções da CONCACAF.,1,2 anos,1963,https://www.concacaf.com,Ativa,Profissional
+CAF Champions League,clubes,continente,,True,,,CAF,continental,masculino,CAF CL,Principal competição de clubes da África.,1,Anual,1964,https://www.cafonline.com,Ativa,Profissional
+Copa Africana de Nações,selecoes,continente,,True,,,CAF,continental,masculino,AFCON,Principal competição de seleções da África.,1,2 anos,1957,https://www.cafonline.com,Ativa,Profissional
+AFC Champions League Elite,clubes,continente,,True,,,AFC,continental,masculino,ACLE,Principal competição de clubes da Ásia.,1,Anual,1967,https://www.the-afc.com,Ativa,Profissional
+Copa da Ásia,selecoes,continente,,True,,,AFC,continental,masculino,Asian Cup,Principal competição de seleções da Ásia.,1,4 anos,1956,https://www.the-afc.com,Ativa,Profissional
+OFC Champions League,clubes,continente,,True,,,OFC,continental,masculino,OFC CL,Principal competição de clubes da Oceania.,1,Anual,1987,https://www.oceaniafootball.com,Ativa,Profissional
+Copa das Nações da OFC,selecoes,continente,,True,,,OFC,continental,masculino,OFC Nations,Principal competição de seleções da Oceania.,1,4 anos,1973,https://www.oceaniafootball.com,Ativa,Profissional
+Campeonato Brasileiro Série A,clubes,pais,,True,,,CBF,nacional,masculino,Brasileirão,Primeira divisão do futebol brasileiro.,1,Anual,1959,https://www.cbf.com.br,Ativa,Profissional
+Campeonato Brasileiro Série B,clubes,pais,,True,,,CBF,nacional,masculino,Série B,Segunda divisão do futebol brasileiro.,2,Anual,1971,https://www.cbf.com.br,Ativa,Profissional
+Campeonato Brasileiro Série C,clubes,pais,,True,,,CBF,nacional,masculino,Série C,Terceira divisão do futebol brasileiro.,3,Anual,1981,https://www.cbf.com.br,Ativa,Profissional
+Campeonato Brasileiro Série D,clubes,pais,,True,,,CBF,nacional,masculino,Série D,Quarta divisão do futebol brasileiro.,4,Anual,2009,https://www.cbf.com.br,Ativa,Profissional
+Copa do Brasil,clubes,pais,,True,,,CBF,nacional,masculino,CDB,Copa nacional eliminatória do Brasil.,1,Anual,1989,https://www.cbf.com.br,Ativa,Profissional
+Supercopa do Brasil,clubes,pais,,True,,,CBF,nacional,masculino,SCB,Supercopa nacional do Brasil.,1,Anual,1990,https://www.cbf.com.br,Ativa,Profissional
+Campeonato Paulista,clubes,pais,,True,,,FPF,estadual,masculino,Paulistão,Campeonato estadual de São Paulo.,1,Anual,1902,https://futebolpaulista.com.br,Ativa,Profissional
+Campeonato Carioca,clubes,pais,,True,,,FERJ,estadual,masculino,Carioca,Campeonato estadual do Rio de Janeiro.,1,Anual,1906,https://www.fferj.com.br,Ativa,Profissional
+Campeonato Mineiro,clubes,pais,,True,,,FMF,estadual,masculino,Mineiro,Campeonato estadual de Minas Gerais.,1,Anual,1915,,Ativa,Profissional
+Campeonato Gaúcho,clubes,pais,,True,,,FGF,estadual,masculino,Gauchão,Campeonato estadual do Rio Grande do Sul.,1,Anual,1919,,Ativa,Profissional
+Premier League,clubes,pais,,True,,,FA,nacional,masculino,EPL,Primeira divisão da Inglaterra.,1,Anual,1992,https://www.premierleague.com,Ativa,Profissional
+La Liga,clubes,pais,,True,,,RFEF,nacional,masculino,LaLiga,Primeira divisão da Espanha.,1,Anual,1929,https://www.laliga.com,Ativa,Profissional
+Serie A,clubes,pais,,True,,,FIGC,nacional,masculino,Serie A,Primeira divisão da Itália.,1,Anual,1898,https://www.legaseriea.it,Ativa,Profissional
+Bundesliga,clubes,pais,,True,,,DFB,nacional,masculino,Bundesliga,Primeira divisão da Alemanha.,1,Anual,1963,https://www.bundesliga.com,Ativa,Profissional
+Ligue 1,clubes,pais,,True,,,FFF,nacional,masculino,Ligue 1,Primeira divisão da França.,1,Anual,1932,https://www.ligue1.com,Ativa,Profissional
+Primeira Liga,clubes,pais,,True,,,FPF,nacional,masculino,Liga Portugal,Primeira divisão de Portugal.,1,Anual,1934,https://www.ligaportugal.pt,Ativa,Profissional

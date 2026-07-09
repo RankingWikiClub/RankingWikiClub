@@ -1,0 +1,66 @@
+﻿nome,sigla,tipo,abrangencia,pais,continente,organizacao,divisao,genero,primeira_edicao,periodicidade,status
+Copa do Mundo FIFA,World Cup,selecoes,mundo,,,FIFA,1,masculino,1930,4 anos,Ativa
+Copa do Mundo Feminina FIFA,WWC,selecoes,mundo,,,FIFA,1,feminino,1991,4 anos,Ativa
+Mundial de Clubes FIFA,CWC,clubes,mundo,,,FIFA,1,masculino,2000,Anual,Ativa
+Copa Intercontinental FIFA,Intercontinental,clubes,mundo,,,FIFA,1,masculino,2024,Anual,Ativa
+Copa América,CA,selecoes,continente,,América do Sul,CONMEBOL,1,masculino,1916,4 anos,Ativa
+Copa América Feminina,CAF,selecoes,continente,,América do Sul,CONMEBOL,1,feminino,1991,4 anos,Ativa
+Copa Libertadores,LIB,clubes,continente,,América do Sul,CONMEBOL,1,masculino,1960,Anual,Ativa
+Copa Sul-Americana,SUD,clubes,continente,,América do Sul,CONMEBOL,2,masculino,2002,Anual,Ativa
+Recopa Sul-Americana,REC,clubes,continente,,América do Sul,CONMEBOL,1,masculino,1989,Anual,Ativa
+UEFA Champions League,UCL,clubes,continente,,Europa,UEFA,1,masculino,1955,Anual,Ativa
+UEFA Europa League,UEL,clubes,continente,,Europa,UEFA,2,masculino,1971,Anual,Ativa
+UEFA Conference League,UECL,clubes,continente,,Europa,UEFA,3,masculino,2021,Anual,Ativa
+Supercopa da UEFA,USC,clubes,continente,,Europa,UEFA,1,masculino,1973,Anual,Ativa
+Eurocopa,EURO,selecoes,continente,,Europa,UEFA,1,masculino,1960,4 anos,Ativa
+Liga das Nações da UEFA,UNL,selecoes,continente,,Europa,UEFA,1,masculino,2018,2 anos,Ativa
+CONCACAF Champions Cup,CCC,clubes,continente,,América do Norte,CONCACAF,1,masculino,1962,Anual,Ativa
+Copa Ouro,Gold Cup,selecoes,continente,,América do Norte,CONCACAF,1,masculino,1963,2 anos,Ativa
+Leagues Cup,LC,clubes,continente,,América do Norte,CONCACAF,1,masculino,2019,Anual,Ativa
+CAF Champions League,CAF CL,clubes,continente,,África,CAF,1,masculino,1964,Anual,Ativa
+CAF Confederation Cup,CAF CC,clubes,continente,,África,CAF,2,masculino,2004,Anual,Ativa
+Copa Africana de Nações,AFCON,selecoes,continente,,África,CAF,1,masculino,1957,2 anos,Ativa
+AFC Champions League Elite,ACLE,clubes,continente,,Ásia,AFC,1,masculino,1967,Anual,Ativa
+AFC Champions League Two,ACL2,clubes,continente,,Ásia,AFC,2,masculino,2004,Anual,Ativa
+Copa da Ásia,Asian Cup,selecoes,continente,,Ásia,AFC,1,masculino,1956,4 anos,Ativa
+OFC Champions League,OFC CL,clubes,continente,,Oceania,OFC,1,masculino,1987,Anual,Ativa
+Copa das Nações da OFC,OFC Nations,selecoes,continente,,Oceania,OFC,1,masculino,1973,4 anos,Ativa
+Campeonato Brasileiro Série A,Brasileirão,clubes,pais,Brasil,América do Sul,CBF,1,masculino,1959,Anual,Ativa
+Campeonato Brasileiro Série B,Série B,clubes,pais,Brasil,América do Sul,CBF,2,masculino,1971,Anual,Ativa
+Campeonato Brasileiro Série C,Série C,clubes,pais,Brasil,América do Sul,CBF,3,masculino,1981,Anual,Ativa
+Campeonato Brasileiro Série D,Série D,clubes,pais,Brasil,América do Sul,CBF,4,masculino,2009,Anual,Ativa
+Copa do Brasil,CDB,clubes,pais,Brasil,América do Sul,CBF,1,masculino,1989,Anual,Ativa
+Supercopa do Brasil,SCB,clubes,pais,Brasil,América do Sul,CBF,1,masculino,1990,Anual,Ativa
+Campeonato Paulista,Paulistão,clubes,pais,Brasil,América do Sul,FPF,1,masculino,1902,Anual,Ativa
+Campeonato Carioca,Carioca,clubes,pais,Brasil,América do Sul,FERJ,1,masculino,1906,Anual,Ativa
+Campeonato Mineiro,Mineiro,clubes,pais,Brasil,América do Sul,FMF,1,masculino,1915,Anual,Ativa
+Campeonato Gaúcho,Gauchão,clubes,pais,Brasil,América do Sul,FGF,1,masculino,1919,Anual,Ativa
+Primera División Argentina,LPF,clubes,pais,Argentina,América do Sul,AFA,1,masculino,1891,Anual,Ativa
+Copa Argentina,Copa ARG,clubes,pais,Argentina,América do Sul,AFA,1,masculino,1969,Anual,Ativa
+Primera División Uruguaya,Uruguayo,clubes,pais,Uruguai,América do Sul,AUF,1,masculino,1900,Anual,Ativa
+Campeonato Chileno Primera División,Chile 1,clubes,pais,Chile,América do Sul,ANFP,1,masculino,1933,Anual,Ativa
+Categoría Primera A,Liga COL,clubes,pais,Colômbia,América do Sul,FCF,1,masculino,1948,Anual,Ativa
+Premier League,EPL,clubes,pais,Inglaterra,Europa,FA,1,masculino,1992,Anual,Ativa
+FA Cup,FA Cup,clubes,pais,Inglaterra,Europa,FA,1,masculino,1871,Anual,Ativa
+EFL Cup,League Cup,clubes,pais,Inglaterra,Europa,EFL,1,masculino,1960,Anual,Ativa
+La Liga,LaLiga,clubes,pais,Espanha,Europa,RFEF,1,masculino,1929,Anual,Ativa
+Copa del Rey,CDR,clubes,pais,Espanha,Europa,RFEF,1,masculino,1903,Anual,Ativa
+Serie A,Serie A,clubes,pais,Itália,Europa,FIGC,1,masculino,1898,Anual,Ativa
+Coppa Italia,Coppa,clubes,pais,Itália,Europa,FIGC,1,masculino,1922,Anual,Ativa
+Bundesliga,Bundesliga,clubes,pais,Alemanha,Europa,DFB,1,masculino,1963,Anual,Ativa
+DFB-Pokal,DFB Pokal,clubes,pais,Alemanha,Europa,DFB,1,masculino,1935,Anual,Ativa
+Ligue 1,Ligue 1,clubes,pais,França,Europa,FFF,1,masculino,1932,Anual,Ativa
+Coupe de France,CDF,clubes,pais,França,Europa,FFF,1,masculino,1917,Anual,Ativa
+Primeira Liga,Liga Portugal,clubes,pais,Portugal,Europa,FPF,1,masculino,1934,Anual,Ativa
+Taça de Portugal,Taça,clubes,pais,Portugal,Europa,FPF,1,masculino,1938,Anual,Ativa
+Eredivisie,Eredivisie,clubes,pais,Países Baixos,Europa,KNVB,1,masculino,1956,Anual,Ativa
+Süper Lig,Super Lig,clubes,pais,Turquia,Europa,TFF,1,masculino,1959,Anual,Ativa
+Liga MX,Liga MX,clubes,pais,México,América do Norte,FMF,1,masculino,1943,Anual,Ativa
+Major League Soccer,MLS,clubes,pais,Estados Unidos,América do Norte,USSF,1,masculino,1996,Anual,Ativa
+Canadian Championship,CAN Champ,clubes,pais,Canadá,América do Norte,CSA,1,masculino,2008,Anual,Ativa
+J1 League,J1,clubes,pais,Japão,Ásia,JFA,1,masculino,1993,Anual,Ativa
+K League 1,K1,clubes,pais,Coreia do Sul,Ásia,KFA,1,masculino,1983,Anual,Ativa
+Saudi Pro League,SPL,clubes,pais,Arábia Saudita,Ásia,SAFF,1,masculino,1976,Anual,Ativa
+Egyptian Premier League,Egypt PL,clubes,pais,Egito,África,EFA,1,masculino,1948,Anual,Ativa
+Botola Pro,Botola,clubes,pais,Marrocos,África,FRMF,1,masculino,1956,Anual,Ativa
+A-League Men,ALM,clubes,pais,Austrália,Oceania,FFA,1,masculino,2005,Anual,Ativa

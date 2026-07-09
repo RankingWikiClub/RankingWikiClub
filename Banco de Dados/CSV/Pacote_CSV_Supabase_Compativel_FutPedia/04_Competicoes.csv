@@ -1,0 +1,11 @@
+﻿nome,tipo,abrangencia,continente_id,pais_id,logo_url,ativa,organizador,nivel,genero,sigla,descricao,divisao,periodicidade,primeira_edicao,site_oficial,status,categoria
+Copa do Mundo FIFA,selecoes,mundo,,,,True,FIFA,1,masculino,World Cup,Principal competição mundial de seleções.,1,4 anos,1930,https://www.fifa.com,Ativa,Profissional
+Copa América,selecoes,continente,4,,,True,CONMEBOL,1,masculino,CA,Principal competição de seleções da América do Sul.,1,4 anos,1916,https://www.conmebol.com,Ativa,Profissional
+Eurocopa,selecoes,continente,7,,,True,UEFA,1,masculino,EURO,Principal competição de seleções da Europa.,1,4 anos,1960,https://www.uefa.com,Ativa,Profissional
+UEFA Champions League,clubes,continente,7,,,True,UEFA,1,masculino,UCL,Principal competição continental de clubes da Europa.,1,Anual,1955,https://www.uefa.com,Ativa,Profissional
+Copa Libertadores,clubes,continente,4,,,True,CONMEBOL,1,masculino,LIB,Principal competição continental de clubes da América do Sul.,1,Anual,1960,https://www.conmebol.com,Ativa,Profissional
+Campeonato Brasileiro Série A,clubes,pais,4,80,,True,CBF,1,masculino,Brasileirão,Primeira divisão do futebol brasileiro.,1,Anual,1959,https://www.cbf.com.br,Ativa,Profissional
+Copa do Brasil,clubes,pais,4,80,,True,CBF,1,masculino,CDB,Copa nacional eliminatória do Brasil.,1,Anual,1989,https://www.cbf.com.br,Ativa,Profissional
+Premier League,clubes,pais,7,156,,True,FA,1,masculino,EPL,Primeira divisão da Inglaterra.,1,Anual,1992,https://www.premierleague.com,Ativa,Profissional
+La Liga,clubes,pais,7,150,,True,RFEF,1,masculino,LaLiga,Primeira divisão da Espanha.,1,Anual,1929,https://www.laliga.com,Ativa,Profissional
+Serie A,clubes,pais,7,160,,True,FIGC,1,masculino,Serie A,Primeira divisão da Itália.,1,Anual,1898,https://www.legaseriea.it,Ativa,Profissional

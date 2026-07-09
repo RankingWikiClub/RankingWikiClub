@@ -1,0 +1,55 @@
+﻿pais_id,nome,nome_curto,apelido,cidade,estado,fundacao,site_oficial,escudo_url,estadio,capacidade_estadio,cores,ativo
+81,Flamengo,Flamengo,Mengão,Rio de Janeiro,RJ,1895,https://www.flamengo.com.br,,Maracanã,78838,vermelho e preto,True
+81,Corinthians,Corinthians,Timão,São Paulo,SP,1910,https://www.corinthians.com.br,,Neo Química Arena,49205,preto e branco,True
+81,Palmeiras,Palmeiras,Verdão,São Paulo,SP,1914,https://www.palmeiras.com.br,,Allianz Parque,43713,verde e branco,True
+81,São Paulo,São Paulo,Tricolor Paulista,São Paulo,SP,1930,https://www.saopaulofc.net,,Morumbi,66795,"vermelho, branco e preto",True
+81,Santos,Santos,Peixe,Santos,SP,1912,https://www.santosfc.com.br,,Vila Belmiro,16068,preto e branco,True
+81,Vasco da Gama,Vasco,Gigante da Colina,Rio de Janeiro,RJ,1898,https://www.vasco.com.br,,São Januário,21880,preto e branco,True
+81,Fluminense,Fluminense,Tricolor Carioca,Rio de Janeiro,RJ,1902,https://www.fluminense.com.br,,Maracanã,78838,"verde, grená e branco",True
+81,Botafogo,Botafogo,Glorioso,Rio de Janeiro,RJ,1904,https://www.botafogo.com.br,,Nilton Santos,44661,preto e branco,True
+81,Grêmio,Grêmio,Imortal,Porto Alegre,RS,1903,https://gremio.net,,Arena do Grêmio,55662,"azul, preto e branco",True
+81,Internacional,Inter,Colorado,Porto Alegre,RS,1909,https://internacional.com.br,,Beira-Rio,50128,vermelho e branco,True
+81,Cruzeiro,Cruzeiro,Raposa,Belo Horizonte,MG,1921,https://www.cruzeiro.com.br,,Mineirão,61846,azul e branco,True
+81,Atlético Mineiro,Atlético-MG,Galo,Belo Horizonte,MG,1908,https://atletico.com.br,,Arena MRV,46000,preto e branco,True
+81,Athletico Paranaense,Athletico-PR,Furacão,Curitiba,PR,1924,https://www.athletico.com.br,,Ligga Arena,42372,vermelho e preto,True
+81,Bahia,Bahia,Esquadrão,Salvador,BA,1931,https://www.esporteclubebahia.com.br,,Arena Fonte Nova,47907,"azul, vermelho e branco",True
+81,Sport Recife,Sport,Leão da Ilha,Recife,PE,1905,https://sportrecife.com.br,,Ilha do Retiro,32983,vermelho e preto,True
+79,Boca Juniors,Boca,Xeneize,Buenos Aires,,1905,https://www.bocajuniors.com.ar,,La Bombonera,54000,azul e amarelo,True
+79,River Plate,River,Millonario,Buenos Aires,,1901,https://www.cariverplate.com.ar,,Monumental,84567,branco e vermelho,True
+79,Independiente,Independiente,Rey de Copas,Avellaneda,,1905,,,Libertadores de América,48069,vermelho,True
+79,Racing Club,Racing,La Academia,Avellaneda,,1903,,,El Cilindro,51389,azul e branco,True
+89,Peñarol,Peñarol,Carbonero,Montevidéu,,1891,https://www.peñarol.org,,Campeón del Siglo,40000,amarelo e preto,True
+89,Nacional,Nacional,Bolso,Montevidéu,,1899,https://nacional.uy,,Gran Parque Central,34000,"branco, azul e vermelho",True
+82,Colo-Colo,Colo-Colo,Cacique,Santiago,,1925,https://www.colocolo.cl,,Monumental David Arellano,47347,branco e preto,True
+83,Atlético Nacional,Atlético Nacional,Verdolaga,Medellín,,1947,https://www.atlnacional.com.co,,Atanasio Girardot,45943,verde e branco,True
+146,Real Madrid,Real Madrid,Merengues,Madrid,,1902,https://www.realmadrid.com,,Santiago Bernabéu,83000,branco,True
+146,Barcelona,Barcelona,Barça,Barcelona,,1899,https://www.fcbarcelona.com,,Camp Nou,99354,azul e grená,True
+146,Atlético de Madrid,Atlético,Colchoneros,Madrid,,1903,https://www.atleticodemadrid.com,,Metropolitano,70460,"vermelho, branco e azul",True
+154,Manchester United,Man United,Red Devils,Manchester,,1878,https://www.manutd.com,,Old Trafford,74310,vermelho,True
+154,Liverpool,Liverpool,Reds,Liverpool,,1892,https://www.liverpoolfc.com,,Anfield,61276,vermelho,True
+154,Arsenal,Arsenal,Gunners,Londres,,1886,https://www.arsenal.com,,Emirates Stadium,60704,vermelho e branco,True
+154,Chelsea,Chelsea,Blues,Londres,,1905,https://www.chelseafc.com,,Stamford Bridge,40343,azul,True
+154,Manchester City,Man City,Citizens,Manchester,,1880,https://www.mancity.com,,Etihad Stadium,53400,azul claro,True
+160,Juventus,Juventus,Velha Senhora,Turim,,1897,https://www.juventus.com,,Allianz Stadium,41507,preto e branco,True
+160,Milan,Milan,Rossoneri,Milão,,1899,https://www.acmilan.com,,San Siro,75817,vermelho e preto,True
+160,Internazionale,Inter,Nerazzurri,Milão,,1908,https://www.inter.it,,San Siro,75817,azul e preto,True
+133,Bayern de Munique,Bayern,Bávaros,Munique,,1900,https://fcbayern.com,,Allianz Arena,75024,vermelho e branco,True
+133,Borussia Dortmund,Dortmund,Aurinegros,Dortmund,,1909,https://www.bvb.de,,Signal Iduna Park,81365,amarelo e preto,True
+148,Paris Saint-Germain,PSG,Parisiens,Paris,,1970,https://www.psg.fr,,Parc des Princes,47929,"azul, vermelho e branco",True
+172,Benfica,Benfica,Águias,Lisboa,,1904,https://www.slbenfica.pt,,Estádio da Luz,64642,vermelho e branco,True
+172,Porto,Porto,Dragões,Porto,,1893,https://www.fcporto.pt,,Estádio do Dragão,50033,azul e branco,True
+172,Sporting CP,Sporting,Leões,Lisboa,,1906,https://www.sporting.pt,,José Alvalade,50095,verde e branco,True
+170,Ajax,Ajax,Godenzonen,Amsterdã,,1900,https://www.ajax.nl,,Johan Cruyff Arena,55865,branco e vermelho,True
+57,Club América,América,Águilas,Cidade do México,,1916,https://www.clubamerica.com.mx,,Estadio Azteca,87523,amarelo e azul,True
+57,Chivas Guadalajara,Chivas,Rebaño Sagrado,Guadalajara,,1906,https://www.chivasdecorazon.com.mx,,Estadio Akron,46609,"vermelho, branco e azul",True
+56,LA Galaxy,LA Galaxy,Galaxy,Los Angeles,CA,1994,https://www.lagalaxy.com,,Dignity Health Sports Park,27000,branco e azul,True
+56,Inter Miami,Inter Miami,Herons,Fort Lauderdale,FL,2018,https://www.intermiamicf.com,,Chase Stadium,21550,rosa e preto,True
+15,Al Ahly,Al Ahly,Clube do Século,Cairo,,1907,https://www.alahlyegypt.com,,Cairo International Stadium,75000,vermelho,True
+15,Zamalek,Zamalek,White Knights,Cairo,,1911,https://www.zamaleksc.com,,Cairo International Stadium,75000,branco,True
+31,Wydad Casablanca,Wydad,WAC,Casablanca,,1937,,,Mohammed V,45000,vermelho,True
+94,Al Hilal,Al Hilal,Al-Za'eem,Riad,,1957,https://alhilal.com,,Kingdom Arena,26000,azul,True
+94,Al Nassr,Al Nassr,Al-Alami,Riad,,1955,https://alnassr.sa,,Al-Awwal Park,25000,amarelo e azul,True
+117,Urawa Red Diamonds,Urawa Reds,Reds,Saitama,,1950,https://www.urawa-reds.co.jp,,Saitama Stadium,63700,vermelho,True
+108,Jeonbuk Hyundai Motors,Jeonbuk,Green Warriors,Jeonju,,1994,https://hyundai-motorsfc.com,,Jeonju World Cup Stadium,42477,verde,True
+194,Auckland City,Auckland City,Navy Blues,Auckland,,2004,https://www.aucklandcityfc.com,,Kiwitea Street,3500,azul,True
+186,Sydney FC,Sydney,Sky Blues,Sydney,,2004,https://sydneyfc.com,,Allianz Stadium,45500,azul claro,True

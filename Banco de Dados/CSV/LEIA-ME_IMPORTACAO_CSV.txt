@@ -1,0 +1,19 @@
+FutPedia - Pacote CSV
+
+Arquivos em CSV UTF-8 com BOM, compatíveis com Excel, Google Planilhas e importação no Supabase.
+
+Ordem sugerida de importação:
+01_Continentes.csv
+02_Paises.csv
+03_Confederacoes_Federacoes.csv
+04_Competicoes.csv
+08_Cidades.csv
+07_Estadios.csv
+05_Times_Principais.csv
+06_Selecoes.csv
+09_Edicoes_Modelo.csv
+10_Edicao_Participantes_Modelo.csv
+11_Midias_Modelo.csv
+
+Observação:
+Alguns arquivos usam nomes como país/continente/confederação em vez de IDs. Para importação direta em tabelas com foreign keys, pode ser necessário importar para uma tabela temporária ou ajustar as colunas no Supabase.

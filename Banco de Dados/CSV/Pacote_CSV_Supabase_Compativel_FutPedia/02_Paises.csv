@@ -1,0 +1,201 @@
+﻿continente_id,nome,sigla,bandeira_url
+1,África do Sul,ZA,https://flagcdn.com/w320/za.png
+1,Angola,AO,https://flagcdn.com/w320/ao.png
+1,Argélia,DZ,https://flagcdn.com/w320/dz.png
+1,Benim,BJ,https://flagcdn.com/w320/bj.png
+1,Botsuana,BW,https://flagcdn.com/w320/bw.png
+1,Burkina Faso,BF,https://flagcdn.com/w320/bf.png
+1,Burundi,BI,https://flagcdn.com/w320/bi.png
+1,Cabo Verde,CV,https://flagcdn.com/w320/cv.png
+1,Camarões,CM,https://flagcdn.com/w320/cm.png
+1,Chade,TD,https://flagcdn.com/w320/td.png
+1,Comores,KM,https://flagcdn.com/w320/km.png
+1,Congo,CG,https://flagcdn.com/w320/cg.png
+1,Costa do Marfim,CI,https://flagcdn.com/w320/ci.png
+1,Djibuti,DJ,https://flagcdn.com/w320/dj.png
+1,Egito,EG,https://flagcdn.com/w320/eg.png
+1,Eritreia,ER,https://flagcdn.com/w320/er.png
+1,Essuatíni,SZ,https://flagcdn.com/w320/sz.png
+1,Etiópia,ET,https://flagcdn.com/w320/et.png
+1,Gabão,GA,https://flagcdn.com/w320/ga.png
+1,Gâmbia,GM,https://flagcdn.com/w320/gm.png
+1,Gana,GH,https://flagcdn.com/w320/gh.png
+1,Guiné,GN,https://flagcdn.com/w320/gn.png
+1,Guiné-Bissau,GW,https://flagcdn.com/w320/gw.png
+1,Guiné Equatorial,GQ,https://flagcdn.com/w320/gq.png
+1,Lesoto,LS,https://flagcdn.com/w320/ls.png
+1,Libéria,LR,https://flagcdn.com/w320/lr.png
+1,Líbia,LY,https://flagcdn.com/w320/ly.png
+1,Madagascar,MG,https://flagcdn.com/w320/mg.png
+1,Maláui,MW,https://flagcdn.com/w320/mw.png
+1,Mali,ML,https://flagcdn.com/w320/ml.png
+1,Marrocos,MA,https://flagcdn.com/w320/ma.png
+1,Maurícia,MU,https://flagcdn.com/w320/mu.png
+1,Mauritânia,MR,https://flagcdn.com/w320/mr.png
+1,Moçambique,MZ,https://flagcdn.com/w320/mz.png
+1,Namíbia,NA,https://flagcdn.com/w320/na.png
+1,Níger,NE,https://flagcdn.com/w320/ne.png
+1,Nigéria,NG,https://flagcdn.com/w320/ng.png
+1,Quênia,KE,https://flagcdn.com/w320/ke.png
+1,República Centro-Africana,CF,https://flagcdn.com/w320/cf.png
+1,República Democrática do Congo,CD,https://flagcdn.com/w320/cd.png
+1,Ruanda,RW,https://flagcdn.com/w320/rw.png
+1,São Tomé e Príncipe,ST,https://flagcdn.com/w320/st.png
+1,Senegal,SN,https://flagcdn.com/w320/sn.png
+1,Serra Leoa,SL,https://flagcdn.com/w320/sl.png
+1,Seicheles,SC,https://flagcdn.com/w320/sc.png
+1,Somália,SO,https://flagcdn.com/w320/so.png
+1,Sudão,SD,https://flagcdn.com/w320/sd.png
+1,Sudão do Sul,SS,https://flagcdn.com/w320/ss.png
+1,Tanzânia,TZ,https://flagcdn.com/w320/tz.png
+1,Togo,TG,https://flagcdn.com/w320/tg.png
+1,Tunísia,TN,https://flagcdn.com/w320/tn.png
+1,Uganda,UG,https://flagcdn.com/w320/ug.png
+1,Zâmbia,ZM,https://flagcdn.com/w320/zm.png
+1,Zimbábue,ZW,https://flagcdn.com/w320/zw.png
+3,Canadá,CA,https://flagcdn.com/w320/ca.png
+3,Estados Unidos,US,https://flagcdn.com/w320/us.png
+3,México,MX,https://flagcdn.com/w320/mx.png
+2,Belize,BZ,https://flagcdn.com/w320/bz.png
+2,Costa Rica,CR,https://flagcdn.com/w320/cr.png
+2,El Salvador,SV,https://flagcdn.com/w320/sv.png
+2,Guatemala,GT,https://flagcdn.com/w320/gt.png
+2,Honduras,HN,https://flagcdn.com/w320/hn.png
+2,Nicarágua,NI,https://flagcdn.com/w320/ni.png
+2,Panamá,PA,https://flagcdn.com/w320/pa.png
+6,Antígua e Barbuda,AG,https://flagcdn.com/w320/ag.png
+6,Bahamas,BS,https://flagcdn.com/w320/bs.png
+6,Barbados,BB,https://flagcdn.com/w320/bb.png
+6,Cuba,CU,https://flagcdn.com/w320/cu.png
+6,Dominica,DM,https://flagcdn.com/w320/dm.png
+6,Granada,GD,https://flagcdn.com/w320/gd.png
+6,Haiti,HT,https://flagcdn.com/w320/ht.png
+6,Jamaica,JM,https://flagcdn.com/w320/jm.png
+6,República Dominicana,DO,https://flagcdn.com/w320/do.png
+6,Santa Lúcia,LC,https://flagcdn.com/w320/lc.png
+6,São Cristóvão e Nevis,KN,https://flagcdn.com/w320/kn.png
+6,São Vicente e Granadinas,VC,https://flagcdn.com/w320/vc.png
+6,Trinidad e Tobago,TT,https://flagcdn.com/w320/tt.png
+4,Argentina,AR,https://flagcdn.com/w320/ar.png
+4,Bolívia,BO,https://flagcdn.com/w320/bo.png
+4,Brasil,BR,https://flagcdn.com/w320/br.png
+4,Chile,CL,https://flagcdn.com/w320/cl.png
+4,Colômbia,CO,https://flagcdn.com/w320/co.png
+4,Equador,EC,https://flagcdn.com/w320/ec.png
+4,Guiana,GY,https://flagcdn.com/w320/gy.png
+4,Paraguai,PY,https://flagcdn.com/w320/py.png
+4,Peru,PE,https://flagcdn.com/w320/pe.png
+4,Suriname,SR,https://flagcdn.com/w320/sr.png
+4,Uruguai,UY,https://flagcdn.com/w320/uy.png
+4,Venezuela,VE,https://flagcdn.com/w320/ve.png
+5,Afeganistão,AF,https://flagcdn.com/w320/af.png
+5,Arábia Saudita,SA,https://flagcdn.com/w320/sa.png
+5,Armênia,AM,https://flagcdn.com/w320/am.png
+5,Azerbaijão,AZ,https://flagcdn.com/w320/az.png
+5,Bahrein,BH,https://flagcdn.com/w320/bh.png
+5,Bangladesh,BD,https://flagcdn.com/w320/bd.png
+5,Brunei,BN,https://flagcdn.com/w320/bn.png
+5,Butão,BT,https://flagcdn.com/w320/bt.png
+5,Camboja,KH,https://flagcdn.com/w320/kh.png
+5,Catar,QA,https://flagcdn.com/w320/qa.png
+5,China,CN,https://flagcdn.com/w320/cn.png
+5,Coreia do Norte,KP,https://flagcdn.com/w320/kp.png
+5,Coreia do Sul,KR,https://flagcdn.com/w320/kr.png
+5,Emirados Árabes Unidos,AE,https://flagcdn.com/w320/ae.png
+5,Filipinas,PH,https://flagcdn.com/w320/ph.png
+5,Geórgia,GE,https://flagcdn.com/w320/ge.png
+5,Iêmen,YE,https://flagcdn.com/w320/ye.png
+5,Índia,IN,https://flagcdn.com/w320/in.png
+5,Indonésia,ID,https://flagcdn.com/w320/id.png
+5,Irã,IR,https://flagcdn.com/w320/ir.png
+5,Iraque,IQ,https://flagcdn.com/w320/iq.png
+5,Israel,IL,https://flagcdn.com/w320/il.png
+5,Japão,JP,https://flagcdn.com/w320/jp.png
+5,Jordânia,JO,https://flagcdn.com/w320/jo.png
+5,Cazaquistão,KZ,https://flagcdn.com/w320/kz.png
+5,Kuwait,KW,https://flagcdn.com/w320/kw.png
+5,Laos,LA,https://flagcdn.com/w320/la.png
+5,Líbano,LB,https://flagcdn.com/w320/lb.png
+5,Malásia,MY,https://flagcdn.com/w320/my.png
+5,Maldivas,MV,https://flagcdn.com/w320/mv.png
+5,Mianmar,MM,https://flagcdn.com/w320/mm.png
+5,Mongólia,MN,https://flagcdn.com/w320/mn.png
+5,Nepal,NP,https://flagcdn.com/w320/np.png
+5,Omã,OM,https://flagcdn.com/w320/om.png
+5,Paquistão,PK,https://flagcdn.com/w320/pk.png
+5,Quirguistão,KG,https://flagcdn.com/w320/kg.png
+5,Singapura,SG,https://flagcdn.com/w320/sg.png
+5,Síria,SY,https://flagcdn.com/w320/sy.png
+5,Sri Lanka,LK,https://flagcdn.com/w320/lk.png
+5,Tadjiquistão,TJ,https://flagcdn.com/w320/tj.png
+5,Tailândia,TH,https://flagcdn.com/w320/th.png
+5,Taiwan,TW,https://flagcdn.com/w320/tw.png
+5,Timor-Leste,TL,https://flagcdn.com/w320/tl.png
+5,Turcomenistão,TM,https://flagcdn.com/w320/tm.png
+5,Uzbequistão,UZ,https://flagcdn.com/w320/uz.png
+5,Vietnã,VN,https://flagcdn.com/w320/vn.png
+7,Albânia,AL,https://flagcdn.com/w320/al.png
+7,Alemanha,DE,https://flagcdn.com/w320/de.png
+7,Andorra,AD,https://flagcdn.com/w320/ad.png
+7,Áustria,AT,https://flagcdn.com/w320/at.png
+7,Bélgica,BE,https://flagcdn.com/w320/be.png
+7,Belarus,BY,https://flagcdn.com/w320/by.png
+7,Bósnia e Herzegovina,BA,https://flagcdn.com/w320/ba.png
+7,Bulgária,BG,https://flagcdn.com/w320/bg.png
+7,Chipre,CY,https://flagcdn.com/w320/cy.png
+7,Croácia,HR,https://flagcdn.com/w320/hr.png
+7,Dinamarca,DK,https://flagcdn.com/w320/dk.png
+7,Escócia,GB-SCT,https://flagcdn.com/w320/gb.png
+7,Eslováquia,SK,https://flagcdn.com/w320/sk.png
+7,Eslovênia,SI,https://flagcdn.com/w320/si.png
+7,Espanha,ES,https://flagcdn.com/w320/es.png
+7,Estônia,EE,https://flagcdn.com/w320/ee.png
+7,Finlândia,FI,https://flagcdn.com/w320/fi.png
+7,França,FR,https://flagcdn.com/w320/fr.png
+7,Grécia,GR,https://flagcdn.com/w320/gr.png
+7,Hungria,HU,https://flagcdn.com/w320/hu.png
+7,Inglaterra,GB-ENG,https://flagcdn.com/w320/gb.png
+7,Irlanda,IE,https://flagcdn.com/w320/ie.png
+7,Irlanda do Norte,GB-NIR,https://flagcdn.com/w320/gb.png
+7,Islândia,IS,https://flagcdn.com/w320/is.png
+7,Itália,IT,https://flagcdn.com/w320/it.png
+7,Kosovo,XK,https://flagcdn.com/w320/xk.png
+7,Letônia,LV,https://flagcdn.com/w320/lv.png
+7,Liechtenstein,LI,https://flagcdn.com/w320/li.png
+7,Lituânia,LT,https://flagcdn.com/w320/lt.png
+7,Luxemburgo,LU,https://flagcdn.com/w320/lu.png
+7,Malta,MT,https://flagcdn.com/w320/mt.png
+7,Moldávia,MD,https://flagcdn.com/w320/md.png
+7,Montenegro,ME,https://flagcdn.com/w320/me.png
+7,Noruega,NO,https://flagcdn.com/w320/no.png
+7,País de Gales,GB-WLS,https://flagcdn.com/w320/gb.png
+7,Países Baixos,NL,https://flagcdn.com/w320/nl.png
+7,Polônia,PL,https://flagcdn.com/w320/pl.png
+7,Portugal,PT,https://flagcdn.com/w320/pt.png
+7,República Tcheca,CZ,https://flagcdn.com/w320/cz.png
+7,Macedônia do Norte,MK,https://flagcdn.com/w320/mk.png
+7,Romênia,RO,https://flagcdn.com/w320/ro.png
+7,Rússia,RU,https://flagcdn.com/w320/ru.png
+7,San Marino,SM,https://flagcdn.com/w320/sm.png
+7,Sérvia,RS,https://flagcdn.com/w320/rs.png
+7,Suécia,SE,https://flagcdn.com/w320/se.png
+7,Suíça,CH,https://flagcdn.com/w320/ch.png
+7,Turquia,TR,https://flagcdn.com/w320/tr.png
+7,Ucrânia,UA,https://flagcdn.com/w320/ua.png
+7,Vaticano,VA,https://flagcdn.com/w320/va.png
+8,Austrália,AU,https://flagcdn.com/w320/au.png
+8,Fiji,FJ,https://flagcdn.com/w320/fj.png
+8,Ilhas Cook,CK,https://flagcdn.com/w320/ck.png
+8,Ilhas Marshall,MH,https://flagcdn.com/w320/mh.png
+8,Ilhas Salomão,SB,https://flagcdn.com/w320/sb.png
+8,Kiribati,KI,https://flagcdn.com/w320/ki.png
+8,Micronésia,FM,https://flagcdn.com/w320/fm.png
+8,Nauru,NR,https://flagcdn.com/w320/nr.png
+8,Nova Zelândia,NZ,https://flagcdn.com/w320/nz.png
+8,Palau,PW,https://flagcdn.com/w320/pw.png
+8,Papua-Nova Guiné,PG,https://flagcdn.com/w320/pg.png
+8,Samoa,WS,https://flagcdn.com/w320/ws.png
+8,Samoa Americana,AS,https://flagcdn.com/w320/as.png
+8,Tonga,TO,https://flagcdn.com/w320/to.png
+8,Tuvalu,TV,https://flagcdn.com/w320/tv.png
+8,Vanuatu,VU,https://flagcdn.com/w320/vu.png

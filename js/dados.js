@@ -346,35 +346,8 @@ function dadosIniciais() {
 }
 
 const FUTPEDIA_STORAGE_KEY = "futpedia_v8";
-// O banco do FutPédia cresceu bastante e pode ultrapassar o limite do localStorage.
-// A partir desta versão, o navegador mantém os dados em memória e sincroniza com o Supabase.
-// O localStorage fica apenas como cache pequeno, quando couber, sem travar o site.
-const FUTPEDIA_STORAGE_MAX_BYTES = 2500000;
 let FUTPEDIA_SALVAMENTO_TIMER = null;
 let FUTPEDIA_CARREGOU_NUVEM = false;
-let FUTPEDIA_BANCO_MEMORIA = null;
-
-function salvarBancoLocalSeguro(banco) {
-  try {
-    const texto = JSON.stringify(banco);
-    if (texto.length > FUTPEDIA_STORAGE_MAX_BYTES) {
-      localStorage.removeItem(FUTPEDIA_STORAGE_KEY);
-      return false;
-    }
-    localStorage.setItem(FUTPEDIA_STORAGE_KEY, texto);
-    return true;
-  } catch (erro) {
-    console.warn("Banco local grande demais. Usando memória/Supabase em vez de localStorage.", erro?.message || erro);
-    try { localStorage.removeItem(FUTPEDIA_STORAGE_KEY); } catch (_) {}
-    return false;
-  }
-}
-
-function definirBancoMemoria(banco) {
-  FUTPEDIA_BANCO_MEMORIA = banco;
-  window.FUTPEDIA_BANCO_MEMORIA = banco;
-  return banco;
-}
 
 function prepararBancoFutpedia(banco) {
   banco ||= dadosIniciais();
@@ -417,41 +390,24 @@ function prepararBancoFutpedia(banco) {
 }
 
 function carregarBancoLocalBruto() {
-  if (FUTPEDIA_BANCO_MEMORIA) return FUTPEDIA_BANCO_MEMORIA;
-
-  let salvo = null;
-  try {
-    salvo = localStorage.getItem(FUTPEDIA_STORAGE_KEY);
-  } catch (erro) {
-    console.warn("Não foi possível acessar o banco local do FutPédia.", erro?.message || erro);
-    return null;
-  }
-
+  const salvo = localStorage.getItem(FUTPEDIA_STORAGE_KEY);
   if (!salvo) return null;
   try {
     return JSON.parse(salvo);
   } catch (erro) {
     console.warn("Não foi possível ler o banco local do FutPédia.", erro);
-    try { localStorage.removeItem(FUTPEDIA_STORAGE_KEY); } catch (_) {}
     return null;
   }
 }
 
 function carregarBanco() {
-  if (FUTPEDIA_BANCO_MEMORIA) return prepararBancoFutpedia(FUTPEDIA_BANCO_MEMORIA);
-
   const bancoLocal = carregarBancoLocalBruto();
   if (!bancoLocal) {
     const inicial = prepararBancoFutpedia(dadosIniciais());
-    definirBancoMemoria(inicial);
-    salvarBancoLocalSeguro(inicial);
+    localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(inicial));
     return inicial;
   }
-
-  const preparado = prepararBancoFutpedia(bancoLocal);
-  definirBancoMemoria(preparado);
-  salvarBancoLocalSeguro(preparado);
-  return preparado;
+  return prepararBancoFutpedia(bancoLocal);
 }
 
 function quantidadeRegistrosFutpedia(banco) {
@@ -469,8 +425,7 @@ function salvarBanco(banco) {
   // dados antigos do Supabase sobrescrevam uma edição feita agora.
   preparado.atualizadoLocalEm = new Date().toISOString();
 
-  definirBancoMemoria(preparado);
-  salvarBancoLocalSeguro(preparado);
+  localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(preparado));
 
   clearTimeout(FUTPEDIA_SALVAMENTO_TIMER);
   FUTPEDIA_SALVAMENTO_TIMER = setTimeout(() => {
@@ -539,12 +494,10 @@ async function carregarBancoDaNuvem() {
     if (dataLocal && (!dataNuvem || dataLocal > dataNuvem)) {
       await salvarBancoNaNuvem(local);
     } else if (nuvem && dataNuvem && dataNuvem >= dataLocal && qtdNuvem > 0) {
-      definirBancoMemoria(nuvem);
-      salvarBancoLocalSeguro(nuvem);
+      localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(nuvem));
       atualizarTelasAposSincronizacao();
     } else if (nuvem && qtdNuvem >= qtdLocal && qtdNuvem > 0) {
-      definirBancoMemoria(nuvem);
-      salvarBancoLocalSeguro(nuvem);
+      localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(nuvem));
       atualizarTelasAposSincronizacao();
     } else if (qtdLocal > qtdNuvem) {
       await salvarBancoNaNuvem(local);
@@ -574,10 +527,168 @@ function atualizarTelasAposSincronizacao() {
   }
 }
 
+
+
+// Carrega dados diretamente das tabelas relacionais do Supabase
+// Tabelas usadas: public.times, public.competicoes, public.selecoes, public.paises e public.continentes.
+// Isso faz o site enxergar os clubes/seleções/competições importados via SQL Editor.
+async function carregarDadosRelacionaisSupabase() {
+  const supabase = typeof clienteSupabase === "function" ? clienteSupabase() : null;
+  if (!supabase) return false;
+
+  try {
+    const [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp] = await Promise.all([
+      supabase.from("paises").select("id,nome,sigla,continente_id"),
+      supabase.from("continentes").select("id,nome"),
+      supabase.from("times").select("*"),
+      supabase.from("competicoes").select("*"),
+      supabase.from("selecoes").select("*")
+    ]);
+
+    const erros = [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp]
+      .map(r => r.error)
+      .filter(Boolean);
+
+    if (erros.length) {
+      console.warn("Erro ao carregar tabelas relacionais do Supabase:", erros.map(e => e.message || e));
+      return false;
+    }
+
+    const paises = paisesResp.data || [];
+    const continentes = continentesResp.data || [];
+    const clubesSql = clubesResp.data || [];
+    const competicoesSql = competicoesResp.data || [];
+    const selecoesSql = selecoesResp.data || [];
+
+    const mapaContinentes = new Map(continentes.map(c => [String(c.id), c]));
+    const mapaPaises = new Map(paises.map(p => [String(p.id), {
+      ...p,
+      continente: mapaContinentes.get(String(p.continente_id))?.nome || ""
+    }]));
+
+    function bandeiraPorSigla(sigla) {
+      const codigo = String(sigla || "").slice(0, 2).toUpperCase();
+      if (codigo.length !== 2) return "";
+      return codigo.replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt(0)));
+    }
+
+    function categoriaCompeticao(valor) {
+      valor = String(valor || "").toLowerCase();
+      if (valor.includes("selec")) return "selecao";
+      return "clube";
+    }
+
+    function abrangenciaSite(valor) {
+      valor = String(valor || "").toLowerCase();
+      if (valor === "mundo" || valor === "mundial") return "Mundial";
+      if (valor === "continente" || valor === "continental") return "Continental";
+      if (valor === "pais" || valor === "país" || valor === "nacional") return "País";
+      return valor || "";
+    }
+
+    function tipoCompeticaoSite(item) {
+      const nome = String(item.nome || "").toLowerCase();
+      const nivel = String(item.nivel || "").toLowerCase();
+      if (nome.includes("campeonato") || nome.includes("liga") || nome.includes("league") || nome.includes("serie") || nome.includes("série")) return "Liga";
+      if (nivel.includes("estadual")) return "Estadual";
+      if (nivel.includes("continental")) return "Copa Continental";
+      return "Copa";
+    }
+
+    const bancoAtual = carregarBancoLocalBruto() || dadosIniciais();
+    const banco = prepararBancoFutpedia(bancoAtual);
+
+    banco.clubes = clubesSql.map(t => {
+      const pais = mapaPaises.get(String(t.pais_id)) || {};
+      return {
+        id: String(t.id),
+        nome: t.nome || "",
+        nomeCompleto: t.nome || "",
+        nomeCurto: t.nome_curto || t.nome || "",
+        apelido: t.apelido || "",
+        pais: pais.nome || "",
+        continente: pais.continente || "",
+        bandeira: bandeiraPorSigla(pais.sigla),
+        estado: t.estado || "",
+        siglaEstado: t.estado || "",
+        cidade: t.cidade || "",
+        fundacao: t.fundacao || "",
+        estadio: t.estadio || "",
+        capacidade: t.capacidade_estadio || "",
+        escudo: t.escudo_url || "",
+        cores: t.cores || "",
+        siteOficial: t.site_oficial || "",
+        rivais: []
+      };
+    });
+
+    banco.selecoes = selecoesSql.map(s => {
+      const pais = mapaPaises.get(String(s.pais_id)) || {};
+      return {
+        id: String(s.id),
+        nome: s.nome || pais.nome || "",
+        pais: pais.nome || s.nome || "",
+        continente: pais.continente || "",
+        bandeira: bandeiraPorSigla(pais.sigla || s.codigo_fifa),
+        escudo: s.escudo_url || "",
+        codigoFifa: s.codigo_fifa || "",
+        estadio: s.estadio_principal || "",
+        capacidade: ""
+      };
+    });
+
+    banco.competicoes = competicoesSql.map(c => {
+      const pais = mapaPaises.get(String(c.pais_id)) || {};
+      const continente = mapaContinentes.get(String(c.continente_id)) || {};
+      const categoria = categoriaCompeticao(c.tipo);
+      const abrangencia = abrangenciaSite(c.abrangencia);
+      return {
+        id: String(c.id),
+        nome: c.nome || "",
+        sigla: c.sigla || "",
+        categoria,
+        tipo: tipoCompeticaoSite(c),
+        abrangencia,
+        continente: continente.nome || pais.continente || "",
+        pais: pais.nome || "",
+        local: pais.nome || continente.nome || (abrangencia === "Mundial" ? "Mundial" : ""),
+        bandeira: pais.sigla ? bandeiraPorSigla(pais.sigla) : (abrangencia === "Mundial" ? "🌍" : ""),
+        escudo: c.logo_url || "",
+        descricao: c.descricao || "",
+        organizador: c.organizador || "",
+        primeiraEdicao: c.primeira_edicao || "",
+        periodicidade: c.periodicidade || "",
+        status: c.status || "Ativa"
+      };
+    });
+
+    localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(prepararBancoFutpedia(banco)));
+    atualizarTelasAposSincronizacao();
+    console.log("FutPédia: dados carregados das tabelas SQL", {
+      clubes: banco.clubes.length,
+      selecoes: banco.selecoes.length,
+      competicoes: banco.competicoes.length
+    });
+    return true;
+  } catch (erro) {
+    console.warn("Erro ao carregar dados relacionais do Supabase.", erro);
+    return false;
+  }
+}
+
+window.carregarDadosRelacionaisSupabase = carregarDadosRelacionaisSupabase;
+
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", carregarBancoDaNuvem);
+  document.addEventListener("DOMContentLoaded", async () => {
+    await carregarBancoDaNuvem();
+    await carregarDadosRelacionaisSupabase();
+  });
 } else {
-  carregarBancoDaNuvem();
+  (async () => {
+    await carregarBancoDaNuvem();
+    await carregarDadosRelacionaisSupabase();
+  })();
 }
 
 window.salvarBancoNaNuvem = salvarBancoNaNuvem;

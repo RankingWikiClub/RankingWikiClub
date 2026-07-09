@@ -1,0 +1,201 @@
+nome;sigla;codigo_iso2;continente;confederacao;capital;moeda;bandeira_url;ativo
+África do Sul;ZA;ZA;África;CAF;;;https://flagcdn.com/w320/za.png;Sim
+Angola;AO;AO;África;CAF;;;https://flagcdn.com/w320/ao.png;Sim
+Argélia;DZ;DZ;África;CAF;;;https://flagcdn.com/w320/dz.png;Sim
+Benim;BJ;BJ;África;CAF;;;https://flagcdn.com/w320/bj.png;Sim
+Botsuana;BW;BW;África;CAF;;;https://flagcdn.com/w320/bw.png;Sim
+Burkina Faso;BF;BF;África;CAF;;;https://flagcdn.com/w320/bf.png;Sim
+Burundi;BI;BI;África;CAF;;;https://flagcdn.com/w320/bi.png;Sim
+Cabo Verde;CV;CV;África;CAF;;;https://flagcdn.com/w320/cv.png;Sim
+Camarões;CM;CM;África;CAF;;;https://flagcdn.com/w320/cm.png;Sim
+Chade;TD;TD;África;CAF;;;https://flagcdn.com/w320/td.png;Sim
+Comores;KM;KM;África;CAF;;;https://flagcdn.com/w320/km.png;Sim
+Congo;CG;CG;África;CAF;;;https://flagcdn.com/w320/cg.png;Sim
+Costa do Marfim;CI;CI;África;CAF;;;https://flagcdn.com/w320/ci.png;Sim
+Djibuti;DJ;DJ;África;CAF;;;https://flagcdn.com/w320/dj.png;Sim
+Egito;EG;EG;África;CAF;;;https://flagcdn.com/w320/eg.png;Sim
+Eritreia;ER;ER;África;CAF;;;https://flagcdn.com/w320/er.png;Sim
+Essuatíni;SZ;SZ;África;CAF;;;https://flagcdn.com/w320/sz.png;Sim
+Etiópia;ET;ET;África;CAF;;;https://flagcdn.com/w320/et.png;Sim
+Gabão;GA;GA;África;CAF;;;https://flagcdn.com/w320/ga.png;Sim
+Gâmbia;GM;GM;África;CAF;;;https://flagcdn.com/w320/gm.png;Sim
+Gana;GH;GH;África;CAF;;;https://flagcdn.com/w320/gh.png;Sim
+Guiné;GN;GN;África;CAF;;;https://flagcdn.com/w320/gn.png;Sim
+Guiné-Bissau;GW;GW;África;CAF;;;https://flagcdn.com/w320/gw.png;Sim
+Guiné Equatorial;GQ;GQ;África;CAF;;;https://flagcdn.com/w320/gq.png;Sim
+Lesoto;LS;LS;África;CAF;;;https://flagcdn.com/w320/ls.png;Sim
+Libéria;LR;LR;África;CAF;;;https://flagcdn.com/w320/lr.png;Sim
+Líbia;LY;LY;África;CAF;;;https://flagcdn.com/w320/ly.png;Sim
+Madagascar;MG;MG;África;CAF;;;https://flagcdn.com/w320/mg.png;Sim
+Maláui;MW;MW;África;CAF;;;https://flagcdn.com/w320/mw.png;Sim
+Mali;ML;ML;África;CAF;;;https://flagcdn.com/w320/ml.png;Sim
+Marrocos;MA;MA;África;CAF;;;https://flagcdn.com/w320/ma.png;Sim
+Maurícia;MU;MU;África;CAF;;;https://flagcdn.com/w320/mu.png;Sim
+Mauritânia;MR;MR;África;CAF;;;https://flagcdn.com/w320/mr.png;Sim
+Moçambique;MZ;MZ;África;CAF;;;https://flagcdn.com/w320/mz.png;Sim
+Namíbia;NA;NA;África;CAF;;;https://flagcdn.com/w320/na.png;Sim
+Níger;NE;NE;África;CAF;;;https://flagcdn.com/w320/ne.png;Sim
+Nigéria;NG;NG;África;CAF;;;https://flagcdn.com/w320/ng.png;Sim
+Quênia;KE;KE;África;CAF;;;https://flagcdn.com/w320/ke.png;Sim
+República Centro-Africana;CF;CF;África;CAF;;;https://flagcdn.com/w320/cf.png;Sim
+República Democrática do Congo;CD;CD;África;CAF;;;https://flagcdn.com/w320/cd.png;Sim
+Ruanda;RW;RW;África;CAF;;;https://flagcdn.com/w320/rw.png;Sim
+São Tomé e Príncipe;ST;ST;África;CAF;;;https://flagcdn.com/w320/st.png;Sim
+Senegal;SN;SN;África;CAF;;;https://flagcdn.com/w320/sn.png;Sim
+Serra Leoa;SL;SL;África;CAF;;;https://flagcdn.com/w320/sl.png;Sim
+Seicheles;SC;SC;África;CAF;;;https://flagcdn.com/w320/sc.png;Sim
+Somália;SO;SO;África;CAF;;;https://flagcdn.com/w320/so.png;Sim
+Sudão;SD;SD;África;CAF;;;https://flagcdn.com/w320/sd.png;Sim
+Sudão do Sul;SS;SS;África;CAF;;;https://flagcdn.com/w320/ss.png;Sim
+Tanzânia;TZ;TZ;África;CAF;;;https://flagcdn.com/w320/tz.png;Sim
+Togo;TG;TG;África;CAF;;;https://flagcdn.com/w320/tg.png;Sim
+Tunísia;TN;TN;África;CAF;;;https://flagcdn.com/w320/tn.png;Sim
+Uganda;UG;UG;África;CAF;;;https://flagcdn.com/w320/ug.png;Sim
+Zâmbia;ZM;ZM;África;CAF;;;https://flagcdn.com/w320/zm.png;Sim
+Zimbábue;ZW;ZW;África;CAF;;;https://flagcdn.com/w320/zw.png;Sim
+Canadá;CA;CA;América do Norte;CONCACAF;;;https://flagcdn.com/w320/ca.png;Sim
+Estados Unidos;US;US;América do Norte;CONCACAF;;;https://flagcdn.com/w320/us.png;Sim
+México;MX;MX;América do Norte;CONCACAF;;;https://flagcdn.com/w320/mx.png;Sim
+Belize;BZ;BZ;América Central;CONCACAF;;;https://flagcdn.com/w320/bz.png;Sim
+Costa Rica;CR;CR;América Central;CONCACAF;;;https://flagcdn.com/w320/cr.png;Sim
+El Salvador;SV;SV;América Central;CONCACAF;;;https://flagcdn.com/w320/sv.png;Sim
+Guatemala;GT;GT;América Central;CONCACAF;;;https://flagcdn.com/w320/gt.png;Sim
+Honduras;HN;HN;América Central;CONCACAF;;;https://flagcdn.com/w320/hn.png;Sim
+Nicarágua;NI;NI;América Central;CONCACAF;;;https://flagcdn.com/w320/ni.png;Sim
+Panamá;PA;PA;América Central;CONCACAF;;;https://flagcdn.com/w320/pa.png;Sim
+Antígua e Barbuda;AG;AG;Caribe;CONCACAF;;;https://flagcdn.com/w320/ag.png;Sim
+Bahamas;BS;BS;Caribe;CONCACAF;;;https://flagcdn.com/w320/bs.png;Sim
+Barbados;BB;BB;Caribe;CONCACAF;;;https://flagcdn.com/w320/bb.png;Sim
+Cuba;CU;CU;Caribe;CONCACAF;;;https://flagcdn.com/w320/cu.png;Sim
+Dominica;DM;DM;Caribe;CONCACAF;;;https://flagcdn.com/w320/dm.png;Sim
+Granada;GD;GD;Caribe;CONCACAF;;;https://flagcdn.com/w320/gd.png;Sim
+Haiti;HT;HT;Caribe;CONCACAF;;;https://flagcdn.com/w320/ht.png;Sim
+Jamaica;JM;JM;Caribe;CONCACAF;;;https://flagcdn.com/w320/jm.png;Sim
+República Dominicana;DO;DO;Caribe;CONCACAF;;;https://flagcdn.com/w320/do.png;Sim
+Santa Lúcia;LC;LC;Caribe;CONCACAF;;;https://flagcdn.com/w320/lc.png;Sim
+São Cristóvão e Nevis;KN;KN;Caribe;CONCACAF;;;https://flagcdn.com/w320/kn.png;Sim
+São Vicente e Granadinas;VC;VC;Caribe;CONCACAF;;;https://flagcdn.com/w320/vc.png;Sim
+Trinidad e Tobago;TT;TT;Caribe;CONCACAF;;;https://flagcdn.com/w320/tt.png;Sim
+Argentina;AR;AR;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/ar.png;Sim
+Bolívia;BO;BO;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/bo.png;Sim
+Brasil;BR;BR;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/br.png;Sim
+Chile;CL;CL;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/cl.png;Sim
+Colômbia;CO;CO;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/co.png;Sim
+Equador;EC;EC;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/ec.png;Sim
+Guiana;GY;GY;América do Sul;CONCACAF;;;https://flagcdn.com/w320/gy.png;Sim
+Paraguai;PY;PY;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/py.png;Sim
+Peru;PE;PE;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/pe.png;Sim
+Suriname;SR;SR;América do Sul;CONCACAF;;;https://flagcdn.com/w320/sr.png;Sim
+Uruguai;UY;UY;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/uy.png;Sim
+Venezuela;VE;VE;América do Sul;CONMEBOL;;;https://flagcdn.com/w320/ve.png;Sim
+Afeganistão;AF;AF;Ásia;AFC;;;https://flagcdn.com/w320/af.png;Sim
+Arábia Saudita;SA;SA;Ásia;AFC;;;https://flagcdn.com/w320/sa.png;Sim
+Armênia;AM;AM;Ásia;UEFA;;;https://flagcdn.com/w320/am.png;Sim
+Azerbaijão;AZ;AZ;Ásia;UEFA;;;https://flagcdn.com/w320/az.png;Sim
+Bahrein;BH;BH;Ásia;AFC;;;https://flagcdn.com/w320/bh.png;Sim
+Bangladesh;BD;BD;Ásia;AFC;;;https://flagcdn.com/w320/bd.png;Sim
+Brunei;BN;BN;Ásia;AFC;;;https://flagcdn.com/w320/bn.png;Sim
+Butão;BT;BT;Ásia;AFC;;;https://flagcdn.com/w320/bt.png;Sim
+Camboja;KH;KH;Ásia;AFC;;;https://flagcdn.com/w320/kh.png;Sim
+Catar;QA;QA;Ásia;AFC;;;https://flagcdn.com/w320/qa.png;Sim
+China;CN;CN;Ásia;AFC;;;https://flagcdn.com/w320/cn.png;Sim
+Coreia do Norte;KP;KP;Ásia;AFC;;;https://flagcdn.com/w320/kp.png;Sim
+Coreia do Sul;KR;KR;Ásia;AFC;;;https://flagcdn.com/w320/kr.png;Sim
+Emirados Árabes Unidos;AE;AE;Ásia;AFC;;;https://flagcdn.com/w320/ae.png;Sim
+Filipinas;PH;PH;Ásia;AFC;;;https://flagcdn.com/w320/ph.png;Sim
+Geórgia;GE;GE;Ásia;UEFA;;;https://flagcdn.com/w320/ge.png;Sim
+Iêmen;YE;YE;Ásia;AFC;;;https://flagcdn.com/w320/ye.png;Sim
+Índia;IN;IN;Ásia;AFC;;;https://flagcdn.com/w320/in.png;Sim
+Indonésia;ID;ID;Ásia;AFC;;;https://flagcdn.com/w320/id.png;Sim
+Irã;IR;IR;Ásia;AFC;;;https://flagcdn.com/w320/ir.png;Sim
+Iraque;IQ;IQ;Ásia;AFC;;;https://flagcdn.com/w320/iq.png;Sim
+Israel;IL;IL;Ásia;UEFA;;;https://flagcdn.com/w320/il.png;Sim
+Japão;JP;JP;Ásia;AFC;;;https://flagcdn.com/w320/jp.png;Sim
+Jordânia;JO;JO;Ásia;AFC;;;https://flagcdn.com/w320/jo.png;Sim
+Cazaquistão;KZ;KZ;Ásia;UEFA;;;https://flagcdn.com/w320/kz.png;Sim
+Kuwait;KW;KW;Ásia;AFC;;;https://flagcdn.com/w320/kw.png;Sim
+Laos;LA;LA;Ásia;AFC;;;https://flagcdn.com/w320/la.png;Sim
+Líbano;LB;LB;Ásia;AFC;;;https://flagcdn.com/w320/lb.png;Sim
+Malásia;MY;MY;Ásia;AFC;;;https://flagcdn.com/w320/my.png;Sim
+Maldivas;MV;MV;Ásia;AFC;;;https://flagcdn.com/w320/mv.png;Sim
+Mianmar;MM;MM;Ásia;AFC;;;https://flagcdn.com/w320/mm.png;Sim
+Mongólia;MN;MN;Ásia;AFC;;;https://flagcdn.com/w320/mn.png;Sim
+Nepal;NP;NP;Ásia;AFC;;;https://flagcdn.com/w320/np.png;Sim
+Omã;OM;OM;Ásia;AFC;;;https://flagcdn.com/w320/om.png;Sim
+Paquistão;PK;PK;Ásia;AFC;;;https://flagcdn.com/w320/pk.png;Sim
+Quirguistão;KG;KG;Ásia;AFC;;;https://flagcdn.com/w320/kg.png;Sim
+Singapura;SG;SG;Ásia;AFC;;;https://flagcdn.com/w320/sg.png;Sim
+Síria;SY;SY;Ásia;AFC;;;https://flagcdn.com/w320/sy.png;Sim
+Sri Lanka;LK;LK;Ásia;AFC;;;https://flagcdn.com/w320/lk.png;Sim
+Tadjiquistão;TJ;TJ;Ásia;AFC;;;https://flagcdn.com/w320/tj.png;Sim
+Tailândia;TH;TH;Ásia;AFC;;;https://flagcdn.com/w320/th.png;Sim
+Taiwan;TW;TW;Ásia;AFC;;;https://flagcdn.com/w320/tw.png;Sim
+Timor-Leste;TL;TL;Ásia;AFC;;;https://flagcdn.com/w320/tl.png;Sim
+Turcomenistão;TM;TM;Ásia;AFC;;;https://flagcdn.com/w320/tm.png;Sim
+Turquia;TR;TR;Europa;UEFA;;;https://flagcdn.com/w320/tr.png;Sim
+Uzbequistão;UZ;UZ;Ásia;AFC;;;https://flagcdn.com/w320/uz.png;Sim
+Vietnã;VN;VN;Ásia;AFC;;;https://flagcdn.com/w320/vn.png;Sim
+Albânia;AL;AL;Europa;UEFA;;;https://flagcdn.com/w320/al.png;Sim
+Alemanha;DE;DE;Europa;UEFA;;;https://flagcdn.com/w320/de.png;Sim
+Andorra;AD;AD;Europa;UEFA;;;https://flagcdn.com/w320/ad.png;Sim
+Áustria;AT;AT;Europa;UEFA;;;https://flagcdn.com/w320/at.png;Sim
+Bélgica;BE;BE;Europa;UEFA;;;https://flagcdn.com/w320/be.png;Sim
+Belarus;BY;BY;Europa;UEFA;;;https://flagcdn.com/w320/by.png;Sim
+Bósnia e Herzegovina;BA;BA;Europa;UEFA;;;https://flagcdn.com/w320/ba.png;Sim
+Bulgária;BG;BG;Europa;UEFA;;;https://flagcdn.com/w320/bg.png;Sim
+Chipre;CY;CY;Europa;UEFA;;;https://flagcdn.com/w320/cy.png;Sim
+Croácia;HR;HR;Europa;UEFA;;;https://flagcdn.com/w320/hr.png;Sim
+Dinamarca;DK;DK;Europa;UEFA;;;https://flagcdn.com/w320/dk.png;Sim
+Escócia;GB-SCT;GB-SCT;Europa;UEFA;;;https://flagcdn.com/w320/gb.png;Sim
+Eslováquia;SK;SK;Europa;UEFA;;;https://flagcdn.com/w320/sk.png;Sim
+Eslovênia;SI;SI;Europa;UEFA;;;https://flagcdn.com/w320/si.png;Sim
+Espanha;ES;ES;Europa;UEFA;;;https://flagcdn.com/w320/es.png;Sim
+Estônia;EE;EE;Europa;UEFA;;;https://flagcdn.com/w320/ee.png;Sim
+Finlândia;FI;FI;Europa;UEFA;;;https://flagcdn.com/w320/fi.png;Sim
+França;FR;FR;Europa;UEFA;;;https://flagcdn.com/w320/fr.png;Sim
+Grécia;GR;GR;Europa;UEFA;;;https://flagcdn.com/w320/gr.png;Sim
+Hungria;HU;HU;Europa;UEFA;;;https://flagcdn.com/w320/hu.png;Sim
+Inglaterra;GB-ENG;GB-ENG;Europa;UEFA;;;https://flagcdn.com/w320/gb.png;Sim
+Irlanda;IE;IE;Europa;UEFA;;;https://flagcdn.com/w320/ie.png;Sim
+Irlanda do Norte;GB-NIR;GB-NIR;Europa;UEFA;;;https://flagcdn.com/w320/gb.png;Sim
+Islândia;IS;IS;Europa;UEFA;;;https://flagcdn.com/w320/is.png;Sim
+Itália;IT;IT;Europa;UEFA;;;https://flagcdn.com/w320/it.png;Sim
+Kosovo;XK;XK;Europa;UEFA;;;https://flagcdn.com/w320/xk.png;Sim
+Letônia;LV;LV;Europa;UEFA;;;https://flagcdn.com/w320/lv.png;Sim
+Liechtenstein;LI;LI;Europa;UEFA;;;https://flagcdn.com/w320/li.png;Sim
+Lituânia;LT;LT;Europa;UEFA;;;https://flagcdn.com/w320/lt.png;Sim
+Luxemburgo;LU;LU;Europa;UEFA;;;https://flagcdn.com/w320/lu.png;Sim
+Malta;MT;MT;Europa;UEFA;;;https://flagcdn.com/w320/mt.png;Sim
+Moldávia;MD;MD;Europa;UEFA;;;https://flagcdn.com/w320/md.png;Sim
+Montenegro;ME;ME;Europa;UEFA;;;https://flagcdn.com/w320/me.png;Sim
+Noruega;NO;NO;Europa;UEFA;;;https://flagcdn.com/w320/no.png;Sim
+País de Gales;GB-WLS;GB-WLS;Europa;UEFA;;;https://flagcdn.com/w320/gb.png;Sim
+Países Baixos;NL;NL;Europa;UEFA;;;https://flagcdn.com/w320/nl.png;Sim
+Polônia;PL;PL;Europa;UEFA;;;https://flagcdn.com/w320/pl.png;Sim
+Portugal;PT;PT;Europa;UEFA;;;https://flagcdn.com/w320/pt.png;Sim
+República Tcheca;CZ;CZ;Europa;UEFA;;;https://flagcdn.com/w320/cz.png;Sim
+Macedônia do Norte;MK;MK;Europa;UEFA;;;https://flagcdn.com/w320/mk.png;Sim
+Romênia;RO;RO;Europa;UEFA;;;https://flagcdn.com/w320/ro.png;Sim
+Rússia;RU;RU;Europa;UEFA;;;https://flagcdn.com/w320/ru.png;Sim
+San Marino;SM;SM;Europa;UEFA;;;https://flagcdn.com/w320/sm.png;Sim
+Sérvia;RS;RS;Europa;UEFA;;;https://flagcdn.com/w320/rs.png;Sim
+Suécia;SE;SE;Europa;UEFA;;;https://flagcdn.com/w320/se.png;Sim
+Suíça;CH;CH;Europa;UEFA;;;https://flagcdn.com/w320/ch.png;Sim
+Ucrânia;UA;UA;Europa;UEFA;;;https://flagcdn.com/w320/ua.png;Sim
+Vaticano;VA;VA;Europa;;;;https://flagcdn.com/w320/va.png;Sim
+Austrália;AU;AU;Oceania;AFC;;;https://flagcdn.com/w320/au.png;Sim
+Fiji;FJ;FJ;Oceania;OFC;;;https://flagcdn.com/w320/fj.png;Sim
+Ilhas Cook;CK;CK;Oceania;OFC;;;https://flagcdn.com/w320/ck.png;Sim
+Ilhas Marshall;MH;MH;Oceania;OFC;;;https://flagcdn.com/w320/mh.png;Sim
+Ilhas Salomão;SB;SB;Oceania;OFC;;;https://flagcdn.com/w320/sb.png;Sim
+Kiribati;KI;KI;Oceania;OFC;;;https://flagcdn.com/w320/ki.png;Sim
+Micronésia;FM;FM;Oceania;OFC;;;https://flagcdn.com/w320/fm.png;Sim
+Nauru;NR;NR;Oceania;OFC;;;https://flagcdn.com/w320/nr.png;Sim
+Nova Zelândia;NZ;NZ;Oceania;OFC;;;https://flagcdn.com/w320/nz.png;Sim
+Palau;PW;PW;Oceania;OFC;;;https://flagcdn.com/w320/pw.png;Sim
+Papua-Nova Guiné;PG;PG;Oceania;OFC;;;https://flagcdn.com/w320/pg.png;Sim
+Samoa;WS;WS;Oceania;OFC;;;https://flagcdn.com/w320/ws.png;Sim
+Samoa Americana;AS;AS;Oceania;OFC;;;https://flagcdn.com/w320/as.png;Sim
+Tonga;TO;TO;Oceania;OFC;;;https://flagcdn.com/w320/to.png;Sim
+Tuvalu;TV;TV;Oceania;OFC;;;https://flagcdn.com/w320/tv.png;Sim
+Vanuatu;VU;VU;Oceania;OFC;;;https://flagcdn.com/w320/vu.png;Sim

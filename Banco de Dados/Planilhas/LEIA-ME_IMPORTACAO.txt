@@ -1,0 +1,18 @@
+FutPedia - Pacote de Planilhas
+
+Ordem sugerida:
+01_Continentes.xlsx
+02_Paises.xlsx
+03_Confederacoes_Federacoes.xlsx
+04_Competicoes.xlsx
+08_Cidades.xlsx
+07_Estadios.xlsx
+05_Times_Principais.xlsx
+06_Selecoes.xlsx
+09_Edicoes_Modelo.xlsx
+10_Edicao_Participantes_Modelo.xlsx
+11_Midias_Modelo.xlsx
+
+Observação:
+Este pacote é uma base inicial ampla e organizada para importar no Supabase.
+Antes de publicar dados históricos como oficiais, revise campeões, vices, datas, nomes e fontes.

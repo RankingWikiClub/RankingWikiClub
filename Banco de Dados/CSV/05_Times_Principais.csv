@@ -1,0 +1,43 @@
+﻿nome,pais,cidade,estado,estadio,fundacao,site_oficial,cores,ativo
+Flamengo,Brasil,Rio de Janeiro,RJ,Maracanã,1895,,rubro-negro,Sim
+Corinthians,Brasil,São Paulo,SP,Neo Química Arena,1910,,preto e branco,Sim
+Palmeiras,Brasil,São Paulo,SP,Allianz Parque,1914,,verde e branco,Sim
+São Paulo,Brasil,São Paulo,SP,Morumbi,1930,,tricolor,Sim
+Santos,Brasil,Santos,SP,Vila Belmiro,1912,,preto e branco,Sim
+Vasco da Gama,Brasil,Rio de Janeiro,RJ,São Januário,1898,,preto e branco,Sim
+Fluminense,Brasil,Rio de Janeiro,RJ,Maracanã,1902,,tricolor,Sim
+Botafogo,Brasil,Rio de Janeiro,RJ,Nilton Santos,1904,,preto e branco,Sim
+Grêmio,Brasil,Porto Alegre,RS,Arena do Grêmio,1903,,"azul, preto e branco",Sim
+Internacional,Brasil,Porto Alegre,RS,Beira-Rio,1909,,vermelho e branco,Sim
+Cruzeiro,Brasil,Belo Horizonte,MG,Mineirão,1921,,azul e branco,Sim
+Atlético Mineiro,Brasil,Belo Horizonte,MG,Arena MRV,1908,,preto e branco,Sim
+Boca Juniors,Argentina,Buenos Aires,,La Bombonera,1905,,azul e amarelo,Sim
+River Plate,Argentina,Buenos Aires,,Monumental,1901,,branco e vermelho,Sim
+Independiente,Argentina,Avellaneda,,Libertadores de América,1905,,vermelho,Sim
+Racing Club,Argentina,Avellaneda,,El Cilindro,1903,,azul e branco,Sim
+Peñarol,Uruguai,Montevidéu,,Campeón del Siglo,1891,,amarelo e preto,Sim
+Nacional,Uruguai,Montevidéu,,Gran Parque Central,1899,,"branco, azul e vermelho",Sim
+Real Madrid,Espanha,Madrid,,Santiago Bernabéu,1902,,branco,Sim
+Barcelona,Espanha,Barcelona,,Camp Nou,1899,,azul e grená,Sim
+Atlético de Madrid,Espanha,Madrid,,Metropolitano,1903,,"vermelho, branco e azul",Sim
+Manchester United,Inglaterra,Manchester,,Old Trafford,1878,,vermelho,Sim
+Liverpool,Inglaterra,Liverpool,,Anfield,1892,,vermelho,Sim
+Arsenal,Inglaterra,Londres,,Emirates Stadium,1886,,vermelho e branco,Sim
+Chelsea,Inglaterra,Londres,,Stamford Bridge,1905,,azul,Sim
+Manchester City,Inglaterra,Manchester,,Etihad Stadium,1880,,azul claro,Sim
+Juventus,Itália,Turim,,Allianz Stadium,1897,,preto e branco,Sim
+Milan,Itália,Milão,,San Siro,1899,,vermelho e preto,Sim
+Internazionale,Itália,Milão,,San Siro,1908,,azul e preto,Sim
+Napoli,Itália,Nápoles,,Diego Armando Maradona,1926,,azul,Sim
+Bayern de Munique,Alemanha,Munique,,Allianz Arena,1900,,vermelho e branco,Sim
+Borussia Dortmund,Alemanha,Dortmund,,Signal Iduna Park,1909,,amarelo e preto,Sim
+Paris Saint-Germain,França,Paris,,Parc des Princes,1970,,"azul, vermelho e branco",Sim
+Olympique de Marseille,França,Marselha,,Vélodrome,1899,,azul e branco,Sim
+Benfica,Portugal,Lisboa,,Estádio da Luz,1904,,vermelho e branco,Sim
+Porto,Portugal,Porto,,Estádio do Dragão,1893,,azul e branco,Sim
+Sporting CP,Portugal,Lisboa,,José Alvalade,1906,,verde e branco,Sim
+Al Ahly,Egito,Cairo,,Cairo International Stadium,1907,,vermelho,Sim
+Zamalek,Egito,Cairo,,Cairo International Stadium,1911,,branco,Sim
+Al Hilal,Arábia Saudita,Riad,,Kingdom Arena,1957,,azul,Sim
+Urawa Red Diamonds,Japão,Saitama,,Saitama Stadium,1950,,vermelho,Sim
+LA Galaxy,Estados Unidos,Los Angeles,CA,Dignity Health Sports Park,1994,,branco e azul,Sim
