@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FutPedia - Seleções</title>
+  <title>FutPedia - Editor</title>
   <link rel="stylesheet" href="./css/style.css">
 </head>
-<body>
+<body data-protected="editor">
 <header class="topo">
   <nav class="menu">
     <a href="./index.html" class="logo-menu" aria-label="FutPédia Início"><img class="logo-futpedia-topo" src="./assets/logo-futpedia.png" alt="FutPedia Banco de Dados"></a>
@@ -19,30 +19,23 @@
     <a href="./editor.html">Editor</a>
   </nav>
 </header>
-<div class="campo-pesquisa-principal pesquisa-topo">
-  <label for="pesquisaSelecoes">Pesquisar seleções</label>
-  <input type="search" id="pesquisaSelecoes" placeholder="Digite o nome, país ou continente...">
-</div>
-
 <main class="pagina">
-  <h2>Seleções</h2>
-  <div class="card filtro-selecoes">
-    <label>Filtrar por continente</label>
-    <select id="filtroContinenteSelecao"></select>
+  <h2>Editor</h2>
+  <div class="botoes">
+    <button type="button" data-edicao="clubes" onclick="mostrarEdicao('clubes')">Editar Times</button>
+    <button type="button" data-edicao="selecoes" onclick="mostrarEdicao('selecoes')">Editar Seleções</button>
+    <button type="button" data-edicao="competicoes" onclick="mostrarEdicao('competicoes')">Editar Competições</button>
+    <button type="button" data-edicao="titulos" onclick="mostrarEdicao('titulos')">Editar Campeões e Vices</button>
   </div>
-  <div id="listaSelecoes" class="cards"></div>
-
-  <div id="detalhesSelecao" class="detalhes" style="display:none;">
-    <h2 id="tituloSelecao"></h2>
-    <div id="infoSelecao"></div>
-  </div>
+  <div id="areaEdicao"></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase.js"></script>
 <script src="./js/storage.js"></script>
-<script src="./js/dados.js"></script>
-<script src="./js/detalhes.js"></script>
-<script src="./js/selecoes.js"></script>
+<script src="./js/dados.js?v=12"></script>
+<script src="./js/detalhes.js?v=13"></script>
+<script src="./js/banco.js?v=13"></script>
+<script src="./js/edicoes.js?v=13"></script>
 <script src="./js/auth.js"></script>
 <script src="./js/login-edicao-fix.js?v=1"></script>
 <script src="./js/futpedia-supabase-fix.js?v=1"></script>

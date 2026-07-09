@@ -1,43 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FutPedia - Editor</title>
-  <link rel="stylesheet" href="./css/style.css">
+  <meta http-equiv="refresh" content="0; url=./editor.html" />
+  <script>
+    const destino = './editor.html' + window.location.search + window.location.hash;
+    window.location.replace(destino);
+  </script>
 </head>
-<body data-protected="editor">
-<header class="topo">
-  <nav class="menu">
-    <a href="./index.html" class="logo-menu" aria-label="FutPédia Início"><img class="logo-futpedia-topo" src="./assets/logo-futpedia.png" alt="FutPedia Banco de Dados"></a>
-    <a href="./index.html">Início</a>
-    <a href="./clubes.html">Clubes</a>
-    <a href="./selecoes.html">Seleções</a>
-    <a href="./competicoes.html">Competições</a>
-    <a href="./estatisticas.html">Estatísticas</a>
-    <a href="./cadastros.html">Inserir</a>
-    <a href="./edicoes.html">Editor</a>
-  </nav>
-</header>
-<main class="pagina">
-  <h2>Editor</h2>
-  <div class="botoes">
-    <button type="button" data-edicao="clubes" onclick="mostrarEdicao('clubes')">Editar Times</button>
-    <button type="button" data-edicao="selecoes" onclick="mostrarEdicao('selecoes')">Editar Seleções</button>
-    <button type="button" data-edicao="competicoes" onclick="mostrarEdicao('competicoes')">Editar Competições</button>
-    <button type="button" data-edicao="titulos" onclick="mostrarEdicao('titulos')">Editar Campeões e Vices</button>
-  </div>
-  <div id="areaEdicao"></div>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./js/supabase.js"></script>
-<script src="./js/storage.js"></script>
-<script src="./js/dados.js?v=12"></script>
-<script src="./js/detalhes.js?v=13"></script>
-<script src="./js/banco.js?v=13"></script>
-<script src="./js/edicoes.js?v=13"></script>
-<script src="./js/auth.js"></script>
-<script src="./js/login-edicao-fix.js?v=1"></script>
-<script src="./js/futpedia-supabase-fix.js?v=1"></script>
+<body>
+  <p>Redirecionando para <a href="./editor.html">Editor</a>...</p>
 </body>
 </html>

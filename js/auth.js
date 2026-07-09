@@ -65,7 +65,7 @@ async function protegerPagina() {
 function atualizarMenuAuth(user, perfil) {
   const menus = document.querySelectorAll(".menu");
   menus.forEach(menu => {
-    const linksPrivados = menu.querySelectorAll('a[href$="cadastros.html"], a[href$="edicoes.html"]');
+    const linksPrivados = menu.querySelectorAll('a[href$="cadastros.html"], a[href$="editor.html"], a[href$="edicoes.html"]');
     linksPrivados.forEach(link => {
       if (!podeEditar(perfil)) link.style.display = "none";
       else link.style.display = "inline-flex";

@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /* Abre automaticamente o formulário de edição quando a página vier da tela de detalhes.
-   Exemplo: edicoes.html?tipo=clubes&id=123&editar=1 */
+   Exemplo: editor.html?tipo=clubes&id=123&editar=1 */
 function fpNormalizarTipoEdicaoUrl(tipo) {
   const t = String(tipo || '').toLowerCase();
   if (['time', 'times', 'clube', 'clubes'].includes(t)) return 'clubes';

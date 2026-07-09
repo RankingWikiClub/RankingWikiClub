@@ -59,7 +59,7 @@
   }
 
   function aplicarVisibilidadeEdicao(logadoPodeEditar) {
-    const seletorLinks = 'a[href$="cadastros.html"], a[href$="edicoes.html"]';
+    const seletorLinks = 'a[href$="cadastros.html"], a[href$="editor.html"], a[href$="edicoes.html"]';
     const seletorBotoes = '.btn-editar, .btn-editar-detalhes-global, button[data-edicao], [data-requer-login="editor"], .acao-editor';
 
     document.querySelectorAll(seletorLinks).forEach(el => {
@@ -262,7 +262,7 @@
           await garantirRegistroAtualizadoNoBanco(tipo, id);
           const tipoUrl = tipoParaTabela(tipo);
           const params = new URLSearchParams({ tipo: tipoUrl, id: String(id || ''), editar: '1', origem: 'detalhes' });
-          location.href = `./edicoes.html?${params.toString()}`;
+          location.href = `./editor.html?${params.toString()}`;
         };
       };
     }
@@ -277,7 +277,7 @@
 
     const { user, perfil } = await sessaoAtual();
     if (!user || !podeEditarPerfil(perfil)) {
-      location.href = './login.html?redirect=' + encodeURIComponent('edicoes.html' + location.search);
+      location.href = './login.html?redirect=' + encodeURIComponent('editor.html' + location.search);
       return;
     }
 

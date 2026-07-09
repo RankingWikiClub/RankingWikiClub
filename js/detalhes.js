@@ -101,7 +101,7 @@ async function configurarBotaoEditarDetalhes(tipo, id) {
       editar: "1",
       origem: "detalhes"
     });
-    window.location.href = `./edicoes.html?${params.toString()}`;
+    window.location.href = `./editor.html?${params.toString()}`;
   };
 }
 
