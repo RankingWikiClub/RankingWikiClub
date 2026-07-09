@@ -10,3 +10,4 @@ Atualização aplicada na página **Edições > Editar Competições**:
 - **Continente** exibe competições internacionais/continentais cadastradas.
 - **País** exibe a lista de países cadastrados e filtra competições do país selecionado.
 - A lógica de **Competições de seleções** foi mantida conforme a versão anterior.
+teste
