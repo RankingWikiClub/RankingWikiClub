@@ -953,3 +953,288 @@ function converterDataBrasilParaISO(valor) {
   const [dia, mes, ano] = partes;
   return `${ano}-${mes}-${dia}`;
 }
+
+/* ===== FutPedia Storage + SQL direto nos cadastros ===== */
+function fpCadastroCliente() {
+  return typeof clienteSupabase === "function" ? clienteSupabase() : null;
+}
+
+function fpCadastroNormalizarData(valor) {
+  const v = String(valor || "").trim();
+  if (!v) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  return v;
+}
+
+async function fpCadastroBuscarId(tabela, campo, valor) {
+  const supabase = fpCadastroCliente();
+  if (!supabase || !valor) return null;
+  const { data, error } = await supabase
+    .from(tabela)
+    .select("id")
+    .eq(campo, valor)
+    .maybeSingle();
+  if (error) {
+    console.warn(`Não foi possível buscar ${tabela}.${campo}`, error.message || error);
+    return null;
+  }
+  return data?.id || null;
+}
+
+async function fpCadastroInserirOuAtualizarTime(dados) {
+  const supabase = fpCadastroCliente();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase.rpc("fp_salvar_time", {
+    p_id: null,
+    p_pais_nome: dados.pais || null,
+    p_nome_curto: dados.nomeCurto || dados.nomeCompleto || null,
+    p_nome: dados.nomeCompleto || dados.nomeCurto || null,
+    p_fundacao: dados.fundacao || null,
+    p_estado: dados.estado || null,
+    p_cidade: dados.cidade || null,
+    p_escudo_url: dados.escudo || null
+  });
+
+  if (error) {
+    console.error("Erro RPC fp_salvar_time:", error);
+    throw new Error(error.message || "Erro ao salvar time no Supabase.");
+  }
+  return data || null;
+}
+
+async function fpCadastroInserirOuAtualizarSelecao(dados) {
+  const supabase = fpCadastroCliente();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase.rpc("fp_salvar_selecao", {
+    p_id: null,
+    p_pais_nome: dados.pais || dados.nome || null,
+    p_nome: dados.nome || dados.pais || null,
+    p_escudo_url: dados.escudo || null
+  });
+
+  if (error) {
+    console.error("Erro RPC fp_salvar_selecao:", error);
+    throw new Error(error.message || "Erro ao salvar seleção no Supabase.");
+  }
+  return data || null;
+}
+
+function fpCadastroAbrangenciaSql(valor) {
+  const v = String(valor || "").toLowerCase();
+  if (v.includes("mund")) return "mundo";
+  if (v.includes("continent")) return "continente";
+  if (v.includes("país") || v.includes("pais")) return "pais";
+  if (v.includes("sele")) return "continente";
+  return v || null;
+}
+
+async function fpCadastroInserirOuAtualizarCompeticao(dados) {
+  const supabase = fpCadastroCliente();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase.rpc("fp_salvar_competicao", {
+    p_id: null,
+    p_nome: dados.nome || null,
+    p_tipo: dados.categoria === "selecao" ? "selecoes" : "clubes",
+    p_abrangencia: fpCadastroAbrangenciaSql(dados.abrangencia),
+    p_pais_nome: dados.pais || null,
+    p_continente_nome: dados.continente || null,
+    p_logo_url: dados.escudo || null,
+    p_organizador: dados.organizador || null,
+    p_nivel: dados.tipo || null,
+    p_genero: "masculino",
+    p_sigla: dados.sigla || null,
+    p_descricao: dados.descricao || null,
+    p_divisao: null,
+    p_periodicidade: null,
+    p_primeira_edicao: null,
+    p_status: "Ativa",
+    p_categoria: "Profissional"
+  });
+
+  if (error) {
+    console.error("Erro RPC fp_salvar_competicao:", error);
+    throw new Error(error.message || "Erro ao salvar competição no Supabase.");
+  }
+  return data || null;
+}
+
+salvarClube = async function salvarClube() {
+  const banco = carregarBanco();
+  const nome = document.getElementById("nomeCurto").value.trim();
+  const nomeCompleto = document.getElementById("nomeCompleto").value.trim();
+  const paisNome = document.getElementById("pais").value;
+  const pais = buscarPais(paisNome);
+
+  if (!nome || !nomeCompleto || !paisNome) {
+    alert("Preencha o nome curto, o nome completo e o país do time.");
+    return;
+  }
+
+  try {
+    const escudoUrl = await fpUploadImagemInput("escudo", "escudos-times", nomeCompleto || nome);
+    const dados = {
+      nomeCurto: nome,
+      nomeCompleto,
+      pais: paisNome,
+      estado: document.getElementById("estado").value,
+      siglaEstado: document.getElementById("siglaEstado").value,
+      cidade: document.getElementById("cidade").value.trim(),
+      fundacao: document.getElementById("fundacao").value,
+      escudo: escudoUrl,
+      rivais: obterRivaisSelecionados()
+    };
+
+    const idSql = await fpCadastroInserirOuAtualizarTime(dados);
+    banco.clubes.push({
+      id: idSql ? String(idSql) : gerarId(),
+      nome: nomeCompleto,
+      nomeCompleto,
+      nomeCurto: nome,
+      pais: paisNome,
+      bandeira: pais.bandeira,
+      estado: dados.estado,
+      siglaEstado: dados.siglaEstado,
+      cidade: dados.cidade,
+      fundacao: fpCadastroNormalizarData(dados.fundacao) || "",
+      escudo: escudoUrl,
+      rivais: dados.rivais
+    });
+
+    sincronizarRivaisBidirecionais(banco);
+    salvarBanco(banco);
+    if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+    alert("Time cadastrado com sucesso!");
+    location.reload();
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível cadastrar o time: " + (erro.message || erro));
+  }
+};
+
+salvarSelecao = async function salvarSelecao() {
+  const banco = carregarBanco();
+  const continente = document.getElementById("continenteSelecao").value;
+  const paisNome = document.getElementById("paisSelecao").value;
+  const pais = buscarPaisSelecao(paisNome);
+
+  if (!continente || !paisNome) {
+    alert("Selecione o continente e o país da seleção.");
+    return;
+  }
+
+  try {
+    const escudoUrl = await fpUploadImagemInput("escudoSelecao", "escudos-selecoes", paisNome);
+    const idSql = await fpCadastroInserirOuAtualizarSelecao({ nome: paisNome, pais: paisNome, escudo: escudoUrl });
+
+    const existenteLocal = banco.selecoes.find(s => String(s.id) === String(idSql) || (s.pais || s.nome) === paisNome);
+    if (existenteLocal) {
+      existenteLocal.escudo = escudoUrl || existenteLocal.escudo || "";
+      existenteLocal.nome = paisNome;
+      existenteLocal.pais = paisNome;
+      existenteLocal.continente = continente;
+    } else {
+      banco.selecoes.push({
+        id: idSql ? String(idSql) : gerarId(),
+        nome: paisNome,
+        pais: paisNome,
+        continente,
+        bandeira: pais.bandeira,
+        escudo: escudoUrl
+      });
+    }
+
+    salvarBanco(banco);
+    if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+    alert("Seleção cadastrada com sucesso!");
+    location.reload();
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível cadastrar a seleção: " + (erro.message || erro));
+  }
+};
+
+salvarCompeticao = async function salvarCompeticao() {
+  const banco = carregarBanco();
+  const nome = document.getElementById("nomeCompeticao").value.trim();
+  const tipoCompeticao = document.getElementById("tipoCompeticao").value;
+  const categoriaCompeticao = document.getElementById("categoriaCompeticao")?.value || "clube";
+  const abrangenciaCampo = document.getElementById("abrangencia")?.value || "";
+  const abrangencia = categoriaCompeticao === "selecao" ? "Seleções" : abrangenciaCampo;
+  const paisNome = document.getElementById("paisCompeticao")?.value || "";
+
+  if (!nome || !tipoCompeticao || (categoriaCompeticao === "clube" && !abrangenciaCampo)) {
+    alert(categoriaCompeticao === "selecao"
+      ? "Preencha o nome e o tipo da competição."
+      : "Preencha o nome, o tipo e a abrangência da competição.");
+    return;
+  }
+
+  try {
+    const escudoUrl = await fpUploadImagemInput("escudoCompeticao", "logos-competicoes", nome);
+    const competicao = {
+      id: gerarId(),
+      nome,
+      tipo: tipoCompeticao,
+      categoria: categoriaCompeticao,
+      abrangencia,
+      local: "",
+      bandeira: "",
+      escudo: escudoUrl
+    };
+
+    if (categoriaCompeticao === "selecao") {
+      competicao.local = "Seleções";
+      competicao.bandeira = "🏆";
+    }
+
+    if (categoriaCompeticao === "clube" && abrangencia === "Mundial") {
+      competicao.local = "Mundial";
+      competicao.bandeira = "🌍";
+    }
+
+    if (categoriaCompeticao === "clube" && abrangencia === "Continental") {
+      const continente = document.getElementById("continenteCompeticao").value;
+      if (!continente) {
+        alert("Selecione o continente.");
+        return;
+      }
+      competicao.continente = continente;
+      competicao.local = continente;
+      competicao.bandeira = "🌎";
+    }
+
+    if (categoriaCompeticao === "clube" && abrangencia === "País") {
+      if (!paisNome) {
+        alert("Selecione o país.");
+        return;
+      }
+      const pais = buscarPais(paisNome);
+      competicao.pais = paisNome;
+      competicao.local = paisNome;
+      competicao.bandeira = pais.bandeira;
+    }
+
+    const idSql = await fpCadastroInserirOuAtualizarCompeticao({
+      ...competicao,
+      escudo: escudoUrl,
+      organizador: "",
+      sigla: "",
+      descricao: ""
+    });
+    if (idSql) competicao.id = String(idSql);
+
+    banco.competicoes.push(competicao);
+    salvarBanco(banco);
+    if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+    alert("Competição cadastrada com sucesso!");
+    location.reload();
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível cadastrar a competição: " + (erro.message || erro));
+  }
+};

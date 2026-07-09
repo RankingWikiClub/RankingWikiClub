@@ -609,8 +609,8 @@ async function carregarDadosRelacionaisSupabase() {
         pais: pais.nome || "",
         continente: pais.continente || "",
         bandeira: bandeiraPorSigla(pais.sigla),
-        estado: t.estado || "",
-        siglaEstado: t.estado || "",
+        estado: buscarEstado(t.estado || "").nome || t.estado || "",
+        siglaEstado: buscarEstado(t.estado || "").sigla || t.estado || "",
         cidade: t.cidade || "",
         fundacao: t.fundacao || "",
         estadio: t.estadio || "",
@@ -709,7 +709,20 @@ function buscarPais(nome) {
 }
 
 function buscarEstado(nome) {
-  return ESTADOS_BRASIL.find(e => e.nome === nome) || { nome, sigla: "" };
+  const valor = String(nome || "").trim();
+  if (!valor) return { nome: "", sigla: "" };
+
+  const normalizado = valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  return ESTADOS_BRASIL.find(e =>
+    e.nome === valor ||
+    e.sigla === valor ||
+    e.sigla.toLowerCase() === valor.toLowerCase() ||
+    e.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === normalizado
+  ) || { nome: valor, sigla: "" };
 }
 
 function preencherSelect(id, itens, placeholder, getValue, getText) {

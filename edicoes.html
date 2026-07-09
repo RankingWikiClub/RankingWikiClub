@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FutPedia - Edições</title>
+  <title>FutPedia - Editor</title>
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body data-protected="editor">
@@ -16,11 +16,11 @@
     <a href="./competicoes.html">Competições</a>
     <a href="./estatisticas.html">Estatísticas</a>
     <a href="./cadastros.html">Inserir</a>
-    <a href="./edicoes.html">Edições</a>
+    <a href="./edicoes.html">Editor</a>
   </nav>
 </header>
 <main class="pagina">
-  <h2>Edições</h2>
+  <h2>Editor</h2>
   <div class="botoes">
     <button type="button" data-edicao="clubes" onclick="mostrarEdicao('clubes')">Editar Times</button>
     <button type="button" data-edicao="selecoes" onclick="mostrarEdicao('selecoes')">Editar Seleções</button>
@@ -31,10 +31,13 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./js/supabase.js"></script>
+<script src="./js/storage.js"></script>
 <script src="./js/dados.js?v=12"></script>
-<script src="./js/detalhes.js?v=12"></script>
-<script src="./js/banco.js?v=12"></script>
-<script src="./js/edicoes.js?v=12"></script>
+<script src="./js/detalhes.js?v=13"></script>
+<script src="./js/banco.js?v=13"></script>
+<script src="./js/edicoes.js?v=13"></script>
 <script src="./js/auth.js"></script>
+<script src="./js/login-edicao-fix.js?v=1"></script>
+<script src="./js/futpedia-supabase-fix.js?v=1"></script>
 </body>
 </html>

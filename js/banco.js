@@ -238,11 +238,25 @@ function formularioEditarClube(clube, banco) {
     </option>
   `).join("");
 
-  const opcoesEstado = ESTADOS_BRASIL.map(e => `
-    <option value="${limparTexto(e.nome)}" ${e.nome === clube.estado ? "selected" : ""}>
-      ${limparTexto(e.nome)} - ${e.sigla}
-    </option>
-  `).join("");
+  const estadoAtualObj = buscarEstado(clube.estado || clube.siglaEstado || "");
+  const estadoAtualNome = estadoAtualObj.nome || clube.estado || "";
+  const estadoAtualSigla = estadoAtualObj.sigla || clube.siglaEstado || "";
+
+  const opcoesEstado = ESTADOS_BRASIL.map(e => {
+    const selecionado =
+      e.nome === estadoAtualNome ||
+      e.sigla === estadoAtualSigla ||
+      e.nome === clube.estado ||
+      e.sigla === clube.estado ||
+      e.nome === clube.siglaEstado ||
+      e.sigla === clube.siglaEstado;
+
+    return `
+      <option value="${limparTexto(e.nome)}" ${selecionado ? "selected" : ""}>
+        ${limparTexto(e.nome)} - ${e.sigla}
+      </option>
+    `;
+  }).join("");
 
   function opcoesRivais(valorAtual) {
     return banco.clubes
@@ -271,7 +285,7 @@ function formularioEditarClube(clube, banco) {
       <input type="file" id="editEscudo" accept="image/*">
 
       <label>Nome curto do time</label>
-      <input type="text" id="editNome" value="${limparTexto(clube.nome)}">
+      <input type="text" id="editNome" value="${limparTexto(clube.nomeCurto || clube.nome)}">
 
       <label>Nome completo do time</label>
       <input type="text" id="editNomeCompleto" value="${limparTexto(clube.nomeCompleto || clube.nome)}">
@@ -286,7 +300,7 @@ function formularioEditarClube(clube, banco) {
 
       <div id="grupoEditSiglaEstadoClube" class="grupo">
         <label>Sigla do Estado</label>
-        <input type="text" id="editSiglaEstado" value="${limparTexto(clube.siglaEstado || "")}" readonly>
+        <input type="text" id="editSiglaEstado" value="${limparTexto(estadoAtualSigla || "")}" readonly>
       </div>
 
       <label>Cidade</label>
@@ -936,17 +950,23 @@ function atualizarEstadoEdicaoClube() {
   if (!mostrarEstado) {
     if (estado) estado.value = "";
     if (sigla) sigla.value = "";
-  } else {
-    preencherSiglaEdicaoClube();
+    return;
   }
+
+  if (estado && estado.value) {
+    const estadoObj = buscarEstado(estado.value);
+    if (estadoObj.nome && estado.value !== estadoObj.nome) estado.value = estadoObj.nome;
+  }
+
+  preencherSiglaEdicaoClube();
 }
 
 function preencherSiglaEdicaoClube() {
-  const estadoNome = document.getElementById("editEstado")?.value || "";
+  const estadoValor = document.getElementById("editEstado")?.value || "";
   const sigla = document.getElementById("editSiglaEstado");
-  const estado = buscarEstado(estadoNome);
+  const estado = buscarEstado(estadoValor);
 
-  if (sigla) sigla.value = estado.sigla || "";
+  if (sigla) sigla.value = estado.sigla || estadoValor || "";
 }
 
 
@@ -3609,3 +3629,423 @@ window.fpSyncPaisVisivelCompeticaoTitulo = fpSyncPaisVisivelCompeticaoTitulo;
 window.formularioEditarTitulo = formularioEditarTitulo;
 window.atualizarCamposLocalEdicaoTitulo = atualizarCamposLocalEdicaoTitulo;
 window.filtrarCompeticoesEdicaoTitulo = filtrarCompeticoesEdicaoTitulo;
+
+
+/* ===== FutPedia: edição direta vinda da página de detalhes + salvamento nas tabelas SQL =====
+   Esta camada mantém a edição antiga no localStorage, mas também atualiza as tabelas reais
+   do Supabase: times, selecoes e competicoes. Assim as alterações permanecem no banco SQL. */
+function fpEdicaoSqlCliente() {
+  return typeof clienteSupabase === "function" ? clienteSupabase() : null;
+}
+
+function fpEdicaoNormalizarData(valor) {
+  const v = String(valor || "").trim();
+  if (!v) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  return v;
+}
+
+async function fpEdicaoBuscarPaisId(nomePais) {
+  const supa = fpEdicaoSqlCliente();
+  if (!supa || !nomePais) return null;
+  const { data, error } = await supa
+    .from("paises")
+    .select("id")
+    .eq("nome", nomePais)
+    .maybeSingle();
+  if (error) {
+    console.warn("Não foi possível buscar o país no Supabase:", error.message || error);
+    return null;
+  }
+  return data?.id || null;
+}
+
+async function fpEdicaoBuscarContinenteId(nomeContinente) {
+  const supa = fpEdicaoSqlCliente();
+  if (!supa || !nomeContinente) return null;
+  const { data, error } = await supa
+    .from("continentes")
+    .select("id")
+    .eq("nome", nomeContinente)
+    .maybeSingle();
+  if (error) {
+    console.warn("Não foi possível buscar o continente no Supabase:", error.message || error);
+    return null;
+  }
+  return data?.id || null;
+}
+
+async function fpEdicaoAtualizarTimeSql(id, dados) {
+  const supa = fpEdicaoSqlCliente();
+  if (!supa) return true;
+  const { error } = await supa.rpc("fp_salvar_time", {
+    p_id: Number(id) || null,
+    p_pais_nome: dados.pais || null,
+    p_nome_curto: dados.nomeCurto || dados.nome || null,
+    p_nome: dados.nomeCompleto || dados.nomeCurto || dados.nome || null,
+    p_fundacao: dados.fundacao || null,
+    p_estado: dados.estado || null,
+    p_cidade: dados.cidade || null,
+    p_escudo_url: dados.escudo || null
+  });
+  if (error) {
+    console.error("Erro RPC fp_salvar_time:", error);
+    throw new Error(error.message || "Erro ao atualizar time no Supabase.");
+  }
+  return true;
+}
+
+async function fpEdicaoAtualizarSelecaoSql(id, dados) {
+  const supa = fpEdicaoSqlCliente();
+  if (!supa) return true;
+  const { error } = await supa.rpc("fp_salvar_selecao", {
+    p_id: Number(id) || null,
+    p_pais_nome: dados.pais || dados.nome || null,
+    p_nome: dados.nome || dados.pais || null,
+    p_escudo_url: dados.escudo || null
+  });
+  if (error) {
+    console.error("Erro RPC fp_salvar_selecao:", error);
+    throw new Error(error.message || "Erro ao atualizar seleção no Supabase.");
+  }
+  return true;
+}
+
+function fpEdicaoAbrangenciaParaSql(abrangencia) {
+  const v = String(abrangencia || "").toLowerCase();
+  if (v.includes("mund")) return "mundo";
+  if (v.includes("continent")) return "continente";
+  if (v.includes("país") || v.includes("pais")) return "pais";
+  if (v.includes("sele")) return "continente";
+  return v || null;
+}
+
+async function fpEdicaoAtualizarCompeticaoSql(id, dados) {
+  const supa = fpEdicaoSqlCliente();
+  if (!supa) return true;
+  const { error } = await supa.rpc("fp_salvar_competicao", {
+    p_id: Number(id) || null,
+    p_nome: dados.nome || null,
+    p_tipo: dados.categoria === "selecao" ? "selecoes" : "clubes",
+    p_abrangencia: fpEdicaoAbrangenciaParaSql(dados.abrangencia),
+    p_pais_nome: dados.pais || null,
+    p_continente_nome: dados.continente || null,
+    p_logo_url: dados.escudo || null,
+    p_organizador: dados.organizador || null,
+    p_nivel: dados.tipo || null,
+    p_genero: "masculino",
+    p_sigla: dados.sigla || null,
+    p_descricao: dados.descricao || null,
+    p_divisao: null,
+    p_periodicidade: null,
+    p_primeira_edicao: null,
+    p_status: "Ativa",
+    p_categoria: "Profissional"
+  });
+  if (error) {
+    console.error("Erro RPC fp_salvar_competicao:", error);
+    throw new Error(error.message || "Erro ao atualizar competição no Supabase.");
+  }
+  return true;
+}
+
+window.salvarEdicaoClube = function salvarEdicaoClube(event, id) {
+  event.preventDefault();
+  const banco = carregarBanco();
+  const clube = (banco.clubes || []).find(c => String(c.id) === String(id));
+  if (!clube) return;
+
+  lerImagem("editEscudo", async novaImagem => {
+    try {
+      const paisNome = document.getElementById("editPais")?.value || clube.pais || "";
+      const pais = typeof buscarPais === "function" ? (buscarPais(paisNome) || {}) : {};
+      const estadoNome = paisNome === "Brasil" ? (document.getElementById("editEstado")?.value || "") : "";
+      const estadoObj = paisNome === "Brasil" && typeof buscarEstado === "function" ? (buscarEstado(estadoNome) || {}) : { sigla: "" };
+      const nomeCurto = document.getElementById("editNome")?.value.trim() || clube.nomeCurto || clube.nome;
+      const nomeCompleto = document.getElementById("editNomeCompleto")?.value.trim() || nomeCurto;
+      const fundacao = fpEdicaoNormalizarData(document.getElementById("editFundacao")?.value || "");
+
+      clube.nome = nomeCompleto;
+      clube.nomeCompleto = nomeCompleto;
+      clube.nomeCurto = nomeCurto;
+      clube.pais = paisNome;
+      clube.bandeira = pais.bandeira || clube.bandeira || "";
+      clube.estado = estadoNome;
+      clube.siglaEstado = paisNome === "Brasil" ? (document.getElementById("editSiglaEstado")?.value.trim() || estadoObj.sigla || estadoNome || "") : "";
+      clube.cidade = document.getElementById("editCidade")?.value.trim() || "";
+      clube.fundacao = fundacao || "";
+      if (novaImagem) clube.escudo = novaImagem;
+
+      clube.rivais = [];
+      for (let i = 1; i <= 5; i++) {
+        const rival = document.getElementById(`editRival${i}`)?.value || "";
+        if (rival && !clube.rivais.includes(rival)) clube.rivais.push(rival);
+      }
+
+      (banco.titulos || []).forEach(titulo => {
+        if (String(titulo.campeaoId) === String(clube.id)) titulo.campeaoNome = clube.nome;
+        if (String(titulo.viceId) === String(clube.id)) titulo.viceNome = clube.nome;
+      });
+
+      if (typeof sincronizarRivaisBidirecionais === "function") sincronizarRivaisBidirecionais(banco);
+      await fpEdicaoAtualizarTimeSql(id, clube);
+      salvarBanco(banco);
+      alert("Time atualizado com sucesso!");
+      if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+      mostrarEdicao("clubes");
+    } catch (erro) {
+      console.error(erro);
+      alert("Não foi possível salvar o time no Supabase: " + (erro.message || erro));
+    }
+  });
+};
+
+window.salvarEdicaoSelecao = function salvarEdicaoSelecao(event, id) {
+  event.preventDefault();
+  const banco = carregarBanco();
+  const selecao = (banco.selecoes || []).find(s => String(s.id) === String(id));
+  if (!selecao) return;
+
+  lerImagem("editEscudo", async novaImagem => {
+    try {
+      const paisNome = document.getElementById("editPaisSelecao")?.value || selecao.pais || selecao.nome || "";
+      const continente = document.getElementById("editContinenteSelecao")?.value || selecao.continente || "";
+      selecao.nome = paisNome;
+      selecao.pais = paisNome;
+      selecao.continente = continente;
+      if (novaImagem) selecao.escudo = novaImagem;
+
+      (banco.titulos || []).forEach(titulo => {
+        if (String(titulo.campeaoId) === String(selecao.id)) {
+          titulo.campeaoNome = selecao.nome || selecao.pais;
+          titulo.campeaoTipo = "selecao";
+        }
+        if (String(titulo.viceId) === String(selecao.id)) {
+          titulo.viceNome = selecao.nome || selecao.pais;
+          titulo.viceTipo = "selecao";
+        }
+      });
+
+      await fpEdicaoAtualizarSelecaoSql(id, selecao);
+      salvarBanco(banco);
+      alert("Seleção atualizada com sucesso!");
+      if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+      mostrarEdicao("selecoes");
+    } catch (erro) {
+      console.error(erro);
+      alert("Não foi possível salvar a seleção no Supabase: " + (erro.message || erro));
+    }
+  });
+};
+
+window.salvarEdicaoCompeticao = function salvarEdicaoCompeticao(event, id) {
+  event.preventDefault();
+  const banco = carregarBanco();
+  const competicao = (banco.competicoes || []).find(c => String(c.id) === String(id));
+  if (!competicao) return;
+
+  lerImagem("editEscudo", async novaImagem => {
+    try {
+      const categoria = document.getElementById("editCategoriaCompeticao")?.value || "clube";
+      competicao.nome = document.getElementById("editNome")?.value.trim() || competicao.nome;
+      competicao.categoria = categoria;
+      competicao.tipo = document.getElementById("editTipoCompeticao")?.value || competicao.tipo || "Não informado";
+      competicao.abrangencia = categoria === "selecao" ? "Seleções" : (document.getElementById("editAbrangencia")?.value || competicao.abrangencia || "");
+      competicao.local = "";
+      competicao.bandeira = "";
+      competicao.continente = "";
+      competicao.pais = "";
+
+      if (categoria === "selecao") {
+        competicao.continente = document.getElementById("editContinenteCompeticao")?.value || "";
+        competicao.pais = document.getElementById("editPaisCompeticao")?.value || "";
+        competicao.local = competicao.pais || competicao.continente || "Seleções";
+        competicao.bandeira = competicao.pais ? (buscarPaisSelecao(competicao.pais)?.bandeira || "") : "🏆";
+      } else if (competicao.abrangencia === "Mundial") {
+        competicao.local = "Mundial";
+        competicao.bandeira = "🌍";
+      } else if (competicao.abrangencia === "Continental") {
+        competicao.continente = document.getElementById("editContinenteCompeticao")?.value || competicao.continente || "";
+        competicao.local = competicao.continente;
+        competicao.bandeira = "🌎";
+      } else if (competicao.abrangencia === "País") {
+        competicao.pais = document.getElementById("editPaisCompeticao")?.value || "";
+        const pais = typeof buscarPaisSelecao === "function" ? (buscarPaisSelecao(competicao.pais) || {}) : {};
+        competicao.continente = pais.continente || competicao.continente || "";
+        competicao.local = competicao.pais;
+        competicao.bandeira = pais.bandeira || "";
+      }
+
+      if (novaImagem) competicao.escudo = novaImagem;
+      (banco.titulos || []).forEach(titulo => {
+        if (String(titulo.competicaoId) === String(competicao.id)) {
+          titulo.competicaoNome = competicao.nome;
+          titulo.abrangencia = competicao.abrangencia;
+        }
+      });
+
+      await fpEdicaoAtualizarCompeticaoSql(id, competicao);
+      salvarBanco(banco);
+      alert("Competição atualizada com sucesso!");
+      if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+      mostrarEdicao("competicoes");
+    } catch (erro) {
+      console.error(erro);
+      alert("Não foi possível salvar a competição no Supabase: " + (erro.message || erro));
+    }
+  });
+};
+
+/* ===== FutPedia Storage: edição com upload para Supabase Storage ===== */
+async function fpEdicaoUploadEscudoSeExistir(inputId, bucket, nomeBase) {
+  if (typeof fpUploadImagemInput !== "function") return "";
+  return await fpUploadImagemInput(inputId, bucket, nomeBase);
+}
+
+window.salvarEdicaoClube = async function salvarEdicaoClube(event, id) {
+  event.preventDefault();
+  const banco = carregarBanco();
+  const clube = (banco.clubes || []).find(c => String(c.id) === String(id));
+  if (!clube) return;
+
+  try {
+    const paisNome = document.getElementById("editPais")?.value || clube.pais || "";
+    const pais = typeof buscarPais === "function" ? (buscarPais(paisNome) || {}) : {};
+    const estadoNome = paisNome === "Brasil" ? (document.getElementById("editEstado")?.value || "") : "";
+    const estadoObj = paisNome === "Brasil" && typeof buscarEstado === "function" ? (buscarEstado(estadoNome) || {}) : { sigla: "" };
+    const nomeCurto = document.getElementById("editNome")?.value.trim() || clube.nomeCurto || clube.nome;
+    const nomeCompleto = document.getElementById("editNomeCompleto")?.value.trim() || nomeCurto;
+    const fundacao = fpEdicaoNormalizarData(document.getElementById("editFundacao")?.value || "");
+    const novaUrl = await fpEdicaoUploadEscudoSeExistir("editEscudo", "escudos-times", nomeCompleto || nomeCurto);
+
+    clube.nome = nomeCompleto;
+    clube.nomeCompleto = nomeCompleto;
+    clube.nomeCurto = nomeCurto;
+    clube.pais = paisNome;
+    clube.bandeira = pais.bandeira || clube.bandeira || "";
+    clube.estado = estadoNome;
+    clube.siglaEstado = paisNome === "Brasil" ? (document.getElementById("editSiglaEstado")?.value.trim() || estadoObj.sigla || estadoNome || "") : "";
+    clube.cidade = document.getElementById("editCidade")?.value.trim() || "";
+    clube.fundacao = fundacao || "";
+    if (novaUrl) clube.escudo = novaUrl;
+
+    clube.rivais = [];
+    for (let i = 1; i <= 5; i++) {
+      const rival = document.getElementById(`editRival${i}`)?.value || "";
+      if (rival && !clube.rivais.includes(rival)) clube.rivais.push(rival);
+    }
+
+    (banco.titulos || []).forEach(titulo => {
+      if (String(titulo.campeaoId) === String(clube.id)) titulo.campeaoNome = clube.nome;
+      if (String(titulo.viceId) === String(clube.id)) titulo.viceNome = clube.nome;
+    });
+
+    if (typeof sincronizarRivaisBidirecionais === "function") sincronizarRivaisBidirecionais(banco);
+    await fpEdicaoAtualizarTimeSql(id, clube);
+    salvarBanco(banco);
+    alert("Time atualizado com sucesso!");
+    if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+    mostrarEdicao("clubes");
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível salvar o time no Supabase: " + (erro.message || erro));
+  }
+};
+
+window.salvarEdicaoSelecao = async function salvarEdicaoSelecao(event, id) {
+  event.preventDefault();
+  const banco = carregarBanco();
+  const selecao = (banco.selecoes || []).find(s => String(s.id) === String(id));
+  if (!selecao) return;
+
+  try {
+    const paisNome = document.getElementById("editPaisSelecao")?.value || selecao.pais || selecao.nome || "";
+    const continente = document.getElementById("editContinenteSelecao")?.value || selecao.continente || "";
+    const novaUrl = await fpEdicaoUploadEscudoSeExistir("editEscudo", "escudos-selecoes", paisNome);
+
+    selecao.nome = paisNome;
+    selecao.pais = paisNome;
+    selecao.continente = continente;
+    if (novaUrl) selecao.escudo = novaUrl;
+
+    (banco.titulos || []).forEach(titulo => {
+      if (String(titulo.campeaoId) === String(selecao.id)) {
+        titulo.campeaoNome = selecao.nome || selecao.pais;
+        titulo.campeaoTipo = "selecao";
+      }
+      if (String(titulo.viceId) === String(selecao.id)) {
+        titulo.viceNome = selecao.nome || selecao.pais;
+        titulo.viceTipo = "selecao";
+      }
+    });
+
+    await fpEdicaoAtualizarSelecaoSql(id, selecao);
+    salvarBanco(banco);
+    alert("Seleção atualizada com sucesso!");
+    if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+    mostrarEdicao("selecoes");
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível salvar a seleção no Supabase: " + (erro.message || erro));
+  }
+};
+
+window.salvarEdicaoCompeticao = async function salvarEdicaoCompeticao(event, id) {
+  event.preventDefault();
+  const banco = carregarBanco();
+  const competicao = (banco.competicoes || []).find(c => String(c.id) === String(id));
+  if (!competicao) return;
+
+  try {
+    const categoria = document.getElementById("editCategoriaCompeticao")?.value || "clube";
+    competicao.nome = document.getElementById("editNome")?.value.trim() || competicao.nome;
+    competicao.categoria = categoria;
+    competicao.tipo = document.getElementById("editTipoCompeticao")?.value || competicao.tipo || "Não informado";
+    competicao.abrangencia = categoria === "selecao" ? "Seleções" : (document.getElementById("editAbrangencia")?.value || competicao.abrangencia || "");
+    competicao.local = "";
+    competicao.bandeira = "";
+    competicao.continente = "";
+    competicao.pais = "";
+
+    if (categoria === "selecao") {
+      competicao.continente = document.getElementById("editContinenteCompeticao")?.value || "";
+      competicao.pais = document.getElementById("editPaisCompeticao")?.value || "";
+      competicao.local = competicao.pais || competicao.continente || "Seleções";
+      competicao.bandeira = competicao.pais ? (buscarPaisSelecao(competicao.pais)?.bandeira || "") : "🏆";
+    } else if (competicao.abrangencia === "Mundial") {
+      competicao.local = "Mundial";
+      competicao.bandeira = "🌍";
+    } else if (competicao.abrangencia === "Continental") {
+      competicao.continente = document.getElementById("editContinenteCompeticao")?.value || competicao.continente || "";
+      competicao.local = competicao.continente;
+      competicao.bandeira = "🌎";
+    } else if (competicao.abrangencia === "País") {
+      competicao.pais = document.getElementById("editPaisCompeticao")?.value || "";
+      const pais = typeof buscarPaisSelecao === "function" ? (buscarPaisSelecao(competicao.pais) || {}) : {};
+      competicao.continente = pais.continente || competicao.continente || "";
+      competicao.local = competicao.pais;
+      competicao.bandeira = pais.bandeira || "";
+    }
+
+    const novaUrl = await fpEdicaoUploadEscudoSeExistir("editEscudo", "logos-competicoes", competicao.nome);
+    if (novaUrl) competicao.escudo = novaUrl;
+
+    (banco.titulos || []).forEach(titulo => {
+      if (String(titulo.competicaoId) === String(competicao.id)) {
+        titulo.competicaoNome = competicao.nome;
+        titulo.abrangencia = competicao.abrangencia;
+      }
+    });
+
+    await fpEdicaoAtualizarCompeticaoSql(id, competicao);
+    salvarBanco(banco);
+    alert("Competição atualizada com sucesso!");
+    if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+    mostrarEdicao("competicoes");
+  } catch (erro) {
+    console.error(erro);
+    alert("Não foi possível salvar a competição no Supabase: " + (erro.message || erro));
+  }
+};
