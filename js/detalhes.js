@@ -95,12 +95,7 @@ async function configurarBotaoEditarDetalhes(tipo, id) {
   botao.style.display = "inline-flex";
   botao.onclick = () => {
     const tipoUrl = tipoEdicaoParaUrlDetalhes(tipo);
-    const params = new URLSearchParams({
-      tipo: tipoUrl,
-      id: String(id || ""),
-      editar: "1",
-      origem: "detalhes"
-    });
+    const params = new URLSearchParams({ tipo: tipoUrl, id: String(id || "") });
     window.location.href = `./edicoes.html?${params.toString()}`;
   };
 }
