@@ -4493,3 +4493,95 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
     font-size: 0.9rem;
   }
 }
+
+
+/* Logos nas listas e pré-visualização dos rivais */
+.fp-logo-lista,
+.escudo-mini,
+.selecao-lista-escudo,
+.escudo-competicao-mini,
+.rival-escudo-mini {
+  width: 34px !important;
+  height: 34px !important;
+  object-fit: contain !important;
+  flex: 0 0 34px !important;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  padding: 3px;
+}
+
+.fp-logo-placeholder,
+.escudo-mini-placeholder,
+.selecao-lista-placeholder,
+.escudo-competicao-placeholder,
+.rival-escudo-placeholder {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  background: #eef4ff;
+  border: 1px solid #dbe4f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clube-linha,
+.selecao-lista-item,
+.competicao-linha,
+.rival-detalhe-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rival-preview {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 10px;
+  padding: 7px 9px;
+  border: 1px solid #dbe4f0;
+  background: #f8fbff;
+  border-radius: 10px;
+  font-size: 0.92rem;
+}
+
+.rival-preview img,
+.rival-preview span {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ações de edição e exclusão no Editor */
+.acoes-form-edicao {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+  align-items: center;
+}
+
+.acoes-form-edicao button {
+  min-height: 42px;
+}
+
+.botao-excluir-registro {
+  background: #b42318 !important;
+  color: #ffffff !important;
+  border: 1px solid #912018 !important;
+}
+
+.botao-excluir-registro:hover {
+  background: #912018 !important;
+}

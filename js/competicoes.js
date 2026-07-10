@@ -29,9 +29,9 @@ function renderizarCompeticoes() {
   }
 
   lista.innerHTML = competicoes.map(c => {
-    const escudo = c.escudo
-      ? `<img class="escudo-competicao-mini" src="${c.escudo}" alt="Escudo de ${limparTexto(c.nome)}">`
-      : `<div class="escudo-competicao-placeholder">🏆</div>`;
+    const escudo = typeof fpHtmlLogo === "function"
+      ? fpHtmlLogo(c, "competicao", c.nome)
+      : (c.escudo ? `<img class="escudo-competicao-mini" src="${c.escudo}" alt="Escudo de ${limparTexto(c.nome)}">` : `<div class="escudo-competicao-placeholder">🏆</div>`);
 
     return `
       <div class="competicao-linha" onclick="abrirDetalhesLiga('${c.id}')">

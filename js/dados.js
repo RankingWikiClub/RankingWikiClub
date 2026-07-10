@@ -532,22 +532,84 @@ function atualizarTelasAposSincronizacao() {
 // Carrega dados diretamente das tabelas relacionais do Supabase
 // Tabelas usadas: public.times, public.competicoes, public.selecoes, public.paises e public.continentes.
 // Isso faz o site enxergar os clubes/seleções/competições importados via SQL Editor.
+
+/* ===== Paginação Supabase: carrega tabelas com mais de 1.000 registros ===== */
+async function fpBuscarTodasAsLinhasSupabase(supabase, tabela, colunas = "*", ordenarPor = "id") {
+  const tamanhoPagina = 1000;
+  const todas = [];
+  let inicio = 0;
+
+  while (true) {
+    let consulta = supabase
+      .from(tabela)
+      .select(colunas)
+      .range(inicio, inicio + tamanhoPagina - 1);
+
+    if (ordenarPor) {
+      consulta = consulta.order(ordenarPor, { ascending: true });
+    }
+
+    const { data, error } = await consulta;
+
+    if (error) {
+      return { data: todas, error };
+    }
+
+    const pagina = data || [];
+    todas.push(...pagina);
+
+    if (pagina.length < tamanhoPagina) {
+      break;
+    }
+
+    inicio += tamanhoPagina;
+  }
+
+  return { data: todas, error: null };
+}
+
+
+/* ===== Normalização de nomes de países usados pelo site ===== */
+function fpNomePaisCanonico(valor) {
+  const original = String(valor || "").trim();
+  const normalizado = original
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+  const aliases = {
+    puertorico: "Porto Rico",
+    portorico: "Porto Rico",
+    curacao: "Curaçao",
+    curazao: "Curaçao",
+    barbados: "Barbados"
+  };
+
+  return aliases[normalizado] || original;
+}
+
 async function carregarDadosRelacionaisSupabase() {
   const supabase = typeof clienteSupabase === "function" ? clienteSupabase() : null;
   if (!supabase) return false;
 
   try {
-    const [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp] = await Promise.all([
+    const [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp, rivaisResp] = await Promise.all([
       supabase.from("paises").select("id,nome,sigla,continente_id"),
       supabase.from("continentes").select("id,nome"),
-      supabase.from("times").select("*"),
-      supabase.from("competicoes").select("*"),
-      supabase.from("selecoes").select("*")
+      fpBuscarTodasAsLinhasSupabase(supabase, "times", "*", "nome_curto"),
+      fpBuscarTodasAsLinhasSupabase(supabase, "competicoes", "*", "nome"),
+      fpBuscarTodasAsLinhasSupabase(supabase, "selecoes", "*", "nome"),
+      fpBuscarTodasAsLinhasSupabase(supabase, "time_rivais", "time_id,rival_id", "time_id")
     ]);
 
     const erros = [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp]
       .map(r => r.error)
       .filter(Boolean);
+
+    if (rivaisResp?.error) {
+      console.warn("Tabela time_rivais ainda não disponível. Execute sql_time_rivais_futpedia.sql para salvar rivais no Supabase.", rivaisResp.error.message || rivaisResp.error);
+    }
 
     if (erros.length) {
       console.warn("Erro ao carregar tabelas relacionais do Supabase:", erros.map(e => e.message || e));
@@ -559,6 +621,7 @@ async function carregarDadosRelacionaisSupabase() {
     const clubesSql = clubesResp.data || [];
     const competicoesSql = competicoesResp.data || [];
     const selecoesSql = selecoesResp.data || [];
+    const rivaisSql = rivaisResp && !rivaisResp.error ? (rivaisResp.data || []) : [];
 
     const mapaContinentes = new Map(continentes.map(c => [String(c.id), c]));
     const mapaPaises = new Map(paises.map(p => [String(p.id), {
@@ -602,11 +665,13 @@ async function carregarDadosRelacionaisSupabase() {
       const pais = mapaPaises.get(String(t.pais_id)) || {};
       return {
         id: String(t.id),
-        nome: t.nome || "",
-        nomeCompleto: t.nome || "",
+        // Nas listas e páginas gerais o FutPedia usa o nome curto.
+        // O nome completo fica salvo separadamente e aparece apenas na página de detalhes.
+        nome: t.nome_curto || t.nome || "",
+        nomeCompleto: t.nome || t.nome_curto || "",
         nomeCurto: t.nome_curto || t.nome || "",
         apelido: t.apelido || "",
-        pais: pais.nome || "",
+        pais: fpNomePaisCanonico(pais.nome || ""),
         continente: pais.continente || "",
         bandeira: bandeiraPorSigla(pais.sigla),
         estado: buscarEstado(t.estado || "").nome || t.estado || "",
@@ -622,12 +687,36 @@ async function carregarDadosRelacionaisSupabase() {
       };
     });
 
+    const mapaClubesPorId = new Map(banco.clubes.map(c => [String(c.id), c]));
+    banco.clubes.forEach(c => c.rivais = []);
+
+    rivaisSql.forEach(r => {
+      const timeId = String(r.time_id || "");
+      const rivalId = String(r.rival_id || "");
+      const time = mapaClubesPorId.get(timeId);
+      const rival = mapaClubesPorId.get(rivalId);
+      if (time && rival && timeId !== rivalId && !time.rivais.includes(rivalId)) {
+        time.rivais.push(rivalId);
+      }
+    });
+
+    banco.clubes.forEach(c => {
+      c.rivais = (c.rivais || []).filter((id, idx, arr) => id && arr.indexOf(id) === idx);
+      c.rivais.sort((a, b) => {
+        const ca = mapaClubesPorId.get(String(a));
+        const cb = mapaClubesPorId.get(String(b));
+        const na = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(ca) : (ca?.nome || "");
+        const nb = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(cb) : (cb?.nome || "");
+        return na.localeCompare(nb, "pt-BR", { sensitivity: "base" });
+      });
+    });
+
     banco.selecoes = selecoesSql.map(s => {
       const pais = mapaPaises.get(String(s.pais_id)) || {};
       return {
         id: String(s.id),
-        nome: s.nome || pais.nome || "",
-        pais: pais.nome || s.nome || "",
+        nome: s.nome || fpNomePaisCanonico(pais.nome || "") || "",
+        pais: fpNomePaisCanonico(pais.nome || s.nome || ""),
         continente: pais.continente || "",
         bandeira: bandeiraPorSigla(pais.sigla || s.codigo_fifa),
         escudo: s.escudo_url || "",
@@ -650,7 +739,7 @@ async function carregarDadosRelacionaisSupabase() {
         tipo: tipoCompeticaoSite(c),
         abrangencia,
         continente: continente.nome || pais.continente || "",
-        pais: pais.nome || "",
+        pais: fpNomePaisCanonico(pais.nome || ""),
         local: pais.nome || continente.nome || (abrangencia === "Mundial" ? "Mundial" : ""),
         bandeira: pais.sigla ? bandeiraPorSigla(pais.sigla) : (abrangencia === "Mundial" ? "🌍" : ""),
         escudo: c.logo_url || "",
@@ -893,22 +982,35 @@ function sincronizarRivaisBidirecionais(banco) {
 }
 
 
+function normalizarTextoCategoriaFutpedia(valor) {
+  return String(valor || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function normalizarCategoriaCompeticao(competicao) {
   if (!competicao) return "clube";
 
-  if (competicao.categoria) return competicao.categoria;
+  const categoria = normalizarTextoCategoriaFutpedia(competicao.categoria);
+  const tipo = normalizarTextoCategoriaFutpedia(competicao.tipo);
+  const nome = normalizarTextoCategoriaFutpedia(competicao.nome);
+  const descricao = normalizarTextoCategoriaFutpedia(competicao.descricao);
 
-  const nome = (competicao.nome || "").toLowerCase();
-  const tipo = (competicao.tipo || "").toLowerCase();
+  const texto = `${categoria} ${tipo} ${nome} ${descricao}`;
 
+  // Aceita variações como:
+  // "Campeonato de seleções", "Seleções", "selecoes", "selecao", etc.
   if (
-    nome.includes("copa do mundo") ||
-    nome.includes("eurocopa") ||
-    nome.includes("copa américa") ||
-    nome.includes("copa das nações") ||
-    nome.includes("nations league") ||
-    tipo.includes("seleção") ||
-    tipo.includes("seleções")
+    texto.includes("selecao") ||
+    texto.includes("selecoes") ||
+    texto.includes("campeonato de selecoes") ||
+    texto.includes("copa do mundo") ||
+    texto.includes("eurocopa") ||
+    texto.includes("copa america") ||
+    texto.includes("copa das nacoes") ||
+    texto.includes("nations league")
   ) {
     return "selecao";
   }
@@ -956,4 +1058,121 @@ function normalizarBancoFutpedia(banco) {
   });
 
   return banco;
+}
+
+
+/* ===== Helpers globais de exibição com nome curto e logos ===== */
+function fpNomeCurtoTime(item) {
+  return String(
+    item?.nomeCurto ||
+    item?.nome_curto ||
+    item?.nome_curto_time ||
+    item?.nome ||
+    item?.nomeCompleto ||
+    item?.nome_completo ||
+    "Sem nome"
+  ).trim();
+}
+
+function fpNomeCompletoTime(item) {
+  return String(
+    item?.nomeCompleto ||
+    item?.nome_completo ||
+    item?.nome ||
+    item?.nomeCurto ||
+    item?.nome_curto ||
+    "Sem nome"
+  ).trim();
+}
+
+function fpLogoEntidade(item) {
+  return String(
+    item?.escudo ||
+    item?.escudo_url ||
+    item?.logo ||
+    item?.logo_url ||
+    item?.imagem ||
+    ""
+  ).trim();
+}
+
+function fpTextoSeguro(valor) {
+  if (typeof limparTexto === "function") return limparTexto(valor);
+  const div = document.createElement("div");
+  div.textContent = String(valor ?? "");
+  return div.innerHTML;
+}
+
+function fpHtmlLogo(item, tipo = "time", alt = "") {
+  const url = fpLogoEntidade(item);
+  const classe = `fp-logo-lista fp-logo-${tipo}`;
+  const textoAlt = fpTextoSeguro(alt || fpNomeCurtoTime(item) || item?.nome || tipo);
+
+  if (url) {
+    return `<img class="${classe}" src="${fpTextoSeguro(url)}" alt="${textoAlt}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'fp-logo-placeholder',textContent:'${tipo === "competicao" ? "🏆" : "⚽"}'}))">`;
+  }
+
+  return `<span class="fp-logo-placeholder">${tipo === "competicao" ? "🏆" : "⚽"}</span>`;
+}
+
+function fpOrdenarPorNomeCurto(lista) {
+  return (lista || []).slice().sort((a, b) =>
+    fpNomeCurtoTime(a).localeCompare(fpNomeCurtoTime(b), "pt-BR", { sensitivity: "base" })
+  );
+}
+
+function fpAtualizarPreviewRival(select) {
+  if (!select) return;
+
+  let box = document.getElementById(`${select.id}Preview`);
+  if (!box) {
+    box = document.createElement("div");
+    box.id = `${select.id}Preview`;
+    box.className = "rival-preview";
+    select.insertAdjacentElement("afterend", box);
+  }
+
+  const option = select.options[select.selectedIndex];
+  const logo = option?.dataset?.logo || "";
+  const nome = option?.textContent || "";
+
+  if (!select.value) {
+    box.innerHTML = "";
+    box.style.display = "none";
+    return;
+  }
+
+  box.style.display = "flex";
+  box.innerHTML = `
+    ${logo ? `<img src="${fpTextoSeguro(logo)}" alt="Escudo de ${fpTextoSeguro(nome)}" loading="lazy">` : `<span>⚽</span>`}
+    <strong>${fpTextoSeguro(nome)}</strong>
+  `;
+}
+
+function fpPreencherSelectTimesComLogo(selectId, times, placeholder = "Selecione o time", valorAtual = "") {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  const lista = fpOrdenarPorNomeCurto(times);
+  select.innerHTML = `<option value="">${fpTextoSeguro(placeholder)}</option>`;
+
+  lista.forEach(time => {
+    const option = document.createElement("option");
+    option.value = String(time.id || "");
+    option.textContent = fpNomeCurtoTime(time);
+    option.dataset.logo = fpLogoEntidade(time);
+    option.dataset.nomeCompleto = fpNomeCompletoTime(time);
+    select.appendChild(option);
+  });
+
+  if (valorAtual && lista.some(t => String(t.id) === String(valorAtual))) {
+    select.value = String(valorAtual);
+  }
+
+  if (!select.dataset.fpLogoPreview) {
+    select.dataset.fpLogoPreview = "1";
+    select.addEventListener("change", () => fpAtualizarPreviewRival(select));
+  }
+
+  fpAtualizarPreviewRival(select);
 }

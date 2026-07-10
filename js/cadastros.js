@@ -476,9 +476,8 @@ function carregarRivais() {
   const paisSelecionado = document.getElementById("pais")?.value || "";
 
   const clubesDoPais = (banco.clubes || [])
-    .filter(c => c.id && c.nome)
-    .filter(c => paisSelecionado && c.pais === paisSelecionado)
-    .sort((a, b) => a.nome.localeCompare(b.nome));
+    .filter(c => c.id && (c.nome || c.nome_curto || c.nomeCurto))
+    .filter(c => paisSelecionado && c.pais === paisSelecionado);
 
   for (let i = 1; i <= 5; i++) {
     const selectTime = document.getElementById(`rival${i}`);
@@ -493,17 +492,7 @@ function carregarRivais() {
       placeholder = "Nenhum time cadastrado neste país";
     }
 
-    preencherSelect(
-      `rival${i}`,
-      clubesDoPais,
-      placeholder,
-      c => c.id,
-      c => formatarNomeClubeComEstado(c)
-    );
-
-    if (valorAtual && clubesDoPais.some(c => c.id === valorAtual)) {
-      selectTime.value = valorAtual;
-    }
+    fpPreencherSelectTimesComLogo(`rival${i}`, clubesDoPais, placeholder, valorAtual);
   }
 }
 
@@ -566,21 +555,15 @@ function carregarTimesRival(indice, preservarSelecao = false) {
   if (!selectTime) return;
 
   const clubes = (banco.clubes || [])
-    .filter(c => c.id && c.nome)
-    .filter(c => pais && c.pais === pais)
-    .sort((a, b) => a.nome.localeCompare(b.nome));
+    .filter(c => c.id && (c.nome || c.nome_curto || c.nomeCurto))
+    .filter(c => pais && c.pais === pais);
 
-  preencherSelect(
+  fpPreencherSelectTimesComLogo(
     `rival${indice}`,
     clubes,
     pais ? `Selecione o Rival ${indice}` : `Selecione primeiro o país do Rival ${indice}`,
-    c => c.id,
-    c => c.nome
+    valorTime
   );
-
-  if (valorTime && clubes.some(c => c.id === valorTime)) {
-    selectTime.value = valorTime;
-  }
 }
 
 
@@ -633,7 +616,7 @@ function carregarCompeticoesPorAbrangencia() {
   atualizarAbrangenciasTitulo();
 
   let lista = banco.competicoes
-    .filter(c => (c.categoria || "clube") === categoria);
+    .filter(c => categoriaCompeticaoCadastro(c) === categoria);
 
   if (categoria === "clube") {
     lista = lista.filter(c => !abrangencia || c.abrangencia === abrangencia);
@@ -819,7 +802,8 @@ function salvarTitulo() {
   const ano = document.getElementById("ano").value;
   const competicaoId = document.getElementById("competicaoTitulo").value;
   const campeaoId = document.getElementById("campeao").value;
-  const viceId = document.getElementById("vice").value;
+  const viceId = document.getElementById("vice").value || "";
+  const categoriaFormulario = document.getElementById("categoriaTitulo")?.value || "clube";
 
   if (!ano || !competicaoId || !campeaoId || !viceId) {
     alert("Preencha ano, competição, campeão e vice.");
@@ -827,11 +811,11 @@ function salvarTitulo() {
   }
 
   if (campeaoId === viceId) {
-    alert("Campeão e vice não podem ser o mesmo time/seleção.");
+    alert(categoriaFormulario === "selecao" ? "Campeão e vice não podem ser a mesma seleção." : "Campeão e vice não podem ser o mesmo time.");
     return;
   }
 
-  const competicao = banco.competicoes.find(c => c.id === competicaoId);
+  const competicao = banco.competicoes.find(c => String(c.id) === String(competicaoId));
   const campeao = buscarParticipanteTitulo(banco, campeaoId);
   const vice = buscarParticipanteTitulo(banco, viceId);
 
@@ -840,11 +824,16 @@ function salvarTitulo() {
     return;
   }
 
-  const categoriaCompeticaoTitulo = competicao.categoria || "clube";
-  if (campeao.tipo !== categoriaCompeticaoTitulo || vice.tipo !== categoriaCompeticaoTitulo) {
-    alert("A categoria da competição precisa combinar com campeão e vice.");
-    return;
+  const categoriaCompeticaoTitulo = categoriaCompeticaoCadastro(competicao);
+
+  if (categoriaFormulario === "clube") {
+    if (categoriaCompeticaoTitulo !== "clube" || campeao.tipo !== "clube" || vice.tipo !== "clube") {
+      alert("A categoria da competição precisa combinar com campeão e vice de clubes.");
+      return;
+    }
   }
+  // Para competições de seleções, mantém campeão e vice, mas não bloqueia por conflito de combinação.
+  // Isso evita erro quando a competição ou seleção veio do Supabase com categoria/tipo diferente.
 
   banco.titulos.push({
     id: gerarId(),
@@ -854,10 +843,10 @@ function salvarTitulo() {
     abrangencia: competicao.abrangencia,
     campeaoId,
     campeaoNome: campeao.nome,
-    campeaoTipo: campeao.tipo,
-    viceId,
+    campeaoTipo: categoriaFormulario === "selecao" ? "selecao" : campeao.tipo,
+    viceId: vice.id,
     viceNome: vice.nome,
-    viceTipo: vice.tipo
+    viceTipo: categoriaFormulario === "selecao" ? "selecao" : vice.tipo
   });
 
   salvarBanco(banco);
@@ -1063,6 +1052,46 @@ async function fpCadastroInserirOuAtualizarCompeticao(dados) {
   return data || null;
 }
 
+
+async function fpCadastroAtualizarEscudoTimeDiretoFinal(timeId, escudoUrl) {
+  const supabase = fpCadastroCliente();
+  if (!supabase || !timeId || !escudoUrl) return true;
+
+  const { error } = await supabase
+    .from("times")
+    .update({ escudo_url: escudoUrl })
+    .eq("id", Number(timeId));
+
+  if (error) throw error;
+  return true;
+}
+
+async function fpCadastroAtualizarEscudoSelecaoDiretoFinal(selecaoId, escudoUrl) {
+  const supabase = fpCadastroCliente();
+  if (!supabase || !selecaoId || !escudoUrl) return true;
+
+  const { error } = await supabase
+    .from("selecoes")
+    .update({ escudo_url: escudoUrl })
+    .eq("id", Number(selecaoId));
+
+  if (error) throw error;
+  return true;
+}
+
+async function fpCadastroAtualizarLogoCompeticaoDiretoFinal(competicaoId, logoUrl) {
+  const supabase = fpCadastroCliente();
+  if (!supabase || !competicaoId || !logoUrl) return true;
+
+  const { error } = await supabase
+    .from("competicoes")
+    .update({ logo_url: logoUrl })
+    .eq("id", Number(competicaoId));
+
+  if (error) throw error;
+  return true;
+}
+
 salvarClube = async function salvarClube() {
   const banco = carregarBanco();
   const nome = document.getElementById("nomeCurto").value.trim();
@@ -1090,6 +1119,7 @@ salvarClube = async function salvarClube() {
     };
 
     const idSql = await fpCadastroInserirOuAtualizarTime(dados);
+    if (idSql && escudoUrl) await fpCadastroAtualizarEscudoTimeDiretoFinal(idSql, escudoUrl);
     banco.clubes.push({
       id: idSql ? String(idSql) : gerarId(),
       nome: nomeCompleto,
@@ -1238,3 +1268,34 @@ salvarCompeticao = async function salvarCompeticao() {
     alert("Não foi possível cadastrar a competição: " + (erro.message || erro));
   }
 };
+
+
+// Corrige variações de categoria vindas do Supabase, como "Campeonato de seleções".
+function categoriaCompeticaoCadastro(competicao) {
+  if (typeof normalizarCategoriaCompeticao === "function") {
+    return normalizarCategoriaCompeticao(competicao);
+  }
+  const texto = String(`${competicao?.categoria || ""} ${competicao?.tipo || ""} ${competicao?.nome || ""}`)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return texto.includes("selec") || texto.includes("copa do mundo") ? "selecao" : "clube";
+}
+
+
+function atualizarCamposTituloSelecao() {
+  const grupoPaisVice = document.getElementById("grupoPaisViceTitulo");
+  const selectVice = document.getElementById("vice");
+  const labelVice = selectVice ? Array.from(document.querySelectorAll("label")).find(l => l.htmlFor === "vice" || l.nextElementSibling === selectVice) : null;
+
+  if (grupoPaisVice) grupoPaisVice.style.display = "";
+  if (labelVice) labelVice.style.display = "";
+  if (selectVice) selectVice.style.display = "";
+}
+document.addEventListener("change",(e)=>{
+  if(e.target && e.target.id === "categoriaTitulo"){
+    atualizarCamposTituloSelecao();
+    if (typeof carregarListasTitulo === "function") carregarListasTitulo();
+  }
+});
+document.addEventListener("DOMContentLoaded", atualizarCamposTituloSelecao);

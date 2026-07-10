@@ -1,3 +1,16 @@
+
+// Helper global usado na página inicial e nas listas.
+// Mostra nome curto quando existir e usa nome completo como fallback.
+function fpNomeCurtoClube(clube) {
+  if (typeof fpNomeCurtoTime === "function") return fpNomeCurtoTime(clube);
+  return String(clube?.nomeCurto || clube?.nome_curto || clube?.nome || "Sem nome").trim();
+}
+
+function fpEscudoClube(clube) {
+  if (typeof fpLogoEntidade === "function") return fpLogoEntidade(clube);
+  return clube?.escudo || clube?.escudo_url || clube?.logo_url || "";
+}
+
 function inicializarBase() {
   const banco = carregarBanco();
 
@@ -103,18 +116,14 @@ document.addEventListener("DOMContentLoaded", inicializarBase);
 
 function preencherSelectRivais() {
   const banco = carregarBanco();
-  const clubes = banco.clubes.slice().sort((a, b) => a.nome.localeCompare(b.nome));
+  const clubes = fpOrdenarPorNomeCurto(banco.clubes || []);
 
   for (let i = 1; i <= 5; i++) {
-    preencherSelect(
+    fpPreencherSelectTimesComLogo(
       `rival${i}`,
       clubes,
       `Selecione o Rival ${i}`,
-      c => c.id,
-      c => {
-        const sigla = c.siglaEstado || buscarEstado(c.estado || "").sigla || "";
-        return sigla ? `${c.nome} — ${sigla}` : c.nome;
-      }
+      document.getElementById(`rival${i}`)?.value || ""
     );
   }
 }
@@ -138,7 +147,7 @@ function carregarAniversariantesHoje() {
       const data = extrairDiaMesFundacao(clube.fundacao);
       return data && data.dia === diaHoje && data.mes === mesHoje;
     })
-    .sort((a, b) => (a.nome || "").localeCompare(b.nome || "", "pt-BR"));
+    .sort((a, b) => fpNomeCurtoClube(a).localeCompare(fpNomeCurtoClube(b), "pt-BR"));
 
   if (!clubes.length) {
     lista.innerHTML = `<p class="mensagem-vazia">Nenhum clube faz aniversário hoje.</p>`;
@@ -146,8 +155,9 @@ function carregarAniversariantesHoje() {
   }
 
   lista.innerHTML = clubes.map(clube => {
-    const escudo = clube.escudo
-      ? `<img src="${clube.escudo}" alt="Escudo de ${limparTexto(clube.nome)}">`
+    const escudoUrl = fpEscudoClube(clube);
+    const escudo = escudoUrl
+      ? `<img src="${escudoUrl}" alt="Escudo de ${limparTexto(fpNomeCurtoClube(clube))}">`
       : `<span class="aniversario-fallback">⚽</span>`;
 
     const fundacao = formatarDataFundacao(clube.fundacao);
@@ -160,7 +170,7 @@ function carregarAniversariantesHoje() {
       <div class="aniversario-card" onclick="abrirDetalhesTime('${clube.id}')">
         <div class="aniversario-escudo">${escudo}</div>
         <div class="aniversario-info">
-          <h3>🎂 ${limparTexto(clube.nome)}</h3>
+          <h3>🎂 ${limparTexto(fpNomeCurtoClube(clube))}</h3>
           <p>📅 Fundação: ${limparTexto(fundacao)}</p>
           <p class="aniversario-idade">${limparTexto(textoIdade)}</p>
         </div>
@@ -301,7 +311,7 @@ function carregarTimesMaisVelhosPorPais() {
       const pais = obterNomePaisClube(clube) || "País não informado";
       const atual = grupos.get(pais);
 
-      if (!atual || data.valor < atual.data.valor || (data.valor === atual.data.valor && (clube.nome || "").localeCompare(atual.clube.nome || "", "pt-BR") < 0)) {
+      if (!atual || data.valor < atual.data.valor || (data.valor === atual.data.valor && (fpNomeCurtoClube(clube) || "").localeCompare(fpNomeCurtoClube(atual.clube) || "", "pt-BR") < 0)) {
         grupos.set(pais, { clube, data });
       }
     });
@@ -319,8 +329,9 @@ function carregarTimesMaisVelhosPorPais() {
   }
 
   lista.innerHTML = registros.map(({ pais, clube, data }) => {
-    const escudo = clube.escudo
-      ? `<img src="${clube.escudo}" alt="Escudo de ${limparTexto(clube.nome)}">`
+    const escudoUrl = fpEscudoClube(clube);
+    const escudo = escudoUrl
+      ? `<img src="${escudoUrl}" alt="Escudo de ${limparTexto(fpNomeCurtoClube(clube))}">`
       : `<span class="time-velho-fallback">⚽</span>`;
 
     const bandeira = bandeiraPaisPequenaHTML(pais, clube.bandeira || "");
@@ -331,7 +342,7 @@ function carregarTimesMaisVelhosPorPais() {
       <div class="time-velho-card" onclick="abrirDetalhesTime('${clube.id}')">
         <div class="time-velho-escudo">${escudo}</div>
         <div class="time-velho-info">
-          <h3>${limparTexto(clube.nome)}</h3>
+          <h3>${limparTexto(fpNomeCurtoClube(clube))}</h3>
           <p>${bandeira} ${limparTexto(pais)}</p>
           <p>📅 Fundação: ${limparTexto(formatarDataFundacao(clube.fundacao))}${limparTexto(idadeTexto)}</p>
         </div>

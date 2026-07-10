@@ -16,15 +16,23 @@ function mostrarEdicao(tipo) {
 }
 
 function tabelaClubes(banco) {
-  return tabela(["Time", "País", "Estado", "Fundação", "Rivais", "Ações"], banco.clubes.map(c => [
+  const clubesOrdenados = (banco.clubes || []).slice().sort((a, b) =>
+    (typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(a) : (a.nome || "")).localeCompare(
+      typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(b) : (b.nome || ""),
+      "pt-BR",
+      { sensitivity: "base" }
+    )
+  );
+
+  return tabela(["Time", "País", "Estado", "Fundação", "Rivais", "Ações"], clubesOrdenados.map(c => [
     `<span class="link-detalhe" onclick="abrirDetalhesTime(\'${c.id}\')">${imagemNome(c.escudo, c.nome, "⚽")}</span>`,
     `${bandeiraPaisHTML(c.pais, c.bandeira)} ${c.pais || ""}`,
     c.siglaEstado || "",
     formatarDataFundacao(c.fundacao) || "",
     (c.rivais || []).map(id => {
-      const rival = banco.clubes.find(clube => clube.id === id);
-      return rival ? rival.nome : "";
-    }).filter(Boolean).join(", "),
+      const rival = banco.clubes.find(clube => String(clube.id) === String(id));
+      return rival ? (typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(rival) : rival.nome) : "";
+    }).filter(Boolean).sort((a,b) => a.localeCompare(b, "pt-BR", { sensitivity: "base" })).join(", "),
     botoesEditarExcluir("clubes", c.id)
   ]));
 }
@@ -224,6 +232,15 @@ function abrirFormularioEdicao(tipo, id) {
     setTimeout(() => {
       iniciarMascaraEditFundacao();
       atualizarEstadoEdicaoClube();
+      if (typeof fpAtualizarPreviewRival === "function") {
+        for (let i = 1; i <= 5; i++) {
+          const select = document.getElementById(`editRival${i}`);
+          if (select) {
+            select.addEventListener("change", () => fpAtualizarPreviewRival(select));
+            fpAtualizarPreviewRival(select);
+          }
+        }
+      }
     }, 50);
   }
   if (tipo === "selecoes") area.innerHTML = formularioEditarSelecao(item, banco);
@@ -259,13 +276,23 @@ function formularioEditarClube(clube, banco) {
   }).join("");
 
   function opcoesRivais(valorAtual) {
-    return banco.clubes
-      .filter(c => c.id !== clube.id)
-      .map(c => `
-        <option value="${c.id}" ${c.id === valorAtual ? "selected" : ""}>
-          ${limparTexto(c.nome)} - ${bandeiraPaisPequenaHTML(c.pais, c.bandeira)} ${limparTexto(c.pais || "")}
-        </option>
-      `).join("");
+    return (banco.clubes || [])
+      .filter(c => String(c.id) !== String(clube.id))
+      .slice()
+      .sort((a, b) => {
+        const na = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(a) : (a.nome || "");
+        const nb = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(b) : (b.nome || "");
+        return na.localeCompare(nb, "pt-BR", { sensitivity: "base" });
+      })
+      .map(c => {
+        const nome = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(c) : (c.nome || "");
+        const logo = typeof fpLogoEntidade === "function" ? fpLogoEntidade(c) : (c.escudo || "");
+        return `
+          <option value="${c.id}" data-logo="${limparTexto(logo)}" ${String(c.id) === String(valorAtual) ? "selected" : ""}>
+            ${limparTexto(nome)}
+          </option>
+        `;
+      }).join("");
   }
 
   const rivaisAtuais = clube.rivais || [];
@@ -312,21 +339,29 @@ function formularioEditarClube(clube, banco) {
 
       <label>Rival 1</label>
       <select id="editRival1"><option value="">Sem rival</option>${opcoesRivais(rivaisAtuais[0] || "")}</select>
+      <div id="editRival1Preview" class="rival-preview"></div>
 
       <label>Rival 2</label>
       <select id="editRival2"><option value="">Sem rival</option>${opcoesRivais(rivaisAtuais[1] || "")}</select>
+      <div id="editRival2Preview" class="rival-preview"></div>
 
       <label>Rival 3</label>
       <select id="editRival3"><option value="">Sem rival</option>${opcoesRivais(rivaisAtuais[2] || "")}</select>
+      <div id="editRival3Preview" class="rival-preview"></div>
 
       <label>Rival 4</label>
       <select id="editRival4"><option value="">Sem rival</option>${opcoesRivais(rivaisAtuais[3] || "")}</select>
+      <div id="editRival4Preview" class="rival-preview"></div>
 
       <label>Rival 5</label>
       <select id="editRival5"><option value="">Sem rival</option>${opcoesRivais(rivaisAtuais[4] || "")}</select>
+      <div id="editRival5Preview" class="rival-preview"></div>
 
-      <button type="submit">Salvar alterações do time</button>
-      <button type="button" onclick="mostrarEdicao('clubes')">Cancelar</button>
+      <div class="acoes-form-edicao">
+        <button type="submit">Salvar alterações do time</button>
+        <button type="button" class="botao-excluir-registro" onclick="excluirRegistro('clubes', '${clube.id}')">Excluir time</button>
+        <button type="button" onclick="mostrarEdicao('clubes')">Cancelar</button>
+      </div>
     </form>
   `;
 }
@@ -347,8 +382,11 @@ function formularioEditarSelecao(selecao, banco) {
       <label>Cadastrar/Trocar escudo da seleção</label>
       <input type="file" id="editEscudo" accept="image/*">
 
-      <button type="submit">Salvar escudo</button>
-      <button type="button" onclick="mostrarEdicao('selecoes')">Cancelar</button>
+      <div class="acoes-form-edicao">
+        <button type="submit">Salvar escudo</button>
+        <button type="button" class="botao-excluir-registro" onclick="excluirRegistro('selecoes', '${selecao.id}')">Excluir seleção</button>
+        <button type="button" onclick="mostrarEdicao('selecoes')">Cancelar</button>
+      </div>
     </form>
   `;
 }
@@ -441,8 +479,11 @@ function formularioEditarCompeticao(competicao) {
       <label>Cadastrar/Trocar escudo da liga/competição</label>
       <input type="file" id="editEscudo" accept="image/*">
 
-      <button type="submit">Salvar alterações</button>
-      <button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      <div class="acoes-form-edicao">
+        <button type="submit">Salvar alterações</button>
+        <button type="button" class="botao-excluir-registro" onclick="excluirRegistro('competicoes', '${competicao.id}')">Excluir competição</button>
+        <button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      </div>
     </form>
   `;
 }
@@ -643,6 +684,51 @@ function lerImagem(inputId, callback) {
   reader.readAsDataURL(arquivo);
 }
 
+
+async function fpSalvarRivaisTimeSql(timeId, rivaisIds) {
+  const supa = typeof fpEdicaoSqlCliente === "function" ? fpEdicaoSqlCliente() : null;
+  if (!supa || !timeId) return true;
+
+  const id = Number(timeId);
+  const rivais = (rivaisIds || [])
+    .map(v => Number(v))
+    .filter(v => Number.isFinite(v) && v && v !== id)
+    .filter((v, idx, arr) => arr.indexOf(v) === idx)
+    .slice(0, 5);
+
+  const relacionados = [id, ...rivais];
+
+  const { error: delError } = await supa
+    .from("time_rivais")
+    .delete()
+    .or(`time_id.in.(${relacionados.join(",")}),rival_id.in.(${relacionados.join(",")})`);
+
+  if (delError) {
+    console.warn("Não foi possível limpar rivais antigos no Supabase:", delError.message || delError);
+    throw new Error(delError.message || "Erro ao atualizar rivais.");
+  }
+
+  const linhas = [];
+  rivais.forEach(rivalId => {
+    linhas.push({ time_id: id, rival_id: rivalId });
+    linhas.push({ time_id: rivalId, rival_id: id });
+  });
+
+  if (!linhas.length) return true;
+
+  const { error: insertError } = await supa
+    .from("time_rivais")
+    .upsert(linhas, { onConflict: "time_id,rival_id" });
+
+  if (insertError) {
+    console.warn("Não foi possível salvar rivais no Supabase:", insertError.message || insertError);
+    throw new Error(insertError.message || "Erro ao salvar rivais.");
+  }
+
+  return true;
+}
+
+
 function salvarEdicaoClube(event, id) {
   event.preventDefault();
 
@@ -682,8 +768,23 @@ function salvarEdicaoClube(event, id) {
 
     sincronizarRivaisBidirecionais(banco);
     salvarBanco(banco);
-    alert("Time atualizado com sucesso!");
-    mostrarEdicao("clubes");
+
+    (async () => {
+      try {
+        if (typeof fpEdicaoAtualizarTimeSql === "function") {
+          await fpEdicaoAtualizarTimeSql(clube.id, clube);
+        }
+        await fpSalvarRivaisTimeSql(clube.id, clube.rivais || []);
+        if (typeof carregarDadosRelacionaisSupabase === "function") {
+          await carregarDadosRelacionaisSupabase();
+        }
+        alert("Time atualizado com sucesso!");
+        mostrarEdicao("clubes");
+      } catch (erro) {
+        console.error("Erro ao salvar time/rivais:", erro);
+        alert("O time foi atualizado localmente, mas houve erro ao salvar no Supabase: " + (erro.message || erro));
+      }
+    })();
   });
 }
 
@@ -804,14 +905,14 @@ function salvarEdicaoTitulo(event, id) {
   event.preventDefault();
 
   const banco = carregarBanco();
-  const titulo = banco.titulos.find(t => t.id === id);
+  const titulo = banco.titulos.find(t => String(t.id) === String(id));
   if (!titulo) return;
 
   const ano = document.getElementById("editAno").value;
   const categoria = document.getElementById("editCategoriaTitulo")?.value || "clube";
   const competicaoId = document.getElementById("editCompeticaoTitulo").value;
   const campeaoId = document.getElementById("editCampeao").value;
-  const viceId = document.getElementById("editVice").value;
+  const viceId = document.getElementById("editVice").value || "";
 
   if (!ano || !competicaoId || !campeaoId || !viceId) {
     alert("Preencha ano, competição, campeão e vice.");
@@ -819,11 +920,11 @@ function salvarEdicaoTitulo(event, id) {
   }
 
   if (campeaoId === viceId) {
-    alert("Campeão e vice não podem ser o mesmo time.");
+    alert(categoria === "selecao" ? "Campeão e vice não podem ser a mesma seleção." : "Campeão e vice não podem ser o mesmo time.");
     return;
   }
 
-  const competicao = banco.competicoes.find(c => c.id === competicaoId);
+  const competicao = banco.competicoes.find(c => String(c.id) === String(competicaoId));
   const campeao = buscarParticipanteEdicaoTitulo(banco, campeaoId);
   const vice = buscarParticipanteEdicaoTitulo(banco, viceId);
 
@@ -832,11 +933,15 @@ function salvarEdicaoTitulo(event, id) {
     return;
   }
 
-  const categoriaCompeticao = competicao.categoria || normalizarCategoriaCompeticao(competicao) || "clube";
-  if (categoriaCompeticao !== categoria || campeao.tipo !== categoria || vice.tipo !== categoria) {
-    alert("A categoria da competição precisa combinar com campeão e vice.");
-    return;
+  const categoriaCompeticao = normalizarCategoriaCompeticao(competicao) || "clube";
+
+  if (categoria === "clube") {
+    if (categoriaCompeticao !== "clube" || campeao.tipo !== "clube" || vice.tipo !== "clube") {
+      alert("A categoria da competição precisa combinar com campeão e vice de clubes.");
+      return;
+    }
   }
+  // Para seleções, mantém o campo vice, mas remove o bloqueio de combinação.
 
   titulo.ano = ano;
   titulo.competicaoId = competicao.id;
@@ -844,10 +949,10 @@ function salvarEdicaoTitulo(event, id) {
   titulo.abrangencia = competicao.abrangencia;
   titulo.campeaoId = campeao.id;
   titulo.campeaoNome = campeao.nome;
-  titulo.campeaoTipo = campeao.tipo;
+  titulo.campeaoTipo = categoria === "selecao" ? "selecao" : campeao.tipo;
   titulo.viceId = vice.id;
   titulo.viceNome = vice.nome;
-  titulo.viceTipo = vice.tipo;
+  titulo.viceTipo = categoria === "selecao" ? "selecao" : vice.tipo;
 
   salvarBanco(banco);
   alert("Campeão e vice atualizados com sucesso!");
@@ -857,45 +962,46 @@ function salvarEdicaoTitulo(event, id) {
 async function excluirRegistro(tipo, id) {
   if (!confirm("Deseja excluir este registro?")) return;
 
+  const mapa = { clubes:"times", competicoes:"competicoes", selecoes:"selecoes" };
+  const tabela = mapa[tipo];
+
+  try {
+    if (tabela && typeof fpEdicaoSqlCliente === "function") {
+      const supa = fpEdicaoSqlCliente();
+      if (tipo === "clubes") {
+        await supa.from("time_rivais").delete().or(`time_id.eq.${id},rival_id.eq.${id}`);
+      }
+      const { error } = await supa.from(tabela).delete().eq("id", Number(id));
+      if (error) throw error;
+    }
+  } catch(e) {
+    alert("Erro ao excluir do Supabase: " + (e.message||e));
+    return;
+  }
+
   const banco = carregarBanco();
-  if (!Array.isArray(banco[tipo])) return;
+  if (Array.isArray(banco[tipo])) banco[tipo]=banco[tipo].filter(i=>String(i.id)!==String(id));
 
-  banco[tipo] = banco[tipo].filter(item => item.id !== id);
+  if (tipo==="competicoes")
+    banco.titulos=(banco.titulos||[]).filter(t=>String(t.competicaoId)!==String(id));
 
-  // Ao excluir uma competição, remove também as edições vinculadas a ela.
-  // Assim ela não volta ao atualizar a página e não ficam campeões/vices órfãos.
-  if (tipo === "competicoes") {
-    banco.titulos = (banco.titulos || []).filter(t => t.competicaoId !== id);
+  if (tipo==="clubes"){
+    banco.titulos=(banco.titulos||[]).filter(t=>String(t.campeaoId)!==String(id)&&String(t.viceId)!==String(id));
+    (banco.clubes||[]).forEach(c=>c.rivais=(c.rivais||[]).filter(r=>String(r)!==String(id)));
   }
 
-  if (tipo === "clubes") {
-    banco.titulos = (banco.titulos || []).filter(t => t.campeaoId !== id && t.viceId !== id);
-    (banco.clubes || []).forEach(clube => {
-      clube.rivais = (clube.rivais || []).filter(rivalId => rivalId !== id);
-    });
-  }
-
-  if (tipo === "selecoes") {
-    banco.titulos = (banco.titulos || []).filter(t => t.campeaoId !== id && t.viceId !== id);
-  }
+  if (tipo==="selecoes")
+    banco.titulos=(banco.titulos||[]).filter(t=>String(t.campeaoId)!==String(id)&&String(t.viceId)!==String(id));
 
   salvarBanco(banco);
 
-  // Força o salvamento na nuvem antes de atualizar a lista.
-  // Antes a página recarregava imediatamente, e o Supabase podia devolver os dados antigos.
-  if (typeof salvarBancoNaNuvem === "function") {
-    await salvarBancoNaNuvem(banco);
+  if (typeof carregarDadosRelacionaisSupabase==="function"){
+    await carregarDadosRelacionaisSupabase();
   }
 
   alert("Registro excluído com sucesso.");
-
-  if (typeof mostrarEdicao === "function") {
-    mostrarEdicao(tipo);
-  } else {
-    location.reload();
-  }
+  mostrarEdicao(tipo);
 }
-
 
 function iniciarMascaraEditFundacao() {
   const campo = document.getElementById("editFundacao");
@@ -1180,7 +1286,11 @@ function formularioEditarCompeticao(competicao) {
         ${["Liga","Copa","Supercopa","Recopa","Taça","Torneio","Campeonato","Mundial de Clubes","Copa Continental","Copa Regional","Estadual","Interestadual","Amistoso","Outros"].map(t => `<option value="${t}" ${competicao.tipo === t ? "selected" : ""}>${t}</option>`).join("")}
       </select>
       <label>Cadastrar/Trocar escudo da liga/competição</label><input type="file" id="editEscudo" accept="image/*">
-      <button type="submit">Salvar alterações</button><button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      <div class="acoes-form-edicao">
+        <button type="submit">Salvar alterações</button>
+        <button type="button" class="botao-excluir-registro" onclick="excluirRegistro('competicoes', '${competicao.id}')">Excluir competição</button>
+        <button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      </div>
     </form>`;
 }
 
@@ -1557,7 +1667,11 @@ function formularioEditarCompeticao(competicao) {
         ${["Liga","Copa","Supercopa","Recopa","Taça","Torneio","Campeonato","Mundial de Clubes","Copa Continental","Copa Regional","Estadual","Interestadual","Amistoso","Outros"].map(t => `<option value="${t}" ${competicao.tipo === t ? "selected" : ""}>${t}</option>`).join("")}
       </select>
       <label>Cadastrar/Trocar escudo da liga/competição</label><input type="file" id="editEscudo" accept="image/*">
-      <button type="submit">Salvar alterações</button><button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      <div class="acoes-form-edicao">
+        <button type="submit">Salvar alterações</button>
+        <button type="button" class="botao-excluir-registro" onclick="excluirRegistro('competicoes', '${competicao.id}')">Excluir competição</button>
+        <button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      </div>
     </form>`;
 }
 
@@ -1663,7 +1777,7 @@ function fpAbrangenciasClubeMundoContinentes(valorAtual = "") {
 }
 
 function fpCategoriaCompeticaoSegura(c) {
-  return c?.categoria || (typeof normalizarCategoriaCompeticao === "function" ? normalizarCategoriaCompeticao(c) : "clube") || "clube";
+  return (typeof normalizarCategoriaCompeticao === "function" ? normalizarCategoriaCompeticao(c) : (c?.categoria || "clube")) || "clube";
 }
 
 function fpPaisDaCompeticao(c) {
@@ -1738,7 +1852,11 @@ function formularioEditarCompeticao(competicao) {
         ${["Liga","Copa","Supercopa","Recopa","Taça","Torneio","Campeonato","Mundial de Clubes","Copa Continental","Copa Regional","Estadual","Interestadual","Amistoso","Outros"].map(t => `<option value="${t}" ${competicao.tipo === t ? "selected" : ""}>${t}</option>`).join("")}
       </select>
       <label>Cadastrar/Trocar escudo da liga/competição</label><input type="file" id="editEscudo" accept="image/*">
-      <button type="submit">Salvar alterações</button><button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      <div class="acoes-form-edicao">
+        <button type="submit">Salvar alterações</button>
+        <button type="button" class="botao-excluir-registro" onclick="excluirRegistro('competicoes', '${competicao.id}')">Excluir competição</button>
+        <button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      </div>
     </form>`;
 }
 
@@ -1944,7 +2062,7 @@ window.carregarPaisesEdicaoTitulo = carregarPaisesEdicaoTitulo;
 window.filtrarCompeticoesEdicaoTitulo = filtrarCompeticoesEdicaoTitulo;
 
 /* ===== Fluxo final solicitado: Edições Clubes/Seleções ===== */
-function fpFinalCat(c){ return c?.categoria || (typeof normalizarCategoriaCompeticao === "function" ? normalizarCategoriaCompeticao(c) : "clube") || "clube"; }
+function fpFinalCat(c){ return (typeof normalizarCategoriaCompeticao === "function" ? normalizarCategoriaCompeticao(c) : (c?.categoria || "clube")) || "clube"; }
 function fpFinalTxt(v){ return String(v||"").trim().toLowerCase(); }
 function fpFinalMundo(c){ const a=fpFinalTxt(c?.abrangencia),t=fpFinalTxt(c?.tipo),l=fpFinalTxt(c?.local); return a==="mundial"||a==="mundo"||t.includes("mund")||l==="mundial"||l==="mundo"; }
 function fpFinalPais(c){ return c?.pais || ((c?.abrangencia === "País" || c?.abrangencia === "Pais") ? c.local : "") || ""; }
@@ -2530,8 +2648,11 @@ function formularioEditarCompeticao(competicao) {
       <label>Cadastrar/Trocar escudo da liga/competição</label>
       <input type="file" id="editEscudo" accept="image/*">
 
-      <button type="submit">Salvar alterações</button>
-      <button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      <div class="acoes-form-edicao">
+        <button type="submit">Salvar alterações</button>
+        <button type="button" class="botao-excluir-registro" onclick="excluirRegistro('competicoes', '${competicao.id}')">Excluir competição</button>
+        <button type="button" onclick="mostrarEdicao('competicoes')">Cancelar</button>
+      </div>
     </form>
   `;
 }
@@ -2883,8 +3004,11 @@ function formularioEditarSelecao(selecao, banco) {
       <label>Escudo da seleção</label>
       <input type="file" id="editEscudo" accept="image/*">
 
-      <button type="submit">Salvar alterações da seleção</button>
-      <button type="button" onclick="mostrarEdicao('selecoes')">Cancelar</button>
+      <div class="acoes-form-edicao">
+        <button type="submit">Salvar alterações da seleção</button>
+        <button type="button" class="botao-excluir-registro" onclick="excluirRegistro('selecoes', '${selecao.id}')">Excluir seleção</button>
+        <button type="button" onclick="mostrarEdicao('selecoes')">Cancelar</button>
+      </div>
     </form>
   `;
 }
@@ -3751,7 +3875,52 @@ async function fpEdicaoAtualizarCompeticaoSql(id, dados) {
   return true;
 }
 
-window.salvarEdicaoClube = function salvarEdicaoClube(event, id) {
+window.salvarEdicaoClube = 
+async function fpSalvarRivaisTimeSql(timeId, rivaisIds) {
+  const supa = typeof fpEdicaoSqlCliente === "function" ? fpEdicaoSqlCliente() : null;
+  if (!supa || !timeId) return true;
+
+  const id = Number(timeId);
+  const rivais = (rivaisIds || [])
+    .map(v => Number(v))
+    .filter(v => Number.isFinite(v) && v && v !== id)
+    .filter((v, idx, arr) => arr.indexOf(v) === idx)
+    .slice(0, 5);
+
+  const relacionados = [id, ...rivais];
+
+  const { error: delError } = await supa
+    .from("time_rivais")
+    .delete()
+    .or(`time_id.in.(${relacionados.join(",")}),rival_id.in.(${relacionados.join(",")})`);
+
+  if (delError) {
+    console.warn("Não foi possível limpar rivais antigos no Supabase:", delError.message || delError);
+    throw new Error(delError.message || "Erro ao atualizar rivais.");
+  }
+
+  const linhas = [];
+  rivais.forEach(rivalId => {
+    linhas.push({ time_id: id, rival_id: rivalId });
+    linhas.push({ time_id: rivalId, rival_id: id });
+  });
+
+  if (!linhas.length) return true;
+
+  const { error: insertError } = await supa
+    .from("time_rivais")
+    .upsert(linhas, { onConflict: "time_id,rival_id" });
+
+  if (insertError) {
+    console.warn("Não foi possível salvar rivais no Supabase:", insertError.message || insertError);
+    throw new Error(insertError.message || "Erro ao salvar rivais.");
+  }
+
+  return true;
+}
+
+
+function salvarEdicaoClube(event, id) {
   event.preventDefault();
   const banco = carregarBanco();
   const clube = (banco.clubes || []).find(c => String(c.id) === String(id));
@@ -3767,7 +3936,7 @@ window.salvarEdicaoClube = function salvarEdicaoClube(event, id) {
       const nomeCompleto = document.getElementById("editNomeCompleto")?.value.trim() || nomeCurto;
       const fundacao = fpEdicaoNormalizarData(document.getElementById("editFundacao")?.value || "");
 
-      clube.nome = nomeCompleto;
+      clube.nome = nomeCurto;
       clube.nomeCompleto = nomeCompleto;
       clube.nomeCurto = nomeCurto;
       clube.pais = paisNome;
@@ -3898,14 +4067,67 @@ window.salvarEdicaoCompeticao = function salvarEdicaoCompeticao(event, id) {
   });
 };
 
-/* ===== FutPedia Storage: edição com upload para Supabase Storage ===== */
-async function fpEdicaoUploadEscudoSeExistir(inputId, bucket, nomeBase) {
-  if (typeof fpUploadImagemInput !== "function") return "";
-  return await fpUploadImagemInput(inputId, bucket, nomeBase);
+
+/* ===== Correção final: escudos sempre salvos no Supabase Storage e em public.times.escudo_url ===== */
+async function fpUploadEscudoEdicaoFinal(inputId, bucket, nomeBase, urlAtual = "") {
+  const input = document.getElementById(inputId);
+  const arquivo = input?.files?.[0];
+  if (!arquivo) return urlAtual || "";
+
+  if (typeof fpUploadArquivoStorage === "function") {
+    return await fpUploadArquivoStorage(bucket, arquivo, nomeBase || arquivo.name);
+  }
+
+  if (typeof fpUploadImagemInput === "function") {
+    const url = await fpUploadImagemInput(inputId, bucket, nomeBase || arquivo.name);
+    return url || urlAtual || "";
+  }
+
+  throw new Error("Função de upload para Supabase Storage não encontrada.");
+}
+
+async function fpSalvarEscudoTimeDiretoFinal(timeId, escudoUrl) {
+  const supa = typeof fpEdicaoSqlCliente === "function" ? fpEdicaoSqlCliente() : (typeof clienteSupabase === "function" ? clienteSupabase() : null);
+  if (!supa || !timeId || !escudoUrl) return true;
+
+  const { error } = await supa
+    .from("times")
+    .update({ escudo_url: escudoUrl })
+    .eq("id", Number(timeId));
+
+  if (error) throw error;
+  return true;
+}
+
+async function fpSalvarEscudoSelecaoDiretoFinal(selecaoId, escudoUrl) {
+  const supa = typeof fpEdicaoSqlCliente === "function" ? fpEdicaoSqlCliente() : (typeof clienteSupabase === "function" ? clienteSupabase() : null);
+  if (!supa || !selecaoId || !escudoUrl) return true;
+
+  const { error } = await supa
+    .from("selecoes")
+    .update({ escudo_url: escudoUrl })
+    .eq("id", Number(selecaoId));
+
+  if (error) throw error;
+  return true;
+}
+
+async function fpSalvarLogoCompeticaoDiretoFinal(competicaoId, logoUrl) {
+  const supa = typeof fpEdicaoSqlCliente === "function" ? fpEdicaoSqlCliente() : (typeof clienteSupabase === "function" ? clienteSupabase() : null);
+  if (!supa || !competicaoId || !logoUrl) return true;
+
+  const { error } = await supa
+    .from("competicoes")
+    .update({ logo_url: logoUrl })
+    .eq("id", Number(competicaoId));
+
+  if (error) throw error;
+  return true;
 }
 
 window.salvarEdicaoClube = async function salvarEdicaoClube(event, id) {
   event.preventDefault();
+
   const banco = carregarBanco();
   const clube = (banco.clubes || []).find(c => String(c.id) === String(id));
   if (!clube) return;
@@ -3916,11 +4138,14 @@ window.salvarEdicaoClube = async function salvarEdicaoClube(event, id) {
     const estadoNome = paisNome === "Brasil" ? (document.getElementById("editEstado")?.value || "") : "";
     const estadoObj = paisNome === "Brasil" && typeof buscarEstado === "function" ? (buscarEstado(estadoNome) || {}) : { sigla: "" };
     const nomeCurto = document.getElementById("editNome")?.value.trim() || clube.nomeCurto || clube.nome;
-    const nomeCompleto = document.getElementById("editNomeCompleto")?.value.trim() || nomeCurto;
-    const fundacao = fpEdicaoNormalizarData(document.getElementById("editFundacao")?.value || "");
-    const novaUrl = await fpEdicaoUploadEscudoSeExistir("editEscudo", "escudos-times", nomeCompleto || nomeCurto);
+    const nomeCompleto = document.getElementById("editNomeCompleto")?.value.trim() || clube.nomeCompleto || nomeCurto;
+    const fundacao = typeof fpEdicaoNormalizarData === "function"
+      ? fpEdicaoNormalizarData(document.getElementById("editFundacao")?.value || "")
+      : (document.getElementById("editFundacao")?.value || "");
 
-    clube.nome = nomeCompleto;
+    const escudoUrl = await fpUploadEscudoEdicaoFinal("editEscudo", "escudos-times", nomeCompleto || nomeCurto, clube.escudo || "");
+
+    clube.nome = nomeCurto;
     clube.nomeCompleto = nomeCompleto;
     clube.nomeCurto = nomeCurto;
     clube.pais = paisNome;
@@ -3929,7 +4154,7 @@ window.salvarEdicaoClube = async function salvarEdicaoClube(event, id) {
     clube.siglaEstado = paisNome === "Brasil" ? (document.getElementById("editSiglaEstado")?.value.trim() || estadoObj.sigla || estadoNome || "") : "";
     clube.cidade = document.getElementById("editCidade")?.value.trim() || "";
     clube.fundacao = fundacao || "";
-    if (novaUrl) clube.escudo = novaUrl;
+    clube.escudo = escudoUrl || "";
 
     clube.rivais = [];
     for (let i = 1; i <= 5; i++) {
@@ -3943,109 +4168,91 @@ window.salvarEdicaoClube = async function salvarEdicaoClube(event, id) {
     });
 
     if (typeof sincronizarRivaisBidirecionais === "function") sincronizarRivaisBidirecionais(banco);
-    await fpEdicaoAtualizarTimeSql(id, clube);
+
+    if (typeof fpEdicaoAtualizarTimeSql === "function") {
+      await fpEdicaoAtualizarTimeSql(id, clube);
+    }
+
+    if (escudoUrl) {
+      await fpSalvarEscudoTimeDiretoFinal(id, escudoUrl);
+    }
+
+    if (typeof fpSalvarRivaisTimeSql === "function") {
+      await fpSalvarRivaisTimeSql(id, clube.rivais || []);
+    }
+
     salvarBanco(banco);
+
+    if (typeof carregarDadosRelacionaisSupabase === "function") {
+      await carregarDadosRelacionaisSupabase();
+    }
+
     alert("Time atualizado com sucesso!");
-    if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
     mostrarEdicao("clubes");
   } catch (erro) {
-    console.error(erro);
+    console.error("Erro ao salvar time/escudo:", erro);
     alert("Não foi possível salvar o time no Supabase: " + (erro.message || erro));
   }
 };
 
 window.salvarEdicaoSelecao = async function salvarEdicaoSelecao(event, id) {
   event.preventDefault();
+
   const banco = carregarBanco();
   const selecao = (banco.selecoes || []).find(s => String(s.id) === String(id));
   if (!selecao) return;
 
   try {
-    const paisNome = document.getElementById("editPaisSelecao")?.value || selecao.pais || selecao.nome || "";
-    const continente = document.getElementById("editContinenteSelecao")?.value || selecao.continente || "";
-    const novaUrl = await fpEdicaoUploadEscudoSeExistir("editEscudo", "escudos-selecoes", paisNome);
+    const escudoUrl = await fpUploadEscudoEdicaoFinal("editEscudo", "escudos-selecoes", selecao.nome || selecao.pais || "selecao", selecao.escudo || "");
+    if (escudoUrl) selecao.escudo = escudoUrl;
 
-    selecao.nome = paisNome;
-    selecao.pais = paisNome;
-    selecao.continente = continente;
-    if (novaUrl) selecao.escudo = novaUrl;
+    if (typeof fpEdicaoAtualizarSelecaoSql === "function") {
+      await fpEdicaoAtualizarSelecaoSql(id, selecao);
+    }
 
-    (banco.titulos || []).forEach(titulo => {
-      if (String(titulo.campeaoId) === String(selecao.id)) {
-        titulo.campeaoNome = selecao.nome || selecao.pais;
-        titulo.campeaoTipo = "selecao";
-      }
-      if (String(titulo.viceId) === String(selecao.id)) {
-        titulo.viceNome = selecao.nome || selecao.pais;
-        titulo.viceTipo = "selecao";
-      }
-    });
+    if (escudoUrl) {
+      await fpSalvarEscudoSelecaoDiretoFinal(id, escudoUrl);
+    }
 
-    await fpEdicaoAtualizarSelecaoSql(id, selecao);
     salvarBanco(banco);
-    alert("Seleção atualizada com sucesso!");
     if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+
+    alert("Seleção atualizada com sucesso!");
     mostrarEdicao("selecoes");
   } catch (erro) {
-    console.error(erro);
+    console.error("Erro ao salvar seleção/escudo:", erro);
     alert("Não foi possível salvar a seleção no Supabase: " + (erro.message || erro));
   }
 };
 
 window.salvarEdicaoCompeticao = async function salvarEdicaoCompeticao(event, id) {
   event.preventDefault();
+
   const banco = carregarBanco();
   const competicao = (banco.competicoes || []).find(c => String(c.id) === String(id));
   if (!competicao) return;
 
   try {
-    const categoria = document.getElementById("editCategoriaCompeticao")?.value || "clube";
-    competicao.nome = document.getElementById("editNome")?.value.trim() || competicao.nome;
-    competicao.categoria = categoria;
-    competicao.tipo = document.getElementById("editTipoCompeticao")?.value || competicao.tipo || "Não informado";
-    competicao.abrangencia = categoria === "selecao" ? "Seleções" : (document.getElementById("editAbrangencia")?.value || competicao.abrangencia || "");
-    competicao.local = "";
-    competicao.bandeira = "";
-    competicao.continente = "";
-    competicao.pais = "";
+    const logoUrl = await fpUploadEscudoEdicaoFinal("editEscudo", "logos-competicoes", competicao.nome || "competicao", competicao.escudo || "");
+    if (logoUrl) competicao.escudo = logoUrl;
 
-    if (categoria === "selecao") {
-      competicao.continente = document.getElementById("editContinenteCompeticao")?.value || "";
-      competicao.pais = document.getElementById("editPaisCompeticao")?.value || "";
-      competicao.local = competicao.pais || competicao.continente || "Seleções";
-      competicao.bandeira = competicao.pais ? (buscarPaisSelecao(competicao.pais)?.bandeira || "") : "🏆";
-    } else if (competicao.abrangencia === "Mundial") {
-      competicao.local = "Mundial";
-      competicao.bandeira = "🌍";
-    } else if (competicao.abrangencia === "Continental") {
-      competicao.continente = document.getElementById("editContinenteCompeticao")?.value || competicao.continente || "";
-      competicao.local = competicao.continente;
-      competicao.bandeira = "🌎";
-    } else if (competicao.abrangencia === "País") {
-      competicao.pais = document.getElementById("editPaisCompeticao")?.value || "";
-      const pais = typeof buscarPaisSelecao === "function" ? (buscarPaisSelecao(competicao.pais) || {}) : {};
-      competicao.continente = pais.continente || competicao.continente || "";
-      competicao.local = competicao.pais;
-      competicao.bandeira = pais.bandeira || "";
+    if (typeof fpEdicaoAtualizarCompeticaoSql === "function") {
+      await fpEdicaoAtualizarCompeticaoSql(id, competicao);
     }
 
-    const novaUrl = await fpEdicaoUploadEscudoSeExistir("editEscudo", "logos-competicoes", competicao.nome);
-    if (novaUrl) competicao.escudo = novaUrl;
+    if (logoUrl) {
+      await fpSalvarLogoCompeticaoDiretoFinal(id, logoUrl);
+    }
 
-    (banco.titulos || []).forEach(titulo => {
-      if (String(titulo.competicaoId) === String(competicao.id)) {
-        titulo.competicaoNome = competicao.nome;
-        titulo.abrangencia = competicao.abrangencia;
-      }
-    });
-
-    await fpEdicaoAtualizarCompeticaoSql(id, competicao);
     salvarBanco(banco);
-    alert("Competição atualizada com sucesso!");
     if (typeof carregarDadosRelacionaisSupabase === "function") await carregarDadosRelacionaisSupabase();
+
+    alert("Competição atualizada com sucesso!");
     mostrarEdicao("competicoes");
   } catch (erro) {
-    console.error(erro);
+    console.error("Erro ao salvar competição/logo:", erro);
     alert("Não foi possível salvar a competição no Supabase: " + (erro.message || erro));
   }
 };
+
+window.excluirRegistro = excluirRegistro;

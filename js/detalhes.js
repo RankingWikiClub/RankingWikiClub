@@ -119,6 +119,17 @@ function detalheSecaoSuspensa(titulo, conteudoHtml, aberta = false) {
   `;
 }
 
+
+function nomeCurtoTimeDetalheFutpedia(clube) {
+  if (typeof fpNomeCurtoTime === "function") return fpNomeCurtoTime(clube);
+  return clube?.nomeCurto || clube?.nome_curto || clube?.nome || "";
+}
+
+function nomeCompletoTimeDetalheFutpedia(clube) {
+  if (typeof fpNomeCompletoTime === "function") return fpNomeCompletoTime(clube);
+  return clube?.nomeCompleto || clube?.nome_completo || clube?.nome || "";
+}
+
 function abrirDetalhesTime(id) {
   const banco = carregarBanco();
   const clube = banco.clubes.find(c => c.id === id);
@@ -127,20 +138,20 @@ function abrirDetalhesTime(id) {
   const titulos = banco.titulos.filter(t => t.campeaoId === id);
   const vices = banco.titulos.filter(t => t.viceId === id);
   const rivais = (clube.rivais || [])
-    .map(rivalId => banco.clubes.find(c => c.id === rivalId))
+    .map(rivalId => banco.clubes.find(c => String(c.id) === String(rivalId)))
     .filter(Boolean);
 
   const painel = garantirPainelDetalhes();
   const conteudo = document.getElementById("conteudoDetalhesGlobal");
 
   const escudoHtml = clube.escudo
-    ? `<img class="detalhe-time-tabela-escudo" src="${clube.escudo}" alt="Escudo de ${limparTexto(clube.nome)}">`
+    ? `<img class="detalhe-time-tabela-escudo" src="${clube.escudo}" alt="Escudo de ${limparTexto(nomeCurtoTimeDetalheFutpedia(clube))}">`
     : `<div class="escudo-placeholder">⚽</div>`;
 
   const desempenhoPorCompeticao = contarTitulosEVicesPorCompeticao(titulos, vices, banco);
 
   conteudo.innerHTML = `
-    <h2>${limparTexto(clube.nome)}</h2>
+    <h2>${limparTexto(nomeCurtoTimeDetalheFutpedia(clube))}</h2>
 
     <div class="tabela-container">
       <table class="tabela-detalhe-time tabela-detalhe-time-unica">
@@ -154,8 +165,8 @@ function abrirDetalhesTime(id) {
           <tr>
             <td>
               ${escudoHtml}
-              <p><strong>Nome curto:</strong> ${limparTexto(clube.nome)}</p>
-              <p><strong>Nome completo:</strong> ${limparTexto(clube.nomeCompleto || clube.nome)}</p>
+              <p><strong>Nome curto:</strong> ${limparTexto(nomeCurtoTimeDetalheFutpedia(clube))}</p>
+              <p><strong>Nome completo:</strong> ${limparTexto(nomeCompletoTimeDetalheFutpedia(clube))}</p>
               <p><strong>País:</strong> ${bandeiraPaisHTML(clube.pais, clube.bandeira)} ${limparTexto(clube.pais || "Não informado")}</p>
               ${clube.pais === "Brasil" ? `<p><strong>Estado:</strong> ${limparTexto(clube.estado || "Não informado")} ${clube.siglaEstado ? `(${limparTexto(clube.siglaEstado)})` : ""}</p>` : ""}
               <p><strong>Cidade:</strong> ${limparTexto(clube.cidade || "Não informado")}</p>
@@ -170,11 +181,11 @@ function abrirDetalhesTime(id) {
                         ${rivais.map(r => `
                           <li class="rival-detalhe-item" onclick="abrirDetalhesTime('${r.id}')">
                             ${
-                              r.escudo
-                                ? `<img class="rival-escudo-mini" src="${r.escudo}" alt="Escudo de ${limparTexto(r.nome)}">`
-                                : `<span class="rival-escudo-placeholder">⚽</span>`
+                              typeof fpHtmlLogo === "function"
+                                ? fpHtmlLogo(r, "time", nomeCurtoTimeDetalheFutpedia(r))
+                                : (r.escudo ? `<img class="rival-escudo-mini" src="${r.escudo}" alt="Escudo de ${limparTexto(nomeCurtoTimeDetalheFutpedia(r))}">` : `<span class="rival-escudo-placeholder">⚽</span>`)
                             }
-                            <span class="rival-nome link-detalhe">${limparTexto(r.nome)}</span>
+                            <span class="rival-nome link-detalhe">${limparTexto(nomeCurtoTimeDetalheFutpedia(r))}</span>
                           </li>
                         `).join("")}
                       </ul>`
@@ -606,7 +617,7 @@ function linkTimeCompeticaoDetalhe(id) {
 
   if (clube) {
     const escudo = clube.escudo
-      ? `<img class="escudo-time-competicao-detalhe" src="${clube.escudo}" alt="Escudo de ${limparTexto(clube.nome)}">`
+      ? `<img class="escudo-time-competicao-detalhe" src="${clube.escudo}" alt="Escudo de ${limparTexto(nomeCurtoTimeDetalheFutpedia(clube))}">`
       : `<span class="placeholder-time-competicao-detalhe">⚽</span>`;
 
     return `

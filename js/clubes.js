@@ -18,6 +18,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
+function nomeCurtoTimeFutpedia(clube) {
+  if (typeof fpNomeCurtoTime === "function") return fpNomeCurtoTime(clube);
+  return clube?.nomeCurto || clube?.nome_curto || clube?.nome || "";
+}
+
+function nomeCompletoTimeFutpedia(clube) {
+  if (typeof fpNomeCompletoTime === "function") return fpNomeCompletoTime(clube);
+  return clube?.nomeCompleto || clube?.nome_completo || clube?.nome || "";
+}
+
 function carregarFiltrosClubes() {
   const banco = carregarBanco();
 
@@ -73,7 +84,7 @@ function renderizarClubes() {
     clubes = clubes.filter(clube => clube.estado === estadoFiltro);
   }
 
-  clubes.sort((a, b) => a.nome.localeCompare(b.nome));
+  clubes.sort((a, b) => nomeCurtoTimeFutpedia(a).localeCompare(nomeCurtoTimeFutpedia(b)));
 
   if (clubes.length === 0) {
     lista.innerHTML = `<div class="card"><h3>Nenhum clube encontrado</h3><p>Cadastre novos clubes ou altere os filtros.</p></div>`;
@@ -83,16 +94,16 @@ function renderizarClubes() {
   lista.classList.add("lista-clubes");
 
   lista.innerHTML = clubes.map(clube => {
-    const escudo = clube.escudo
-      ? `<img class="escudo-mini" src="${clube.escudo}" alt="Escudo de ${limparTexto(clube.nome)}">`
-      : `<div class="escudo-mini-placeholder">⚽</div>`;
+    const escudo = typeof fpHtmlLogo === "function"
+      ? fpHtmlLogo(clube, "time", nomeCurtoTimeFutpedia(clube))
+      : (clube.escudo ? `<img class="escudo-mini" src="${clube.escudo}" alt="Escudo de ${limparTexto(nomeCurtoTimeFutpedia(clube))}">` : `<div class="escudo-mini-placeholder">⚽</div>`);
 
     return `
       <div class="clube-linha" onclick="abrirDetalhesTime(\'${clube.id}\')">
         ${escudo}
 
         <div class="clube-linha-info">
-          <h3>${limparTexto(clube.nome)}</h3>
+          <h3>${limparTexto(nomeCurtoTimeFutpedia(clube))}</h3>
           <p>
             ${bandeiraPaisHTML(clube.pais, clube.bandeira)} ${limparTexto(clube.pais)}
             ${clube.pais === "Brasil" && clube.siglaEstado ? ` • ${limparTexto(clube.siglaEstado)}` : ""}
@@ -130,8 +141,8 @@ function abrirClube(id) {
       rivais.length
         ? `<ul class="lista-rivais-detalhes">${rivais.map(r => `
                               <li class="rival-detalhe-item" onclick="abrirDetalhesTime('${r.id}')">
-                                ${r.escudo ? `<img class="rival-escudo-mini" src="${r.escudo}" alt="Escudo">` : `<span class="rival-escudo-placeholder">⚽</span>`}
-                                <span class="rival-nome">${limparTexto(r.nome)}</span>
+                                ${typeof fpHtmlLogo === "function" ? fpHtmlLogo(r, "time", nomeCurtoTimeFutpedia(r)) : (r.escudo ? `<img class="rival-escudo-mini" src="${r.escudo}" alt="Escudo">` : `<span class="rival-escudo-placeholder">⚽</span>`)}
+                                <span class="rival-nome">${limparTexto(nomeCurtoTimeFutpedia(r))}</span>
                               </li>
                             `).join("")}</ul>`
         : `<p>Nenhum rival cadastrado.</p>`
@@ -202,16 +213,16 @@ renderizarClubes = function() {
   const termoPesquisa = normalizarTextoBusca(document.getElementById("pesquisaClubes")?.value || "");
   let clubes = banco.clubes.slice();
   if (termoPesquisa) {
-    clubes = clubes.filter(clube => normalizarTextoBusca([clube.nome, clube.nomeCompleto, clube.pais, clube.estado, clube.siglaEstado, clube.cidade].join(" ")).includes(termoPesquisa));
+    clubes = clubes.filter(clube => normalizarTextoBusca([nomeCurtoTimeFutpedia(clube), nomeCompletoTimeFutpedia(clube), clube.pais, clube.estado, clube.siglaEstado, clube.cidade].join(" ")).includes(termoPesquisa));
   }
   if (paisFiltro) clubes = clubes.filter(clube => clube.pais === paisFiltro);
   if (paisFiltro === "Brasil" && estadoFiltro) clubes = clubes.filter(clube => clube.estado === estadoFiltro);
-  clubes.sort((a,b)=>a.nome.localeCompare(b.nome));
+  clubes.sort((a,b)=>nomeCurtoTimeFutpedia(a).localeCompare(nomeCurtoTimeFutpedia(b)));
   if (clubes.length === 0) { lista.innerHTML = `<div class="card"><h3>Nenhum clube encontrado</h3><p>Cadastre novos clubes ou altere os filtros.</p></div>`; return; }
   lista.classList.add("lista-clubes");
   lista.innerHTML = clubes.map(clube => {
-    const escudo = clube.escudo ? `<img class="escudo-mini" src="${clube.escudo}" alt="Escudo de ${limparTexto(clube.nome)}">` : `<div class="escudo-mini-placeholder">⚽</div>`;
-    return `<div class="clube-linha" onclick="abrirDetalhesTime('${clube.id}')">${escudo}<div class="clube-linha-info"><h3>${limparTexto(clube.nome)}</h3><p>${bandeiraPaisHTML(clube.pais, clube.bandeira)} ${limparTexto(clube.pais)}${clube.pais === "Brasil" && clube.siglaEstado ? ` • ${limparTexto(clube.siglaEstado)}` : ""}${clube.fundacao ? ` • Fundação: ${limparTexto(clube.fundacao)}` : ""}</p></div></div>`;
+    const escudo = clube.escudo ? `<img class="escudo-mini" src="${clube.escudo}" alt="Escudo de ${limparTexto(nomeCurtoTimeFutpedia(clube))}">` : `<div class="escudo-mini-placeholder">⚽</div>`;
+    return `<div class="clube-linha" onclick="abrirDetalhesTime('${clube.id}')">${escudo}<div class="clube-linha-info"><h3>${limparTexto(nomeCurtoTimeFutpedia(clube))}</h3><p>${bandeiraPaisHTML(clube.pais, clube.bandeira)} ${limparTexto(clube.pais)}${clube.pais === "Brasil" && clube.siglaEstado ? ` • ${limparTexto(clube.siglaEstado)}` : ""}${clube.fundacao ? ` • Fundação: ${limparTexto(clube.fundacao)}` : ""}</p></div></div>`;
   }).join("");
 };
 

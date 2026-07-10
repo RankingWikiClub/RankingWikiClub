@@ -56,9 +56,9 @@ function renderizarSelecoes() {
     return `
       <div class="selecao-lista-item" onclick="abrirDetalhesSelecao('${s.id}')">
         ${
-          s.escudo
-            ? `<img class="selecao-lista-escudo" src="${s.escudo}" alt="Escudo de ${limparTexto(nomePais)}">`
-            : `<span class="selecao-lista-placeholder">⚽</span>`
+          typeof fpHtmlLogo === "function"
+            ? fpHtmlLogo(s, "selecao", nomePais)
+            : (s.escudo ? `<img class="selecao-lista-escudo" src="${s.escudo}" alt="Escudo de ${limparTexto(nomePais)}">` : `<span class="selecao-lista-placeholder">⚽</span>`)
         }
         <div>
           <strong>${bandeira} ${limparTexto(nomePais)}</strong>
