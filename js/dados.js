@@ -351,7 +351,7 @@ let FUTPEDIA_CARREGOU_NUVEM = false;
 
 function prepararBancoFutpedia(banco) {
   banco ||= dadosIniciais();
-  banco.paises = PAISES_MUNDO_COMPLETO;
+  banco.paises = Array.isArray(banco.paises) && banco.paises.length ? banco.paises : PAISES_MUNDO_COMPLETO;
   banco.clubes ||= [];
   banco.selecoes ||= [];
   banco.competicoes ||= [];
@@ -583,7 +583,27 @@ function fpNomePaisCanonico(valor) {
     portorico: "Porto Rico",
     curacao: "Curaçao",
     curazao: "Curaçao",
-    barbados: "Barbados"
+    barbados: "Barbados",
+
+    // Variações encontradas entre a lista fixa do site e a tabela public.paises.
+    // Todas retornam o mesmo nome canônico para que filtros e relacionamentos
+    // funcionem mesmo quando o Supabase usa uma grafia diferente.
+    bielorrussia: "Belarus",
+    belarus: "Belarus",
+    holanda: "Países Baixos",
+    paisesbaixos: "Países Baixos",
+    netherlands: "Países Baixos",
+    tchequia: "República Tcheca",
+    republicatcheca: "República Tcheca",
+    czechia: "República Tcheca",
+    czechrepublic: "República Tcheca",
+    moldova: "Moldávia",
+    moldavia: "Moldávia",
+    turkiye: "Turquia",
+    turkey: "Turquia",
+    russia: "Rússia",
+    ukraine: "Ucrânia",
+    armenia: "Armênia"
   };
 
   return aliases[normalizado] || original;
@@ -660,6 +680,22 @@ async function carregarDadosRelacionaisSupabase() {
 
     const bancoAtual = carregarBancoLocalBruto() || dadosIniciais();
     const banco = prepararBancoFutpedia(bancoAtual);
+
+    // A lista de países exibida no site deve vir da mesma tabela usada pelos
+    // clubes. Assim, o filtro nunca compara "Holanda" com "Países Baixos" ou
+    // "Bielorrússia" com "Belarus".
+    banco.paises = paises.map(p => {
+      const continente = mapaContinentes.get(String(p.continente_id))?.nome || "";
+      const nome = fpNomePaisCanonico(p.nome || "");
+      return {
+        id: String(p.id),
+        nome,
+        nomeOriginal: p.nome || nome,
+        continente,
+        bandeira: bandeiraPorSigla(p.sigla),
+        sigla: p.sigla || ""
+      };
+    }).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }));
 
     banco.clubes = clubesSql.map(t => {
       const pais = mapaPaises.get(String(t.pais_id)) || {};
@@ -1019,7 +1055,7 @@ function normalizarCategoriaCompeticao(competicao) {
 }
 
 function normalizarBancoFutpedia(banco) {
-  banco.paises = PAISES_MUNDO_COMPLETO || banco.paises || [];
+  banco.paises = Array.isArray(banco.paises) && banco.paises.length ? banco.paises : PAISES_MUNDO_COMPLETO;
   banco.clubes ||= [];
   banco.selecoes ||= [];
   banco.competicoes ||= [];
