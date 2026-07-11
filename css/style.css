@@ -4920,3 +4920,78 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
   flex-direction: column;
   gap: 2px;
 }
+
+
+/* Fundo branco nas listas de pesquisa */
+.resultado-busca,
+.resultado-busca-item,
+.resultado-pesquisa-item,
+.autocomplete-item,
+.autocomplete-option,
+.dropdown-item,
+.sugestao-item,
+.sugestao-busca,
+.lista-sugestoes li,
+.resultados-pesquisa li,
+.resultados-busca li,
+.pesquisa-resultados li,
+.club-search-result,
+.clube-search-result,
+.item-resultado-pesquisa {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+.resultado-busca:hover,
+.resultado-busca-item:hover,
+.resultado-pesquisa-item:hover,
+.autocomplete-item:hover,
+.autocomplete-option:hover,
+.dropdown-item:hover,
+.sugestao-item:hover,
+.sugestao-busca:hover,
+.lista-sugestoes li:hover,
+.resultados-pesquisa li:hover,
+.resultados-busca li:hover,
+.pesquisa-resultados li:hover,
+.club-search-result:hover,
+.clube-search-result:hover,
+.item-resultado-pesquisa:hover {
+  background: #f5f8fc !important;
+  color: #0f3d7a !important;
+}
+
+.resultado-busca.active,
+.resultado-busca-item.active,
+.resultado-pesquisa-item.active,
+.autocomplete-item.active,
+.autocomplete-option.active,
+.dropdown-item.active,
+.sugestao-item.active,
+.sugestao-busca.active,
+.lista-sugestoes li.active,
+.resultados-pesquisa li.active,
+.resultados-busca li.active,
+.pesquisa-resultados li.active,
+.club-search-result.active,
+.clube-search-result.active,
+.item-resultado-pesquisa.active,
+.resultado-busca[aria-selected="true"],
+.resultado-busca-item[aria-selected="true"],
+.autocomplete-item[aria-selected="true"],
+.dropdown-item[aria-selected="true"] {
+  background: #ffffff !important;
+  color: #0f3d7a !important;
+  border-left: 4px solid #0f62fe !important;
+}
+
+.lista-sugestoes,
+.resultados-pesquisa,
+.resultados-busca,
+.pesquisa-resultados,
+.autocomplete-list,
+.dropdown-menu,
+.sugestoes-busca,
+.caixa-resultados-pesquisa {
+  background: #ffffff !important;
+}
