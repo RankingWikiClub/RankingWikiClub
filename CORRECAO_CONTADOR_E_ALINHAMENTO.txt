@@ -1,4 +1,0 @@
-Correções aplicadas:
-1. O contador usa diretamente clubes.length após todos os filtros e a pesquisa.
-2. O script antigo que contava elementos do DOM foi removido da página.
-3. Escudo e nome dos rivais usam grid de uma única linha com alinhamento central.

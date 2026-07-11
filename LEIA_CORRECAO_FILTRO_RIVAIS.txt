@@ -1,5 +1,0 @@
-Filtro de rivais corrigido:
-- clubes brasileiros: apenas do mesmo estado;
-- demais países: apenas do mesmo país;
-- o próprio time não aparece;
-- rivais já selecionados são preservados ao editar.

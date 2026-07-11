@@ -1415,3 +1415,172 @@ salvarTitulo = function salvarTituloCorrigido() {
 window.salvarTitulo = salvarTitulo;
 window.listarParticipantesTitulo = listarParticipantesTitulo;
 window.buscarParticipanteTitulo = buscarParticipanteTitulo;
+
+/* ===== CORREÇÃO FINAL: ocultar país em campeão/vice de abrangência Continental ===== */
+function fpNormalizarTextoTitulo(valor) {
+  return String(valor || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function fpContinenteDaCompeticaoTitulo(competicao) {
+  if (!competicao) return "";
+  if (competicao.continente) return competicao.continente;
+  if (competicao.abrangencia === "Continental") return competicao.local || "";
+  if (competicao.pais || competicao.local) {
+    const pais = typeof buscarPais === "function" ? buscarPais(competicao.pais || competicao.local) : null;
+    return pais?.continente || "";
+  }
+  return "";
+}
+
+function atualizarCamposPaisTituloPorAbrangencia() {
+  const tipoCadastro = document.getElementById("tipoCadastro")?.value || "";
+  const categoria = document.getElementById("categoriaTitulo")?.value || "clube";
+  const abrangencia = document.getElementById("abrangenciaTitulo")?.value || "";
+  const mostrarPais = tipoCadastro === "titulo" && categoria === "clube" && abrangencia === "País";
+
+  mostrarGrupo("grupoPaisCampeaoTitulo", mostrarPais);
+  mostrarGrupo("grupoPaisViceTitulo", mostrarPais);
+
+  if (!mostrarPais) {
+    const paisCampeao = document.getElementById("paisCampeaoTitulo");
+    const paisVice = document.getElementById("paisViceTitulo");
+    if (paisCampeao) paisCampeao.value = "";
+    if (paisVice) paisVice.value = "";
+  }
+}
+
+carregarPaisesTitulo = function carregarPaisesTituloCorrigido() {
+  const banco = carregarBanco();
+  const tipoCadastro = document.getElementById("tipoCadastro")?.value || "";
+  const categoria = document.getElementById("categoriaTitulo")?.value || "clube";
+  const abrangencia = document.getElementById("abrangenciaTitulo")?.value || "";
+  const mostrarPais = tipoCadastro === "titulo" && categoria === "clube" && abrangencia === "País";
+
+  mostrarGrupo("grupoPaisCampeaoTitulo", mostrarPais);
+  mostrarGrupo("grupoPaisViceTitulo", mostrarPais);
+
+  if (!mostrarPais) {
+    const paisCampeao = document.getElementById("paisCampeaoTitulo");
+    const paisVice = document.getElementById("paisViceTitulo");
+    if (paisCampeao) paisCampeao.value = "";
+    if (paisVice) paisVice.value = "";
+    return;
+  }
+
+  const paises = listarPaisesComClubes(banco);
+  preencherSelect("paisCampeaoTitulo", paises, "Selecione o país", p => p.nome, p => `${p.bandeira || ""} ${p.nome}`);
+  preencherSelect("paisViceTitulo", paises, "Selecione o país do vice", p => p.nome, p => `${p.bandeira || ""} ${p.nome}`);
+};
+
+listarParticipantesTitulo = function listarParticipantesTituloCorrigido(banco, selectId = "") {
+  const categoria = document.getElementById("categoriaTitulo")?.value || "clube";
+  const abrangencia = document.getElementById("abrangenciaTitulo")?.value || "";
+
+  if (categoria === "selecao") {
+    return (banco.selecoes || [])
+      .map(s => ({
+        id: s.id,
+        nome: s.nome || s.pais,
+        pais: s.pais || s.nome || "",
+        bandeira: s.bandeira || "",
+        tipo: "selecao"
+      }))
+      .filter(p => p.id != null && p.nome)
+      .sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"));
+  }
+
+  let participantes = (banco.clubes || [])
+    .map(c => ({
+      id: c.id,
+      nome: c.nome,
+      pais: c.pais || "",
+      bandeira: c.bandeira || "",
+      estado: c.estado || "",
+      siglaEstado: c.siglaEstado || "",
+      tipo: "clube"
+    }))
+    .filter(p => p.id != null && p.nome);
+
+  if (abrangencia === "País") {
+    const pais = selectId === "vice"
+      ? (document.getElementById("paisViceTitulo")?.value || "")
+      : (document.getElementById("paisCampeaoTitulo")?.value || "");
+    participantes = pais ? participantes.filter(p => p.pais === pais) : [];
+  } else if (abrangencia === "Continental") {
+    const competicaoId = document.getElementById("competicaoTitulo")?.value || "";
+    const competicao = (banco.competicoes || []).find(c => String(c.id) === String(competicaoId));
+    const continente = fpContinenteDaCompeticaoTitulo(competicao);
+    if (continente) {
+      const continenteNormalizado = fpNormalizarTextoTitulo(continente);
+      participantes = participantes.filter(p => {
+        const pais = typeof buscarPais === "function" ? buscarPais(p.pais) : null;
+        return fpNormalizarTextoTitulo(pais?.continente) === continenteNormalizado;
+      });
+    }
+  }
+
+  return participantes.sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR"));
+};
+
+const fpCarregarParticipantesTituloNoSelectAnterior = carregarParticipantesTituloNoSelect;
+carregarParticipantesTituloNoSelect = function carregarParticipantesTituloNoSelectCorrigido(selectId) {
+  const tipoCadastro = document.getElementById("tipoCadastro")?.value || "";
+  const banco = carregarBanco();
+  const categoria = document.getElementById("categoriaTitulo")?.value || "clube";
+  const abrangencia = document.getElementById("abrangenciaTitulo")?.value || "";
+  const participantes = tipoCadastro === "titulo" ? listarParticipantesTitulo(banco, selectId) : [];
+
+  let placeholder = selectId === "vice" ? "Selecione o vice" : "Selecione o campeão";
+  if (categoria === "clube" && abrangencia === "País") {
+    const paisSelecionado = selectId === "vice"
+      ? (document.getElementById("paisViceTitulo")?.value || "")
+      : (document.getElementById("paisCampeaoTitulo")?.value || "");
+    if (!paisSelecionado) {
+      placeholder = selectId === "vice" ? "Selecione primeiro o país do vice" : "Selecione primeiro o país";
+    }
+  }
+
+  preencherSelect(
+    selectId,
+    participantes,
+    placeholder,
+    item => item.id,
+    item => categoria === "clube" ? formatarNomeClubeComEstado(item) : `${item.bandeira || ""} ${item.nome}`
+  );
+};
+
+function fpAtualizarTituloAposMudancaAbrangencia() {
+  atualizarCamposPaisTituloPorAbrangencia();
+  carregarPaisesTitulo();
+  carregarCompeticoesPorAbrangencia();
+  carregarParticipantesTituloNoSelect("campeao");
+  carregarParticipantesTituloNoSelect("vice");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  atualizarCamposPaisTituloPorAbrangencia();
+
+  const abrangencia = document.getElementById("abrangenciaTitulo");
+  if (abrangencia && !abrangencia.dataset.fpPaisContinentalCorrigido) {
+    abrangencia.dataset.fpPaisContinentalCorrigido = "1";
+    abrangencia.addEventListener("change", fpAtualizarTituloAposMudancaAbrangencia);
+  }
+
+  const competicao = document.getElementById("competicaoTitulo");
+  if (competicao && !competicao.dataset.fpContinenteParticipantesCorrigido) {
+    competicao.dataset.fpContinenteParticipantesCorrigido = "1";
+    competicao.addEventListener("change", () => {
+      carregarParticipantesTituloNoSelect("campeao");
+      carregarParticipantesTituloNoSelect("vice");
+    });
+  }
+});
+
+window.atualizarCamposPaisTituloPorAbrangencia = atualizarCamposPaisTituloPorAbrangencia;
+window.carregarPaisesTitulo = carregarPaisesTitulo;
+window.listarParticipantesTitulo = listarParticipantesTitulo;
+window.carregarParticipantesTituloNoSelect = carregarParticipantesTituloNoSelect;

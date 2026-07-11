@@ -1,3 +1,0 @@
-Correção aplicada em js/detalhes.js.
-A tela de detalhes da competição agora respeita a categoria clube/selecao,
-evitando conflito quando um clube e uma seleção possuem o mesmo ID.

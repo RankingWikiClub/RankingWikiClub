@@ -1,3 +1,0 @@
-1. Execute sql_corrigir_rivais_bidirecionais.sql no Supabase.
-2. Publique todos os arquivos do projeto.
-3. Limpe o cache do navegador.
