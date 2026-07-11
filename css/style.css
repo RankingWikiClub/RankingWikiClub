@@ -4995,3 +4995,79 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
 .caixa-resultados-pesquisa {
   background: #ffffff !important;
 }
+
+
+
+/* Correção definitiva: remover fundo verde da pesquisa da página Início */
+.resultados-pesquisa-inicio,
+.lista-resultados-pesquisa-inicio,
+.resultado-pesquisa-item,
+.resultado-pesquisa-clube,
+.resultado-pesquisa-selecao,
+.resultado-pesquisa-competicao,
+.resultado-pesquisa-item:hover,
+.resultado-pesquisa-item:focus,
+.resultado-pesquisa-item:focus-visible,
+.resultado-pesquisa-item.active,
+.resultado-pesquisa-item[aria-selected="true"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+.resultado-pesquisa-item:hover,
+.resultado-pesquisa-item:focus-visible {
+  background: #f5f8fc !important;
+  background-color: #f5f8fc !important;
+  border-color: #4b96e6 !important;
+}
+
+.resultado-pesquisa-nome {
+  color: #003b7a !important;
+}
+
+.resultado-pesquisa-subtitulo,
+.resultado-pesquisa-tipo {
+  color: #4d5f70 !important;
+}
+
+/* Correção definitiva: remover fundo verde do Campeão atual */
+.campeao-atual-detalhe,
+.campeao-atual-competicao,
+.campeao-atual-clicavel,
+.campeao-atual-link,
+.info-destaque-detalhe.campeao-atual-competicao,
+button.campeao-atual-competicao,
+button.campeao-atual-clicavel {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #17324d !important;
+  border-color: #dce8f5 !important;
+}
+
+.campeao-atual-detalhe:hover,
+.campeao-atual-competicao:hover,
+.campeao-atual-clicavel:hover,
+.campeao-atual-link:hover,
+.info-destaque-detalhe.campeao-atual-competicao:hover {
+  background: #f8fbff !important;
+  background-color: #f8fbff !important;
+}
+
+.campeao-atual-rotulo,
+.campeao-atual-detalhe .info-destaque-rotulo,
+.campeao-atual-competicao .info-destaque-rotulo {
+  color: #56718d !important;
+}
+
+.campeao-atual-detalhe strong,
+.campeao-atual-competicao strong,
+.campeao-atual-link strong {
+  color: #063f79 !important;
+}
+
+.campeao-atual-placeholder,
+.campeao-atual-logo {
+  background: #eef6ff !important;
+  background-color: #eef6ff !important;
+}

@@ -1,0 +1,5 @@
+Correções aplicadas:
+- Fundo verde removido dos resultados da pesquisa da página Início.
+- Fundo verde removido do bloco Campeão atual em Detalhes da competição.
+- Fundo branco e hover azul-claro aplicados.
+- Cache do CSS atualizado.
