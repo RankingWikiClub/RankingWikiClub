@@ -77,7 +77,7 @@ function renderizarClubes() {
   let clubes = banco.clubes.slice();
 
   if (paisFiltro) {
-    clubes = clubes.filter(clube => fpNomePaisCanonico(clube.pais) === fpNomePaisCanonico(paisFiltro));
+    clubes = clubes.filter(clube => clube.pais === paisFiltro);
   }
 
   if (paisFiltro === "Brasil" && estadoFiltro) {
@@ -215,7 +215,7 @@ renderizarClubes = function() {
   if (termoPesquisa) {
     clubes = clubes.filter(clube => normalizarTextoBusca([nomeCurtoTimeFutpedia(clube), nomeCompletoTimeFutpedia(clube), clube.pais, clube.estado, clube.siglaEstado, clube.cidade].join(" ")).includes(termoPesquisa));
   }
-  if (paisFiltro) clubes = clubes.filter(clube => fpNomePaisCanonico(clube.pais) === fpNomePaisCanonico(paisFiltro));
+  if (paisFiltro) clubes = clubes.filter(clube => clube.pais === paisFiltro);
   if (paisFiltro === "Brasil" && estadoFiltro) clubes = clubes.filter(clube => clube.estado === estadoFiltro);
   clubes.sort((a,b)=>nomeCurtoTimeFutpedia(a).localeCompare(nomeCurtoTimeFutpedia(b)));
   if (clubes.length === 0) { lista.innerHTML = `<div class="card"><h3>Nenhum clube encontrado</h3><p>Cadastre novos clubes ou altere os filtros.</p></div>`; return; }

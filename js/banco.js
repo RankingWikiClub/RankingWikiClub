@@ -248,6 +248,31 @@ function abrirFormularioEdicao(tipo, id) {
   if (tipo === "titulos") area.innerHTML = formularioEditarTitulo(item, banco);
 }
 
+
+function fpNormalizarLocalRivalEdicao(valor) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function fpClubesRivaisElegiveis(clubeAtual, clubes, selecionados = []) {
+  const pais = fpNormalizarLocalRivalEdicao(clubeAtual?.pais);
+  const brasil = pais === "brasil";
+  const estado = fpNormalizarLocalRivalEdicao(clubeAtual?.siglaEstado || clubeAtual?.sigla_estado || clubeAtual?.estado);
+  const selecionadosSet = new Set((selecionados || []).map(String));
+
+  return (clubes || []).filter(c => {
+    if (String(c.id) === String(clubeAtual?.id)) return false;
+    if (selecionadosSet.has(String(c.id))) return true;
+    if (fpNormalizarLocalRivalEdicao(c.pais) !== pais) return false;
+    if (!brasil) return true;
+    const estadoC = fpNormalizarLocalRivalEdicao(c.siglaEstado || c.sigla_estado || c.estado);
+    return !!estado && estadoC === estado;
+  });
+}
+
 function formularioEditarClube(clube, banco) {
   const opcoesPais = banco.paises.map(p => `
     <option value="${limparTexto(p.nome)}" ${p.nome === clube.pais ? "selected" : ""}>
@@ -276,8 +301,7 @@ function formularioEditarClube(clube, banco) {
   }).join("");
 
   function opcoesRivais(valorAtual) {
-    return (banco.clubes || [])
-      .filter(c => String(c.id) !== String(clube.id))
+    return fpClubesRivaisElegiveis(clube, banco.clubes || [], clube.rivais || [])
       .slice()
       .sort((a, b) => {
         const na = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(a) : (a.nome || "");
@@ -318,11 +342,11 @@ function formularioEditarClube(clube, banco) {
       <input type="text" id="editNomeCompleto" value="${limparTexto(clube.nomeCompleto || clube.nome)}">
 
       <label>País</label>
-      <select id="editPais" onchange="atualizarEstadoEdicaoClube()">${opcoesPais}</select>
+      <select id="editPais" onchange="atualizarEstadoEdicaoClube(); atualizarListaRivaisEdicaoClube()">${opcoesPais}</select>
 
       <div id="grupoEditEstadoClube" class="grupo">
         <label>Estado</label>
-        <select id="editEstado" onchange="preencherSiglaEdicaoClube()">${opcoesEstado}</select>
+        <select id="editEstado" onchange="preencherSiglaEdicaoClube(); atualizarListaRivaisEdicaoClube()">${opcoesEstado}</select>
       </div>
 
       <div id="grupoEditSiglaEstadoClube" class="grupo">
@@ -728,6 +752,45 @@ async function fpSalvarRivaisTimeSql(timeId, rivaisIds) {
   return true;
 }
 
+
+function atualizarListaRivaisEdicaoClube() {
+  const banco = carregarBanco();
+  const params = new URLSearchParams(location.search);
+  const idUrl = params.get("id");
+  const form = document.querySelector("form.form-edicao");
+  const idForm = form?.getAttribute("onsubmit")?.match(/'([^']+)'/)?.[1] || idUrl;
+  const clubeBase = (banco.clubes || []).find(c => String(c.id) === String(idForm));
+  if (!clubeBase) return;
+
+  const pais = document.getElementById("editPais")?.value || clubeBase.pais || "";
+  const estado = pais === "Brasil"
+    ? (document.getElementById("editSiglaEstado")?.value || document.getElementById("editEstado")?.value || "")
+    : "";
+  const atual = { ...clubeBase, pais, estado, siglaEstado: estado };
+  const selecionados = [];
+  for (let i = 1; i <= 5; i++) {
+    const v = document.getElementById(`editRival${i}`)?.value || "";
+    if (v) selecionados.push(v);
+  }
+  const elegiveis = fpClubesRivaisElegiveis(atual, banco.clubes || [], selecionados)
+    .slice().sort((a,b) => {
+      const na = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(a) : (a.nome || "");
+      const nb = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(b) : (b.nome || "");
+      return na.localeCompare(nb, "pt-BR", { sensitivity: "base" });
+    });
+
+  for (let i = 1; i <= 5; i++) {
+    const select = document.getElementById(`editRival${i}`);
+    if (!select) continue;
+    const valor = select.value || "";
+    select.innerHTML = '<option value="">Sem rival</option>' + elegiveis.map(c => {
+      const nome = typeof fpNomeCurtoTime === "function" ? fpNomeCurtoTime(c) : (c.nome || "");
+      const logo = typeof fpLogoEntidade === "function" ? fpLogoEntidade(c) : (c.escudo || "");
+      return `<option value="${c.id}" data-logo="${limparTexto(logo)}" ${String(c.id) === String(valor) ? "selected" : ""}>${limparTexto(nome)}</option>`;
+    }).join("");
+    if (typeof fpAtualizarPreviewRival === "function") fpAtualizarPreviewRival(select);
+  }
+}
 
 function salvarEdicaoClube(event, id) {
   event.preventDefault();
@@ -4256,3 +4319,67 @@ window.salvarEdicaoCompeticao = async function salvarEdicaoCompeticao(event, id)
 };
 
 window.excluirRegistro = excluirRegistro;
+
+
+/* ===== CORREÇÃO FINAL: edição de campeão/vice respeita clube x seleção ===== */
+function fpBuscarParticipanteEdicaoPorCategoria(banco, id, categoria) {
+  const chave = String(id || '');
+  if (categoria === 'selecao') {
+    const s = (banco.selecoes || []).find(item => String(item.id) === chave);
+    return s ? { ...s, nome: s.nome || s.pais, pais: s.pais || s.nome || '', tipo: 'selecao' } : null;
+  }
+  const c = (banco.clubes || []).find(item => String(item.id) === chave);
+  return c ? { ...c, tipo: 'clube' } : null;
+}
+
+function carregarParticipantesEdicaoTituloSelect(tipo) {
+  const banco = carregarBanco();
+  const categoria = document.getElementById('editCategoriaTitulo')?.value || 'clube';
+  const select = document.getElementById(tipo === 'vice' ? 'editVice' : 'editCampeao');
+  if (!select) return;
+  const atual = select.value;
+  let itens;
+  if (categoria === 'selecao') {
+    itens = (banco.selecoes || []).map(s => ({id:s.id,nome:s.nome||s.pais,tipo:'selecao'}));
+  } else {
+    const pais = document.getElementById(tipo === 'vice' ? 'editPaisViceTitulo' : 'editPaisCampeaoTitulo')?.value || '';
+    itens = (banco.clubes || []).filter(c => !pais || c.pais === pais).map(c => ({id:c.id,nome:c.nome,tipo:'clube'}));
+  }
+  itens = itens.filter(i => i.id != null && i.nome).sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+  select.innerHTML = `<option value="">${tipo === 'vice' ? 'Selecione o vice' : 'Selecione o campeão'}</option>` + itens.map(i => `<option value="${i.id}" data-tipo="${i.tipo}">${limparTexto(i.nome)}</option>`).join('');
+  if ([...select.options].some(o => String(o.value) === String(atual))) select.value = atual;
+}
+
+const fpSalvarEdicaoTituloAnterior = salvarEdicaoTitulo;
+salvarEdicaoTitulo = function salvarEdicaoTituloCorrigido(event, id) {
+  event.preventDefault();
+  const banco = carregarBanco();
+  const titulo = (banco.titulos || []).find(t => String(t.id) === String(id));
+  if (!titulo) return;
+  const ano = document.getElementById('editAno')?.value || '';
+  const categoria = document.getElementById('editCategoriaTitulo')?.value || 'clube';
+  const competicaoId = document.getElementById('editCompeticaoTitulo')?.value || '';
+  const campeaoId = document.getElementById('editCampeao')?.value || '';
+  const viceId = document.getElementById('editVice')?.value || '';
+  if (!ano || !competicaoId || !campeaoId || !viceId) { alert('Preencha ano, competição, campeão e vice.'); return; }
+  if (String(campeaoId) === String(viceId)) { alert(categoria === 'selecao' ? 'Campeão e vice não podem ser a mesma seleção.' : 'Campeão e vice não podem ser o mesmo time.'); return; }
+  const competicao = (banco.competicoes || []).find(c => String(c.id) === String(competicaoId));
+  const campeao = fpBuscarParticipanteEdicaoPorCategoria(banco, campeaoId, categoria);
+  const vice = fpBuscarParticipanteEdicaoPorCategoria(banco, viceId, categoria);
+  if (!competicao || !campeao || !vice) { alert('Não foi possível localizar os participantes escolhidos.'); return; }
+  titulo.ano = ano;
+  titulo.competicaoId = competicao.id;
+  titulo.competicaoNome = competicao.nome;
+  titulo.abrangencia = competicao.abrangencia;
+  titulo.campeaoId = campeao.id;
+  titulo.campeaoNome = campeao.nome;
+  titulo.campeaoTipo = categoria;
+  titulo.viceId = vice.id;
+  titulo.viceNome = vice.nome;
+  titulo.viceTipo = categoria;
+  salvarBanco(banco);
+  alert('Campeão e vice atualizados com sucesso!');
+  mostrarEdicao('titulos');
+};
+window.salvarEdicaoTitulo = salvarEdicaoTitulo;
+window.carregarParticipantesEdicaoTituloSelect = carregarParticipantesEdicaoTituloSelect;

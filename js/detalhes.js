@@ -344,8 +344,20 @@ function ordenarEdicoesPorAnoCrescente(edicoes) {
 }
 
 
-function nomeParticipanteCompeticaoDetalhe(id) {
+function nomeParticipanteCompeticaoDetalhe(id, tipoPreferido = "") {
   const banco = carregarBanco();
+  const tipo = String(tipoPreferido || "").toLowerCase();
+
+  if (tipo === "selecao") {
+    const selecao = (banco.selecoes || []).find(s => String(s.id) === String(id));
+    return selecao ? (selecao.nome || selecao.pais || "") : "";
+  }
+
+  if (tipo === "clube") {
+    const clube = (banco.clubes || []).find(c => String(c.id) === String(id));
+    return clube ? (clube.nome || "") : "";
+  }
+
   const clube = (banco.clubes || []).find(c => String(c.id) === String(id));
   if (clube) return clube.nome || "";
 
@@ -355,23 +367,26 @@ function nomeParticipanteCompeticaoDetalhe(id) {
   return "";
 }
 
-function contarRankingFinalistasCompeticaoDetalhe(edicoes) {
+function contarRankingFinalistasCompeticaoDetalhe(edicoes, categoriaCompeticao = "") {
   const mapa = {};
+  const categoriaPadrao = String(categoriaCompeticao || "").toLowerCase() === "selecao" ? "selecao" : "clube";
 
   (edicoes || []).forEach(edicao => {
     const campeaoId = edicao.campeaoId;
     const viceId = edicao.viceId;
+    const campeaoTipo = edicao.campeaoTipo || categoriaPadrao;
+    const viceTipo = edicao.viceTipo || categoriaPadrao;
 
     if (campeaoId) {
-      const chave = String(campeaoId);
-      if (!mapa[chave]) mapa[chave] = { id: campeaoId, titulos: 0, vices: 0, finais: 0 };
+      const chave = `${campeaoTipo}:${String(campeaoId)}`;
+      if (!mapa[chave]) mapa[chave] = { id: campeaoId, tipo: campeaoTipo, titulos: 0, vices: 0, finais: 0 };
       mapa[chave].titulos += 1;
       mapa[chave].finais += 1;
     }
 
     if (viceId) {
-      const chave = String(viceId);
-      if (!mapa[chave]) mapa[chave] = { id: viceId, titulos: 0, vices: 0, finais: 0 };
+      const chave = `${viceTipo}:${String(viceId)}`;
+      if (!mapa[chave]) mapa[chave] = { id: viceId, tipo: viceTipo, titulos: 0, vices: 0, finais: 0 };
       mapa[chave].vices += 1;
       mapa[chave].finais += 1;
     }
@@ -380,31 +395,35 @@ function contarRankingFinalistasCompeticaoDetalhe(edicoes) {
   return Object.values(mapa).sort((a, b) => {
     if (b.finais !== a.finais) return b.finais - a.finais;
     if (b.titulos !== a.titulos) return b.titulos - a.titulos;
-    return String(nomeParticipanteCompeticaoDetalhe(a.id)).localeCompare(
-      String(nomeParticipanteCompeticaoDetalhe(b.id)),
+    return String(nomeParticipanteCompeticaoDetalhe(a.id, a.tipo)).localeCompare(
+      String(nomeParticipanteCompeticaoDetalhe(b.id, b.tipo)),
       "pt-BR"
     );
   });
 }
 
 
-function contarRankingParticipantesCompeticaoDetalhe(edicoes, campoId) {
+function contarRankingParticipantesCompeticaoDetalhe(edicoes, campoId, categoriaCompeticao = "") {
   const mapa = {};
+  const categoriaPadrao = String(categoriaCompeticao || "").toLowerCase() === "selecao" ? "selecao" : "clube";
+  const campoTipo = campoId === "viceId" ? "viceTipo" : "campeaoTipo";
 
   (edicoes || []).forEach(edicao => {
     const participanteId = edicao[campoId];
     if (!participanteId) return;
 
-    const chave = String(participanteId);
-    if (!mapa[chave]) mapa[chave] = { id: participanteId, total: 0 };
+    const participanteTipo = edicao[campoTipo] || categoriaPadrao;
+    const chave = `${participanteTipo}:${String(participanteId)}`;
+
+    if (!mapa[chave]) mapa[chave] = { id: participanteId, tipo: participanteTipo, total: 0 };
     mapa[chave].total += 1;
   });
 
   return Object.values(mapa).sort((a, b) => {
     if (b.total !== a.total) return b.total - a.total;
 
-    return String(nomeParticipanteCompeticaoDetalhe(a.id)).localeCompare(
-      String(nomeParticipanteCompeticaoDetalhe(b.id)),
+    return String(nomeParticipanteCompeticaoDetalhe(a.id, a.tipo)).localeCompare(
+      String(nomeParticipanteCompeticaoDetalhe(b.id, b.tipo)),
       "pt-BR"
     );
   });
@@ -428,7 +447,7 @@ function tabelaRankingSimplesCompeticaoDetalhe(tituloColuna, ranking, textoVazio
         <tbody>
           ${ranking.map(r => `
             <tr>
-              <td>${linkTimeCompeticaoDetalhe(r.id)}</td>
+              <td>${linkTimeCompeticaoDetalhe(r.id, r.tipo)}</td>
               <td class="coluna-total-ranking total-ranking-com-estrelas">
                 <div class="numero-total-ranking">${r.total}</div>
                 <div class="${classeEstrelas}">${r.total ? "★".repeat(r.total) : "-"}</div>
@@ -458,7 +477,7 @@ function tabelaRankingFinalistasCompeticaoDetalhe(ranking) {
         <tbody>
           ${ranking.map(r => `
             <tr>
-              <td>${linkTimeCompeticaoDetalhe(r.id)}</td>
+              <td>${linkTimeCompeticaoDetalhe(r.id, r.tipo)}</td>
               <td>${r.finais}</td>
               <td>${r.titulos}</td>
               <td>${r.vices}</td>
@@ -470,7 +489,7 @@ function tabelaRankingFinalistasCompeticaoDetalhe(ranking) {
   `;
 }
 
-function tabelaEdicoesCompeticaoDetalhe(edicoes) {
+function tabelaEdicoesCompeticaoDetalhe(edicoes, categoriaCompeticao = "") {
   if (!edicoes.length) return `<p>Nenhuma edição cadastrada.</p>`;
 
   return `
@@ -487,8 +506,8 @@ function tabelaEdicoesCompeticaoDetalhe(edicoes) {
           ${edicoes.map(e => `
             <tr class="linha-edicao-competicao-detalhe">
               <td class="coluna-ano-edicao">${limparTexto(e.ano)}</td>
-              <td>${linkTimeCompeticaoDetalhe(e.campeaoId)}</td>
-              <td>${linkTimeCompeticaoDetalhe(e.viceId)}</td>
+              <td>${linkTimeCompeticaoDetalhe(e.campeaoId, e.campeaoTipo || categoriaCompeticao)}</td>
+              <td>${linkTimeCompeticaoDetalhe(e.viceId, e.viceTipo || categoriaCompeticao)}</td>
             </tr>
           `).join("")}
         </tbody>
@@ -502,10 +521,16 @@ function abrirDetalhesLiga(id) {
   const liga = banco.competicoes.find(c => c.id === id);
   if (!liga) return;
 
-  const edicoes = ordenarEdicoesPorAnoCrescente(banco.titulos.filter(t => t.competicaoId === id));
-  const rankingCampeoes = contarRankingParticipantesCompeticaoDetalhe(edicoes, "campeaoId");
-  const rankingVices = contarRankingParticipantesCompeticaoDetalhe(edicoes, "viceId");
-  const rankingFinalistas = contarRankingFinalistasCompeticaoDetalhe(edicoes);
+  const edicoes = ordenarEdicoesPorAnoCrescente(banco.titulos.filter(t => String(t.competicaoId) === String(id)));
+  const categoriaLiga = String(
+    liga.categoria ||
+    (typeof normalizarCategoriaCompeticao === "function" ? normalizarCategoriaCompeticao(liga) : "") ||
+    ""
+  ).toLowerCase() === "selecao" ? "selecao" : "clube";
+
+  const rankingCampeoes = contarRankingParticipantesCompeticaoDetalhe(edicoes, "campeaoId", categoriaLiga);
+  const rankingVices = contarRankingParticipantesCompeticaoDetalhe(edicoes, "viceId", categoriaLiga);
+  const rankingFinalistas = contarRankingFinalistasCompeticaoDetalhe(edicoes, categoriaLiga);
 
   const painel = garantirPainelDetalhes();
   const conteudo = document.getElementById("conteudoDetalhesGlobal");
@@ -539,7 +564,7 @@ function abrirDetalhesLiga(id) {
 
     ${detalheSecaoSuspensa("Campeões e Vices", `
       <div id="listaEdicoesCompeticaoDetalhe">
-        ${tabelaEdicoesCompeticaoDetalhe(edicoes)}
+        ${tabelaEdicoesCompeticaoDetalhe(edicoes, categoriaLiga)}
       </div>
     `)}
   `;
@@ -611,10 +636,30 @@ function linkTimeDetalheCompeticao(id) {
 }
 
 
-function linkTimeCompeticaoDetalhe(id) {
+function linkTimeCompeticaoDetalhe(id, tipoPreferido = "") {
   const banco = carregarBanco();
-  const clube = (banco.clubes || []).find(c => c.id === id);
+  const tipo = String(tipoPreferido || "").toLowerCase();
 
+  if (tipo === "selecao") {
+    const selecao = (banco.selecoes || []).find(s => String(s.id) === String(id));
+    if (!selecao) return "Seleção não encontrada";
+
+    const nomeSelecao = selecao.nome || selecao.pais || "Seleção";
+    const bandeira = selecao.escudo
+      ? `<img class="escudo-time-competicao-detalhe" src="${selecao.escudo}" alt="Escudo de ${limparTexto(nomeSelecao)}">`
+      : (selecao.bandeira
+          ? `<span class="placeholder-time-competicao-detalhe">${limparTexto(selecao.bandeira)}</span>`
+          : `<span class="placeholder-time-competicao-detalhe">🏳️</span>`);
+
+    return `
+      <span class="linha-time-competicao-detalhe" onclick="abrirDetalhesSelecao('${selecao.id}')">
+        ${bandeira}
+        <span class="nome-time-competicao-detalhe">${limparTexto(nomeSelecao)}</span>
+      </span>
+    `;
+  }
+
+  const clube = (banco.clubes || []).find(c => String(c.id) === String(id));
   if (clube) {
     const escudo = clube.escudo
       ? `<img class="escudo-time-competicao-detalhe" src="${clube.escudo}" alt="Escudo de ${limparTexto(nomeCurtoTimeDetalheFutpedia(clube))}">`
@@ -628,23 +673,20 @@ function linkTimeCompeticaoDetalhe(id) {
     `;
   }
 
-  const selecao = (banco.selecoes || []).find(s => s.id === id);
-
-  if (selecao) {
-    const nomeSelecao = selecao.nome || selecao.pais || "Seleção";
-    const bandeira = selecao.bandeira
-      ? `<span class="placeholder-time-competicao-detalhe">${limparTexto(selecao.bandeira)}</span>`
-      : `<span class="placeholder-time-competicao-detalhe">🏳️</span>`;
-
-    return `
-      <span class="linha-time-competicao-detalhe" onclick="abrirDetalhesSelecao('${selecao.id}')">
-        ${bandeira}
-        <span class="nome-time-competicao-detalhe">${limparTexto(nomeSelecao)}</span>
-      </span>
-    `;
+  if (tipo !== "clube") {
+    const selecao = (banco.selecoes || []).find(s => String(s.id) === String(id));
+    if (selecao) {
+      const nomeSelecao = selecao.nome || selecao.pais || "Seleção";
+      return `
+        <span class="linha-time-competicao-detalhe" onclick="abrirDetalhesSelecao('${selecao.id}')">
+          <span class="placeholder-time-competicao-detalhe">🏳️</span>
+          <span class="nome-time-competicao-detalhe">${limparTexto(nomeSelecao)}</span>
+        </span>
+      `;
+    }
   }
 
-  return "Participante não encontrado";
+  return tipo === "clube" ? "Clube não encontrado" : "Participante não encontrado";
 }
 
 

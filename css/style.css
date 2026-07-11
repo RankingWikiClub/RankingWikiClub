@@ -4585,3 +4585,40 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
 .botao-excluir-registro:hover {
   background: #912018 !important;
 }
+
+/* Alinhamento final do nome e escudo dos rivais na página de detalhes */
+.lista-rivais-integrada .rival-detalhe-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  min-height: 36px !important;
+  line-height: normal !important;
+}
+
+.lista-rivais-integrada .rival-detalhe-item > .fp-logo-lista,
+.lista-rivais-integrada .rival-detalhe-item > .rival-escudo-mini,
+.lista-rivais-integrada .rival-detalhe-item > .fp-logo-placeholder,
+.lista-rivais-integrada .rival-detalhe-item > .rival-escudo-placeholder {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  flex: 0 0 34px !important;
+  margin: 0 !important;
+  vertical-align: middle !important;
+}
+
+.lista-rivais-integrada .rival-detalhe-item > .rival-nome {
+  display: flex !important;
+  align-items: center !important;
+  align-self: stretch !important;
+  height: auto !important;
+  min-height: 34px !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+}

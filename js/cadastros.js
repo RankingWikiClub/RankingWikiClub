@@ -54,7 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarRivais();
   });
 
-  document.getElementById("estado")?.addEventListener("change", preencherSiglaClube);
+  document.getElementById("estado")?.addEventListener("change", () => {
+    preencherSiglaClube();
+    carregarRivais();
+  });
 
   document.getElementById("continenteSelecao")?.addEventListener("change", carregarPaisesSelecaoPorContinente);
   document.getElementById("paisSelecao")?.addEventListener("change", preencherNomeSelecaoAutomaticamente);
@@ -471,13 +474,30 @@ function carregarListasTitulo() {
   carregarRivais();
 }
 
+function fpNormalizarLocalRival(valor) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function fpEstadoDoClubeRival(clube) {
+  return fpNormalizarLocalRival(clube?.siglaEstado || clube?.sigla_estado || clube?.estado || "");
+}
+
 function carregarRivais() {
   const banco = carregarBanco();
   const paisSelecionado = document.getElementById("pais")?.value || "";
+  const estadoSelecionado = document.getElementById("siglaEstado")?.value || document.getElementById("estado")?.value || "";
+  const paisNormalizado = fpNormalizarLocalRival(paisSelecionado);
+  const estadoNormalizado = fpNormalizarLocalRival(estadoSelecionado);
+  const brasil = paisNormalizado === "brasil";
 
-  const clubesDoPais = (banco.clubes || [])
+  const clubesElegiveis = (banco.clubes || [])
     .filter(c => c.id && (c.nome || c.nome_curto || c.nomeCurto))
-    .filter(c => paisSelecionado && c.pais === paisSelecionado);
+    .filter(c => fpNormalizarLocalRival(c.pais) === paisNormalizado)
+    .filter(c => !brasil || !estadoNormalizado || fpEstadoDoClubeRival(c) === estadoNormalizado);
 
   for (let i = 1; i <= 5; i++) {
     const selectTime = document.getElementById(`rival${i}`);
@@ -485,14 +505,14 @@ function carregarRivais() {
 
     const valorAtual = selectTime.value || "";
     let placeholder = paisSelecionado
-      ? `Selecione o Rival ${i}`
+      ? (brasil && !estadoNormalizado ? "Selecione primeiro o estado do time" : `Selecione o Rival ${i}`)
       : "Selecione primeiro o país do time";
 
-    if (paisSelecionado && clubesDoPais.length === 0) {
-      placeholder = "Nenhum time cadastrado neste país";
+    if (paisSelecionado && (!brasil || estadoNormalizado) && clubesElegiveis.length === 0) {
+      placeholder = brasil ? "Nenhum time cadastrado neste estado" : "Nenhum time cadastrado neste país";
     }
 
-    fpPreencherSelectTimesComLogo(`rival${i}`, clubesDoPais, placeholder, valorAtual);
+    fpPreencherSelectTimesComLogo(`rival${i}`, clubesElegiveis, placeholder, valorAtual);
   }
 }
 
@@ -1299,3 +1319,99 @@ document.addEventListener("change",(e)=>{
   }
 });
 document.addEventListener("DOMContentLoaded", atualizarCamposTituloSelecao);
+
+
+/* ===== CORREÇÃO FINAL: campeão/vice de seleções nunca usa clubes ===== */
+function fpBuscarParticipantePorCategoria(banco, id, categoria) {
+  const chave = String(id || '');
+  if (categoria === 'selecao') {
+    const s = (banco.selecoes || []).find(item => String(item.id) === chave);
+    return s ? { ...s, nome: s.nome || s.pais, pais: s.pais || s.nome || '', tipo: 'selecao' } : null;
+  }
+  const c = (banco.clubes || []).find(item => String(item.id) === chave);
+  return c ? { ...c, tipo: 'clube' } : null;
+}
+
+function listarParticipantesTitulo(banco, selectId = '') {
+  const categoria = document.getElementById('categoriaTitulo')?.value || 'clube';
+  let participantes = categoria === 'selecao'
+    ? (banco.selecoes || []).map(s => ({
+        id: s.id,
+        nome: s.nome || s.pais,
+        pais: s.pais || s.nome || '',
+        bandeira: s.bandeira || '',
+        tipo: 'selecao'
+      }))
+    : (banco.clubes || []).map(c => ({
+        id: c.id,
+        nome: c.nome,
+        pais: c.pais || '',
+        bandeira: c.bandeira || '',
+        estado: c.estado || '',
+        siglaEstado: c.siglaEstado || '',
+        tipo: 'clube'
+      }));
+
+  participantes = participantes.filter(p => p.id != null && p.nome);
+  if (categoria === 'clube') {
+    const pais = selectId === 'vice'
+      ? (document.getElementById('paisViceTitulo')?.value || '')
+      : (document.getElementById('paisCampeaoTitulo')?.value || '');
+    participantes = pais ? participantes.filter(p => p.pais === pais) : [];
+  }
+  return participantes.sort((a,b) => String(a.nome).localeCompare(String(b.nome)));
+}
+
+function buscarParticipanteTitulo(banco, id) {
+  const categoria = document.getElementById('categoriaTitulo')?.value || 'clube';
+  return fpBuscarParticipantePorCategoria(banco, id, categoria);
+}
+
+const fpSalvarTituloOriginal = salvarTitulo;
+salvarTitulo = function salvarTituloCorrigido() {
+  const banco = carregarBanco();
+  const ano = document.getElementById('ano')?.value || '';
+  const competicaoId = document.getElementById('competicaoTitulo')?.value || '';
+  const campeaoId = document.getElementById('campeao')?.value || '';
+  const viceId = document.getElementById('vice')?.value || '';
+  const categoria = document.getElementById('categoriaTitulo')?.value || 'clube';
+
+  if (!ano || !competicaoId || !campeaoId || !viceId) {
+    alert('Preencha ano, competição, campeão e vice.');
+    return;
+  }
+  if (String(campeaoId) === String(viceId)) {
+    alert(categoria === 'selecao' ? 'Campeão e vice não podem ser a mesma seleção.' : 'Campeão e vice não podem ser o mesmo time.');
+    return;
+  }
+
+  const competicao = (banco.competicoes || []).find(c => String(c.id) === String(competicaoId));
+  const campeao = fpBuscarParticipantePorCategoria(banco, campeaoId, categoria);
+  const vice = fpBuscarParticipantePorCategoria(banco, viceId, categoria);
+  if (!competicao || !campeao || !vice) {
+    alert(categoria === 'selecao'
+      ? 'Não foi possível localizar as seleções escolhidas. Atualize a página e selecione novamente.'
+      : 'Não foi possível localizar os clubes escolhidos.');
+    return;
+  }
+
+  banco.titulos.push({
+    id: gerarId(),
+    ano,
+    competicaoId: competicao.id,
+    competicaoNome: competicao.nome,
+    abrangencia: competicao.abrangencia,
+    campeaoId: campeao.id,
+    campeaoNome: campeao.nome,
+    campeaoTipo: categoria,
+    viceId: vice.id,
+    viceNome: vice.nome,
+    viceTipo: categoria
+  });
+  salvarBanco(banco);
+  alert('Campeão e vice cadastrados com sucesso!');
+  location.reload();
+};
+window.salvarTitulo = salvarTitulo;
+window.listarParticipantesTitulo = listarParticipantesTitulo;
+window.buscarParticipanteTitulo = buscarParticipanteTitulo;

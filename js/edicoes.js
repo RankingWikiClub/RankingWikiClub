@@ -43,6 +43,9 @@ function fpAbrirEdicaoDiretaDaUrl(tentativa = 0) {
   const deveAbrir = params.get('editar') === '1' || !!(id && tipo);
   if (!deveAbrir || !id || !tipo) return;
 
+  const chaveAbertura = `${tipo}:${id}`;
+  if (window.__fpEditorAberturaExecutada === chaveAbertura) return;
+
   if (typeof mostrarEdicao !== 'function' || typeof abrirFormularioEdicao !== 'function' || typeof carregarBanco !== 'function') {
     if (tentativa < 20) setTimeout(() => fpAbrirEdicaoDiretaDaUrl(tentativa + 1), 150);
     return;
@@ -61,6 +64,7 @@ function fpAbrirEdicaoDiretaDaUrl(tentativa = 0) {
   document.querySelectorAll('[data-edicao]').forEach(b => b.classList.remove('ativo'));
   if (botao) botao.classList.add('ativo');
 
+  window.__fpEditorAberturaExecutada = chaveAbertura;
   mostrarEdicao(tipo);
   setTimeout(() => {
     abrirFormularioEdicao(tipo, id);

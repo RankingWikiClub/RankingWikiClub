@@ -275,6 +275,9 @@
     const editar = params.get('editar') === '1' || (!!id && !!tipo);
     if (!editar || !id || !tipo) return;
 
+    const chaveAbertura = `${tipo}:${id}`;
+    if (window.__fpEditorAberturaExecutada === chaveAbertura) return;
+
     const { user, perfil } = await sessaoAtual();
     if (!user || !podeEditarPerfil(perfil)) {
       location.href = './login.html?redirect=' + encodeURIComponent('editor.html' + location.search);
@@ -285,6 +288,7 @@
 
     const tentar = (n = 0) => {
       if (typeof window.mostrarEdicao === 'function' && typeof window.abrirFormularioEdicao === 'function') {
+        window.__fpEditorAberturaExecutada = chaveAbertura;
         window.mostrarEdicao(tipo);
         setTimeout(() => window.abrirFormularioEdicao(tipo, id), 120);
         return;

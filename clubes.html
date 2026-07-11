@@ -5,6 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FutPedia - Clubes</title>
   <link rel="stylesheet" href="./css/style.css">
+
+<style>
+.contador-resultados-clubes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: fit-content;
+  min-height: 38px;
+  margin: 12px 0 16px;
+  padding: 8px 14px;
+  border: 1px solid rgba(15, 76, 170, 0.22);
+  border-radius: 10px;
+  background: #f2f7ff;
+  color: #123b78;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.contador-resultados-clubes.sem-resultados {
+  background: #fff7e8;
+  color: #7b4a00;
+}
+</style>
+
 </head>
 <body>
 <header class="topo">
@@ -57,7 +81,11 @@
       </select>
     </div>
   </div>
-  <div id="listaClubes" class="cards"></div>
+  
+    <div id="contadorResultadosClubes" class="contador-resultados-clubes" aria-live="polite">
+      0 times encontrados
+    </div>
+<div id="listaClubes" class="cards"></div>
   <div id="detalhesClube" class="detalhes" style="display:none;">
     <h2 id="tituloClube"></h2>
     <div id="infoClube"></div>
@@ -72,5 +100,6 @@
 <script src="./js/auth.js"></script>
 <script src="./js/login-edicao-fix.js?v=1"></script>
 <script src="./js/futpedia-supabase-fix.js?v=1"></script>
+<script src="js/contador-clubes.js"></script>
 </body>
 </html>
