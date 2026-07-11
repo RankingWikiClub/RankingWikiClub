@@ -66,6 +66,18 @@ function atualizarFiltroEstadoClubes() {
   }
 }
 
+
+function atualizarQuantidadeClubesFiltrados(total) {
+  const contador = document.getElementById("contadorResultadosClubes");
+  if (!contador) return;
+
+  const quantidade = Number(total) || 0;
+  contador.textContent = `${quantidade.toLocaleString("pt-BR")} ${
+    quantidade === 1 ? "time encontrado" : "times encontrados"
+  }`;
+  contador.classList.toggle("sem-resultados", quantidade === 0);
+}
+
 function renderizarClubes() {
   const banco = carregarBanco();
   const lista = document.getElementById("listaClubes");
@@ -85,6 +97,8 @@ function renderizarClubes() {
   }
 
   clubes.sort((a, b) => nomeCurtoTimeFutpedia(a).localeCompare(nomeCurtoTimeFutpedia(b)));
+
+  atualizarQuantidadeClubesFiltrados(clubes.length);
 
   if (clubes.length === 0) {
     lista.innerHTML = `<div class="card"><h3>Nenhum clube encontrado</h3><p>Cadastre novos clubes ou altere os filtros.</p></div>`;
@@ -218,6 +232,8 @@ renderizarClubes = function() {
   if (paisFiltro) clubes = clubes.filter(clube => clube.pais === paisFiltro);
   if (paisFiltro === "Brasil" && estadoFiltro) clubes = clubes.filter(clube => clube.estado === estadoFiltro);
   clubes.sort((a,b)=>nomeCurtoTimeFutpedia(a).localeCompare(nomeCurtoTimeFutpedia(b)));
+
+  atualizarQuantidadeClubesFiltrados(clubes.length);
   if (clubes.length === 0) { lista.innerHTML = `<div class="card"><h3>Nenhum clube encontrado</h3><p>Cadastre novos clubes ou altere os filtros.</p></div>`; return; }
   lista.classList.add("lista-clubes");
   lista.innerHTML = clubes.map(clube => {

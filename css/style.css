@@ -4622,3 +4622,63 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
   padding: 0 !important;
   vertical-align: middle !important;
 }
+
+
+/* Correção definitiva do alinhamento de rivais em Detalhes do Time */
+.rivais-integrados-info .lista-rivais-integrada {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  margin: 8px 0 0 !important;
+  padding: 0 !important;
+}
+
+.rivais-integrados-info .lista-rivais-integrada .rival-detalhe-item {
+  display: grid !important;
+  grid-template-columns: 34px minmax(0, auto) !important;
+  align-items: center !important;
+  column-gap: 10px !important;
+  width: max-content !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+.rivais-integrados-info .lista-rivais-integrada .rival-detalhe-item > img,
+.rivais-integrados-info .lista-rivais-integrada .rival-detalhe-item > .fp-logo-lista,
+.rivais-integrados-info .lista-rivais-integrada .rival-detalhe-item > .rival-escudo-mini,
+.rivais-integrados-info .lista-rivais-integrada .rival-detalhe-item > .fp-logo-placeholder,
+.rivais-integrados-info .lista-rivais-integrada .rival-detalhe-item > .rival-escudo-placeholder {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  max-width: 34px !important;
+  max-height: 34px !important;
+  margin: 0 !important;
+  padding: 3px !important;
+  object-fit: contain !important;
+  box-sizing: border-box !important;
+  align-self: center !important;
+}
+
+.rivais-integrados-info .lista-rivais-integrada .rival-detalhe-item > .rival-nome {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 34px !important;
+  white-space: nowrap !important;
+  align-self: center !important;
+}
