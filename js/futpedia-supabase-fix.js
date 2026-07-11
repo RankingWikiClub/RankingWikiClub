@@ -95,9 +95,9 @@
     "republica da irlanda": "irlanda",
     "Irlanda": "irlanda",
 
-    "pais de País de Gales": "pais de País de Gales",
-    "País de Gales": "pais de País de Gales",
-    "País de Gales": "pais de País de Gales",
+    "pais de País de País de Gales": "pais de País de País de Gales",
+    "País de País de Gales": "pais de País de País de Gales",
+    "País de País de Gales": "pais de País de País de Gales",
 
     "vaticano": "vaticano",
     "Vaticano": "vaticano",

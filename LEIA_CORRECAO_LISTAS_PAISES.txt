@@ -1,0 +1,9 @@
+Todas as listas de países dos formulários agora são sincronizadas com public.paises.
+A correção abrange Editor, cadastro de clubes, competições, campeões/vices,
+seleções, filtros e demais selects cujo id ou name contenha 'pais'.
+
+Os nomes são convertidos para português antes de serem exibidos.
+O país selecionado é preservado ao abrir a edição.
+
+Execute também no Supabase:
+sql_atualizar_nomes_paises_formularios.sql

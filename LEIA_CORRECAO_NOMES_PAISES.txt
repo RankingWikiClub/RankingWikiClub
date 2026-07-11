@@ -1,9 +1,9 @@
 Correções principais:
-- Holanda -> Países Baixos
-- República Tcheca/Czechia -> Tchéquia
-- Gales/Wales -> País de Gales
-- Moldova -> Moldávia
-- Macedonia/North Macedonia -> Macedônia do Norte
+- Países Baixos -> Países Baixos
+- Tchéquia/Tchéquia -> Tchéquia
+- País de Gales/País de Gales -> País de País de Gales
+- Moldávia -> Moldávia
+- Macedonia/Macedônia do Norte -> Macedônia do Norte
 - Outros nomes em inglês foram convertidos para português.
 
 Execute no Supabase:
