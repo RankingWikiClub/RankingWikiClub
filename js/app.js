@@ -1,6 +1,6 @@
 
 // Helper global usado na página inicial e nas listas.
-// Mostra nome curto quando existir e usa nome completo como fallback.
+// Mostra nome curto quando existir e Estados Unidos nome completo como fallback.
 function fpNomeCurtoClube(clube) {
   if (typeof fpNomeCurtoTime === "function") return fpNomeCurtoTime(clube);
   return String(clube?.nomeCurto || clube?.nome_curto || clube?.nome || "Sem nome").trim();

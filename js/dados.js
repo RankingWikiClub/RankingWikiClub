@@ -18,7 +18,7 @@ const PAISES_PADRAO = [
   { nome: "Itália", bandeira: "🇮🇹" },
   { nome: "Alemanha", bandeira: "🇩🇪" },
   { nome: "Portugal", bandeira: "🇵🇹" },
-  { nome: "Holanda", bandeira: "🇳🇱" },
+  { nome: "Países Baixos", bandeira: "🇳🇱" },
   { nome: "Bélgica", bandeira: "🇧🇪" },
   { nome: "Croácia", bandeira: "🇭🇷" },
   { nome: "Japão", bandeira: "🇯🇵" },
@@ -53,7 +53,7 @@ const PAISES_MUNDO_COMPLETO = [
   { nome: "Bélgica", continente: "Europa", bandeira: "🇧🇪" },
   { nome: "Belize", continente: "América Central", bandeira: "🇧🇿" },
   { nome: "Benin", continente: "África", bandeira: "🇧🇯" },
-  { nome: "Bielorrússia", continente: "Europa", bandeira: "🇧🇾" },
+  { nome: "Belarus", continente: "Europa", bandeira: "🇧🇾" },
   { nome: "Bolívia", continente: "América do Sul", bandeira: "🇧🇴" },
   { nome: "Bósnia e Herzegovina", continente: "Europa", bandeira: "🇧🇦" },
   { nome: "Botsuana", continente: "África", bandeira: "🇧🇼" },
@@ -114,7 +114,7 @@ const PAISES_MUNDO_COMPLETO = [
   { nome: "Guiné Equatorial", continente: "África", bandeira: "🇬🇶" },
   { nome: "Guiné-Bissau", continente: "África", bandeira: "🇬🇼" },
   { nome: "Haiti", continente: "Caribe", bandeira: "🇭🇹" },
-  { nome: "Holanda", continente: "Europa", bandeira: "🇳🇱" },
+  { nome: "Países Baixos", continente: "Europa", bandeira: "🇳🇱" },
   { nome: "Honduras", continente: "América Central", bandeira: "🇭🇳" },
   { nome: "Hungria", continente: "Europa", bandeira: "🇭🇺" },
   { nome: "Iêmen", continente: "Ásia", bandeira: "🇾🇪" },
@@ -157,7 +157,7 @@ const PAISES_MUNDO_COMPLETO = [
   { nome: "Moldávia", continente: "Europa", bandeira: "🇲🇩" },
   { nome: "Mongólia", continente: "Ásia", bandeira: "🇲🇳" },
   { nome: "Montenegro", continente: "Europa", bandeira: "🇲🇪" },
-  { nome: "Myanmar", continente: "Ásia", bandeira: "🇲🇲" },
+  { nome: "Mianmar", continente: "Ásia", bandeira: "🇲🇲" },
   { nome: "Namíbia", continente: "África", bandeira: "🇳🇦" },
   { nome: "Nauru", continente: "Oceania", bandeira: "🇳🇷" },
   { nome: "Nepal", continente: "Ásia", bandeira: "🇳🇵" },
@@ -167,7 +167,7 @@ const PAISES_MUNDO_COMPLETO = [
   { nome: "Noruega", continente: "Europa", bandeira: "🇳🇴" },
   { nome: "Nova Zelândia", continente: "Oceania", bandeira: "🇳🇿" },
   { nome: "Omã", continente: "Ásia", bandeira: "🇴🇲" },
-  { nome: "País de Gales", continente: "Europa", bandeira: "🏴" },
+  { nome: "País de País de Gales", continente: "Europa", bandeira: "🏴" },
   { nome: "Paquistão", continente: "Ásia", bandeira: "🇵🇰" },
   { nome: "Palau", continente: "Oceania", bandeira: "🇵🇼" },
   { nome: "Palestina", continente: "Ásia", bandeira: "🇵🇸" },
@@ -183,7 +183,7 @@ const PAISES_MUNDO_COMPLETO = [
   { nome: "República Centro-Africana", continente: "África", bandeira: "🇨🇫" },
   { nome: "República Democrática do Congo", continente: "África", bandeira: "🇨🇩" },
   { nome: "República Dominicana", continente: "Caribe", bandeira: "🇩🇴" },
-  { nome: "República Tcheca", continente: "Europa", bandeira: "🇨🇿" },
+  { nome: "Tchéquia", continente: "Europa", bandeira: "🇨🇿" },
   { nome: "Romênia", continente: "Europa", bandeira: "🇷🇴" },
   { nome: "Ruanda", continente: "África", bandeira: "🇷🇼" },
   { nome: "Rússia", continente: "Europa", bandeira: "🇷🇺" },
@@ -486,8 +486,8 @@ async function carregarBancoDaNuvem() {
 
     // Sincronização segura:
     // 1) Se o banco local foi editado mais recentemente, envia o local para o Supabase.
-    // 2) Se a nuvem for mais recente, usa os dados da nuvem.
-    // 3) Se não houver data confiável, usa a regra antiga por quantidade de registros.
+    // 2) Se a nuvem for mais recente, Estados Unidos os dados da nuvem.
+    // 3) Se não houver data confiável, Estados Unidos a regra antiga por quantidade de registros.
     const dataLocal = local?.atualizadoLocalEm ? Date.parse(local.atualizadoLocalEm) : 0;
     const dataNuvem = data?.atualizado_em ? Date.parse(data.atualizado_em) : 0;
 
@@ -581,7 +581,7 @@ function fpNomePaisCanonico(valor) {
   const aliases = {
     puertorico: "Porto Rico",
     portorico: "Porto Rico",
-    curacao: "Curaçao",
+    Curaçao: "Curaçao",
     curazao: "Curaçao",
     barbados: "Barbados"
   };
@@ -665,7 +665,7 @@ async function carregarDadosRelacionaisSupabase() {
       const pais = mapaPaises.get(String(t.pais_id)) || {};
       return {
         id: String(t.id),
-        // Nas listas e páginas gerais o FutPedia usa o nome curto.
+        // Nas listas e páginas gerais o FutPedia Estados Unidos o nome curto.
         // O nome completo fica salvo separadamente e aparece apenas na página de detalhes.
         nome: t.nome_curto || t.nome || "",
         nomeCompleto: t.nome || t.nome_curto || "",
@@ -850,7 +850,7 @@ const CODIGOS_PAISES = {
   "Itália": "it",
   "Alemanha": "de",
   "Portugal": "pt",
-  "Holanda": "nl",
+  "Países Baixos": "nl",
   "Bélgica": "be",
   "Croácia": "hr",
   "Japão": "jp",
@@ -1177,3 +1177,19 @@ function fpPreencherSelectTimesComLogo(selectId, times, placeholder = "Selecione
 
   fpAtualizarPreviewRival(select);
 }
+
+// Padronização global de nomes de países em português.
+(function(){
+  if(typeof window==='undefined') return;
+  const original=window.carregarBanco;
+  if(typeof original==='function' && !original.__paisesPt){
+    const fn=function(...args){
+      const banco=original.apply(this,args);
+      return typeof window.aplicarNomesPaisesPortuguesNoBanco==='function'
+        ? window.aplicarNomesPaisesPortuguesNoBanco(banco)
+        : banco;
+    };
+    fn.__paisesPt=true;
+    window.carregarBanco=fn;
+  }
+})();

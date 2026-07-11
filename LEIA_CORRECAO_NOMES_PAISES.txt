@@ -1,0 +1,12 @@
+Correções principais:
+- Holanda -> Países Baixos
+- República Tcheca/Czechia -> Tchéquia
+- Gales/Wales -> País de Gales
+- Moldova -> Moldávia
+- Macedonia/North Macedonia -> Macedônia do Norte
+- Outros nomes em inglês foram convertidos para português.
+
+Execute no Supabase:
+sql_padronizar_nomes_paises_portugues.sql
+
+Os IDs não são alterados; os vínculos permanecem intactos.

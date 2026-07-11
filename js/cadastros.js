@@ -1321,7 +1321,7 @@ document.addEventListener("change",(e)=>{
 document.addEventListener("DOMContentLoaded", atualizarCamposTituloSelecao);
 
 
-/* ===== CORREÇÃO FINAL: campeão/vice de seleções nunca usa clubes ===== */
+/* ===== CORREÇÃO FINAL: campeão/vice de seleções nunca Estados Unidos clubes ===== */
 function fpBuscarParticipantePorCategoria(banco, id, categoria) {
   const chave = String(id || '');
   if (categoria === 'selecao') {

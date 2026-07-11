@@ -4,8 +4,8 @@ O sistema agora procura o país diretamente na tabela public.paises e aceita:
 - diferenças de maiúsculas e minúsculas;
 - diferenças de acentos;
 - espaços e pontuação;
-- aliases como Holanda/Países Baixos, Moldova/Moldávia,
-  Tchéquia/República Tcheca e Bielorrússia/Belarus.
+- aliases como Países Baixos/Países Baixos, Moldávia/Moldávia,
+  Tchéquia/Tchéquia e Belarus/Belarus.
 
 Não é necessário executar SQL para usar a correção.
 O arquivo sql_diagnosticar_paises_times.sql é apenas para conferência.

@@ -1,6 +1,6 @@
 -- =====================================================
 -- FUTPEDIA - CORREÇÃO DEFINITIVA DE CADASTROS/EDIÇÕES
--- Usa funções SECURITY DEFINER para salvar no Supabase
+-- Estados Unidos funções SECURITY DEFINER para salvar no Supabase
 -- mesmo quando o RLS bloquear INSERT/UPDATE direto do JS.
 -- Execute este arquivo no Supabase SQL Editor.
 -- =====================================================
