@@ -1,0 +1,1 @@
+Correções realizadas:\n- Removida a seção de clubes há mais tempo sem ganhar títulos da página Estatísticas.\n- Removidos os cálculos e registros dessa opção.\n- Adicionado o último título conquistado aos detalhes dos clubes.\n- Adicionado o campeão atual às informações das competições.\n- O campeão atual é definido pela edição mais recente cadastrada.\n

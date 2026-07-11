@@ -135,8 +135,19 @@ function abrirDetalhesTime(id) {
   const clube = banco.clubes.find(c => c.id === id);
   if (!clube) return;
 
-  const titulos = banco.titulos.filter(t => t.campeaoId === id);
-  const vices = banco.titulos.filter(t => t.viceId === id);
+  const titulos = banco.titulos.filter(t => String(t.campeaoId) === String(id));
+  const vices = banco.titulos.filter(t => String(t.viceId) === String(id));
+
+  const ultimoTitulo = [...titulos]
+    .sort((a, b) => {
+      const anoA = Number(String(a.ano || "").match(/\d{4}/)?.[0] || 0);
+      const anoB = Number(String(b.ano || "").match(/\d{4}/)?.[0] || 0);
+      return anoB - anoA;
+    })[0] || null;
+
+  const competicaoUltimoTitulo = ultimoTitulo
+    ? banco.competicoes.find(c => String(c.id) === String(ultimoTitulo.competicaoId))
+    : null;
   const rivais = (clube.rivais || [])
     .map(rivalId => banco.clubes.find(c => String(c.id) === String(rivalId)))
     .filter(Boolean);
@@ -172,6 +183,18 @@ function abrirDetalhesTime(id) {
               <p><strong>Cidade:</strong> ${limparTexto(clube.cidade || "Não informado")}</p>
               <p><strong>Fundação:</strong> ${limparTexto(formatarDataFundacao(clube.fundacao) || "Não informado")}</p>
               <p><strong>Idade do clube:</strong> ${limparTexto(textoIdadeFundacao(clube.fundacao))}</p>
+
+              <div class="ultimo-titulo-detalhe">
+                <span class="ultimo-titulo-rotulo">Último título conquistado</span>
+                ${
+                  ultimoTitulo
+                    ? `
+                      <strong>${limparTexto(competicaoUltimoTitulo?.nome || "Competição não encontrada")}</strong>
+                      <small>${limparTexto(ultimoTitulo.ano || "Ano não informado")}</small>
+                    `
+                    : `<strong>Nenhum título cadastrado</strong>`
+                }
+              </div>
 
               <div class="rivais-integrados-info">
                 <p><strong>Rivais:</strong></p>
@@ -532,6 +555,25 @@ function abrirDetalhesLiga(id) {
   const rankingVices = contarRankingParticipantesCompeticaoDetalhe(edicoes, "viceId", categoriaLiga);
   const rankingFinalistas = contarRankingFinalistasCompeticaoDetalhe(edicoes, categoriaLiga);
 
+  const ultimaEdicao = [...edicoes]
+    .sort((a, b) => {
+      const anoA = Number(String(a.ano || "").match(/\d{4}/)?.[0] || 0);
+      const anoB = Number(String(b.ano || "").match(/\d{4}/)?.[0] || 0);
+      return anoB - anoA;
+    })[0] || null;
+
+  const tipoCampeaoAtual = String(
+    ultimaEdicao?.campeaoTipo || categoriaLiga || "clube"
+  ).toLowerCase();
+
+  const campeaoAtual = ultimaEdicao
+    ? (
+        tipoCampeaoAtual === "selecao"
+          ? (banco.selecoes || []).find(s => String(s.id) === String(ultimaEdicao.campeaoId))
+          : (banco.clubes || []).find(c => String(c.id) === String(ultimaEdicao.campeaoId))
+      )
+    : null;
+
   const painel = garantirPainelDetalhes();
   const conteudo = document.getElementById("conteudoDetalhesGlobal");
 
@@ -549,6 +591,35 @@ function abrirDetalhesLiga(id) {
     ${liga.continente ? `<p><strong>Continente:</strong> ${limparTexto(liga.continente)}</p>` : ""}
     ${liga.estado ? `<p><strong>Estado:</strong> ${limparTexto(liga.estado)}</p>` : ""}
     <p><strong>Edições:</strong> ${edicoes.length}</p>
+
+    <div class="campeao-atual-detalhe">
+      <span class="campeao-atual-rotulo">Campeão atual</span>
+      ${
+        campeaoAtual
+          ? `
+            <button
+              type="button"
+              class="campeao-atual-link"
+              onclick="${
+                tipoCampeaoAtual === "selecao"
+                  ? `abrirDetalhesSelecao('${campeaoAtual.id}')`
+                  : `abrirDetalhesTime('${campeaoAtual.id}')`
+              }"
+            >
+              ${
+                campeaoAtual.escudo
+                  ? `<img src="${campeaoAtual.escudo}" alt="Escudo de ${limparTexto(campeaoAtual.nome || campeaoAtual.pais || "")}">`
+                  : `<span class="campeao-atual-placeholder">${tipoCampeaoAtual === "selecao" ? "🏳️" : "⚽"}</span>`
+              }
+              <span>
+                <strong>${limparTexto(campeaoAtual.nomeCurto || campeaoAtual.nome_curto || campeaoAtual.nome || campeaoAtual.pais || "Campeão")}</strong>
+                <small>${limparTexto(ultimaEdicao.ano || "Ano não informado")}</small>
+              </span>
+            </button>
+          `
+          : `<strong>Nenhum campeão cadastrado</strong>`
+      }
+    </div>
 
     ${detalheSecaoSuspensa("Ranking de Campeões", `
       ${tabelaRankingSimplesCompeticaoDetalhe("Campeão", rankingCampeoes, "Nenhum campeão cadastrado.")}
