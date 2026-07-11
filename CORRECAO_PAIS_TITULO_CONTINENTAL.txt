@@ -1,0 +1,5 @@
+Correção aplicada no cadastro de campeão e vice:
+- O campo País é mostrado somente quando a abrangência é País.
+- Em abrangência Continental, o campo País fica oculto.
+- Clubes são filtrados automaticamente pelo continente da competição selecionada.
+- Em abrangência Mundial, não é obrigatório escolher país.

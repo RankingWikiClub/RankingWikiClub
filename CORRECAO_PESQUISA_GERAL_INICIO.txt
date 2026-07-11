@@ -1,0 +1,4 @@
+A pesquisa da página inicial agora busca clubes, seleções e competições.
+Os resultados exibem logo/escudo, nome clicável e informações complementares.
+A pesquisa não altera aniversariantes, clubes antigos ou cartões de status.
+Título alterado para: Clubes que fazem aniversário hoje.

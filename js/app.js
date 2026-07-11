@@ -351,19 +351,243 @@ function carregarTimesMaisVelhosPorPais() {
   }).join("");
 }
 
+function normalizarPesquisaInicio(valor) {
+  return String(valor || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function textoSeguroPesquisaInicio(valor) {
+  if (typeof limparTexto === "function") return limparTexto(String(valor || ""));
+  return String(valor || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function logoPesquisaInicio(entidade, tipo) {
+  const url = String(
+    entidade?.escudo ||
+    entidade?.escudo_url ||
+    entidade?.logo ||
+    entidade?.logo_url ||
+    entidade?.bandeira_url ||
+    ""
+  ).trim();
+
+  if (url) {
+    return `<img src="${textoSeguroPesquisaInicio(url)}" alt="" loading="lazy">`;
+  }
+
+  if (tipo === "clube") return `<span class="resultado-pesquisa-placeholder">⚽</span>`;
+  if (tipo === "selecao") {
+    const bandeira = String(entidade?.bandeira || "").trim();
+    return `<span class="resultado-pesquisa-placeholder">${textoSeguroPesquisaInicio(bandeira || "🏳️")}</span>`;
+  }
+  return `<span class="resultado-pesquisa-placeholder">🏆</span>`;
+}
+
+function nomeClubePesquisaInicio(clube) {
+  return String(
+    clube?.nomeCurto ||
+    clube?.nome_curto ||
+    clube?.nome ||
+    clube?.nomeCompleto ||
+    clube?.nome_completo ||
+    "Clube"
+  ).trim();
+}
+
+function nomeSelecaoPesquisaInicio(selecao) {
+  return String(selecao?.nome || selecao?.pais || "Seleção").trim();
+}
+
+function nomeCompeticaoPesquisaInicio(competicao) {
+  return String(competicao?.nome || "Competição").trim();
+}
+
 function configurarPesquisaInicio() {
   const campo = document.getElementById("pesquisaInicio");
-  if (!campo) return;
-  campo.addEventListener("input", filtrarConteudoInicio);
+  if (!campo || campo.dataset.pesquisaGeralConfigurada === "1") return;
+
+  campo.dataset.pesquisaGeralConfigurada = "1";
+  campo.addEventListener("input", pesquisarInformacoesGeraisInicio);
+  campo.addEventListener("search", pesquisarInformacoesGeraisInicio);
+}
+
+function pesquisarInformacoesGeraisInicio() {
+  const campo = document.getElementById("pesquisaInicio");
+  const painel = document.getElementById("resultadosPesquisaInicio");
+  const lista = document.getElementById("listaResultadosPesquisaInicio");
+  const total = document.getElementById("totalPesquisaInicio");
+
+  if (!campo || !painel || !lista || !total) return;
+
+  const termoOriginal = String(campo.value || "").trim();
+  const termo = normalizarPesquisaInicio(termoOriginal);
+
+  if (!termo) {
+    painel.hidden = true;
+    lista.innerHTML = "";
+    total.textContent = "0 resultados";
+    return;
+  }
+
+  const banco = carregarBanco();
+  const resultados = [];
+
+  (banco.clubes || []).forEach(clube => {
+    const nomeCurto = nomeClubePesquisaInicio(clube);
+    const nomeCompleto = String(clube?.nomeCompleto || clube?.nome_completo || clube?.nome || "").trim();
+    const textoBusca = normalizarPesquisaInicio([
+      nomeCurto,
+      nomeCompleto,
+      clube?.pais,
+      clube?.estado,
+      clube?.siglaEstado,
+      clube?.sigla_estado,
+      clube?.cidade,
+      clube?.apelido
+    ].join(" "));
+
+    if (textoBusca.includes(termo)) {
+      resultados.push({
+        tipo: "clube",
+        id: clube.id,
+        nome: nomeCurto,
+        subtitulo: [
+          nomeCompleto && nomeCompleto !== nomeCurto ? nomeCompleto : "",
+          clube?.pais || "",
+          clube?.estado || clube?.siglaEstado || clube?.sigla_estado || "",
+          clube?.cidade || ""
+        ].filter(Boolean).join(" • "),
+        entidade: clube
+      });
+    }
+  });
+
+  (banco.selecoes || []).forEach(selecao => {
+    const nome = nomeSelecaoPesquisaInicio(selecao);
+    const textoBusca = normalizarPesquisaInicio([
+      nome,
+      selecao?.pais,
+      selecao?.continente,
+      selecao?.apelido
+    ].join(" "));
+
+    if (textoBusca.includes(termo)) {
+      resultados.push({
+        tipo: "selecao",
+        id: selecao.id,
+        nome,
+        subtitulo: [
+          selecao?.pais && selecao.pais !== nome ? selecao.pais : "",
+          selecao?.continente || ""
+        ].filter(Boolean).join(" • "),
+        entidade: selecao
+      });
+    }
+  });
+
+  (banco.competicoes || []).forEach(competicao => {
+    const nome = nomeCompeticaoPesquisaInicio(competicao);
+    const textoBusca = normalizarPesquisaInicio([
+      nome,
+      competicao?.tipo,
+      competicao?.categoria,
+      competicao?.abrangencia,
+      competicao?.pais,
+      competicao?.continente,
+      competicao?.estado,
+      competicao?.local
+    ].join(" "));
+
+    if (textoBusca.includes(termo)) {
+      resultados.push({
+        tipo: "competicao",
+        id: competicao.id,
+        nome,
+        subtitulo: [
+          competicao?.tipo || "",
+          competicao?.categoria || "",
+          competicao?.abrangencia || "",
+          competicao?.pais || competicao?.continente || competicao?.estado || ""
+        ].filter(Boolean).join(" • "),
+        entidade: competicao
+      });
+    }
+  });
+
+  const ordemTipo = { clube: 1, selecao: 2, competicao: 3 };
+  resultados.sort((a, b) => {
+    const inicioA = normalizarPesquisaInicio(a.nome).startsWith(termo) ? 0 : 1;
+    const inicioB = normalizarPesquisaInicio(b.nome).startsWith(termo) ? 0 : 1;
+    if (inicioA !== inicioB) return inicioA - inicioB;
+    if (ordemTipo[a.tipo] !== ordemTipo[b.tipo]) return ordemTipo[a.tipo] - ordemTipo[b.tipo];
+    return a.nome.localeCompare(b.nome, "pt-BR");
+  });
+
+  total.textContent = `${resultados.length.toLocaleString("pt-BR")} ${
+    resultados.length === 1 ? "resultado" : "resultados"
+  }`;
+
+  if (!resultados.length) {
+    lista.innerHTML = `
+      <p class="mensagem-vazia resultado-pesquisa-vazio">
+        Nenhum clube, seleção ou competição encontrado para
+        <strong>${textoSeguroPesquisaInicio(termoOriginal)}</strong>.
+      </p>
+    `;
+    painel.hidden = false;
+    return;
+  }
+
+  const rotulos = {
+    clube: "Clube",
+    selecao: "Seleção",
+    competicao: "Competição"
+  };
+
+  lista.innerHTML = resultados.map(resultado => {
+    let acao = "";
+    const idSeguro = String(resultado.id).replace(/'/g, "\\'");
+
+    if (resultado.tipo === "clube") {
+      acao = `abrirDetalhesTime('${idSeguro}')`;
+    } else if (resultado.tipo === "selecao") {
+      acao = `abrirDetalhesSelecao('${idSeguro}')`;
+    } else {
+      acao = `abrirDetalhesLiga('${idSeguro}')`;
+    }
+
+    return `
+      <button type="button"
+              class="resultado-pesquisa-item resultado-pesquisa-${resultado.tipo}"
+              onclick="${acao}">
+        <span class="resultado-pesquisa-logo">
+          ${logoPesquisaInicio(resultado.entidade, resultado.tipo)}
+        </span>
+        <span class="resultado-pesquisa-conteudo">
+          <span class="resultado-pesquisa-tipo">${rotulos[resultado.tipo]}</span>
+          <span class="resultado-pesquisa-nome">${textoSeguroPesquisaInicio(resultado.nome)}</span>
+          ${
+            resultado.subtitulo
+              ? `<span class="resultado-pesquisa-subtitulo">${textoSeguroPesquisaInicio(resultado.subtitulo)}</span>`
+              : ""
+          }
+        </span>
+        <span class="resultado-pesquisa-seta" aria-hidden="true">›</span>
+      </button>
+    `;
+  }).join("");
+
+  painel.hidden = false;
 }
 
 function filtrarConteudoInicio() {
-  const campo = document.getElementById("pesquisaInicio");
-  const termo = String(campo?.value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-  const itens = document.querySelectorAll(".aniversario-card, .time-velho-card, .status-card");
-
-  itens.forEach(item => {
-    const texto = item.textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    item.style.display = !termo || texto.includes(termo) ? "" : "none";
-  });
+  pesquisarInformacoesGeraisInicio();
 }

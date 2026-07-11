@@ -41,17 +41,135 @@
     return false;
   }
 
+  function normalizarNomePais(valor) {
+    return String(valor || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[’‘`´]/g, "'")
+      .replace(/[^a-zA-Z0-9]+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+
+  const ALIASES_PAISES_SUPABASE = {
+    "holanda": "paises baixos",
+    "netherlands": "paises baixos",
+    "the netherlands": "paises baixos",
+
+    "moldova": "moldavia",
+    "republica da moldova": "moldavia",
+    "republic of moldova": "moldavia",
+
+    "tchequia": "republica tcheca",
+    "chequia": "republica tcheca",
+    "czechia": "republica tcheca",
+    "czech republic": "republica tcheca",
+
+    "bielorrussia": "belarus",
+    "bielo russia": "belarus",
+    "belorussia": "belarus",
+
+    "macedonia": "macedonia do norte",
+    "north macedonia": "macedonia do norte",
+
+    "eswatini": "essuatini",
+    "suazilandia": "essuatini",
+    "swaziland": "essuatini",
+
+    "cabo verde": "cabo verde",
+    "cape verde": "cabo verde",
+
+    "estados unidos da america": "estados unidos",
+    "united states": "estados unidos",
+    "usa": "estados unidos",
+
+    "coreia norte": "coreia do norte",
+    "north korea": "coreia do norte",
+
+    "coreia sul": "coreia do sul",
+    "south korea": "coreia do sul",
+
+    "emirados arabes": "emirados arabes unidos",
+    "united arab emirates": "emirados arabes unidos",
+
+    "republica da irlanda": "irlanda",
+    "republic of ireland": "irlanda",
+
+    "pais de gales": "pais de gales",
+    "gales": "pais de gales",
+    "wales": "pais de gales",
+
+    "vaticano": "vaticano",
+    "cidade do vaticano": "vaticano",
+    "vatican city": "vaticano",
+
+    "turkiye": "turquia",
+    "turkey": "turquia",
+
+    "russia": "russia",
+    "ukraine": "ucrania",
+    "serbia": "servia",
+    "sweden": "suecia",
+    "switzerland": "suica",
+    "norway": "noruega",
+    "poland": "polonia",
+    "romania": "romenia",
+    "armenia": "armenia",
+    "montenegro": "montenegro",
+    "andorra": "andorra",
+    "san marino": "san marino"
+  };
+
+  function chaveCanonicaPais(valor) {
+    const normalizado = normalizarNomePais(valor);
+    return ALIASES_PAISES_SUPABASE[normalizado] || normalizado;
+  }
+
   async function buscarPais(nome) {
     const db = supa();
-    if (!db || !nome) throw new Error("País não informado.");
-    const { data, error } = await db
+    const nomeInformado = String(nome || "").trim();
+
+    if (!db || !nomeInformado) {
+      throw new Error("País não informado.");
+    }
+
+    // Carrega a tabela real do Supabase e compara de forma tolerante.
+    const { data: paises, error } = await db
       .from("paises")
-      .select("id,nome,sigla,continente_id")
-      .eq("nome", nome)
-      .maybeSingle();
+      .select("id,nome,sigla,continente_id");
+
     if (error) throw error;
-    if (!data) throw new Error(`País não encontrado no Supabase: ${nome}`);
-    return data;
+
+    const chaveProcurada = chaveCanonicaPais(nomeInformado);
+
+    const paisEncontrado = (paises || []).find(pais => {
+      const chaveBanco = chaveCanonicaPais(pais.nome);
+      return chaveBanco === chaveProcurada;
+    });
+
+    if (paisEncontrado) return paisEncontrado;
+
+    // Segunda tentativa: comparação parcial segura para pequenas variações.
+    const nomeNormalizado = normalizarNomePais(nomeInformado);
+    const candidatos = (paises || []).filter(pais => {
+      const nomeBanco = normalizarNomePais(pais.nome);
+      return nomeBanco === nomeNormalizado ||
+             nomeBanco.includes(nomeNormalizado) ||
+             nomeNormalizado.includes(nomeBanco);
+    });
+
+    if (candidatos.length === 1) return candidatos[0];
+
+    const nomesDisponiveis = (paises || [])
+      .map(p => p.nome)
+      .sort((a, b) => a.localeCompare(b, "pt-BR"))
+      .join(", ");
+
+    throw new Error(
+      `País não encontrado no Supabase: "${nomeInformado}". ` +
+      `Verifique se ele existe na tabela public.paises. ` +
+      `Países disponíveis: ${nomesDisponiveis}`
+    );
   }
 
   async function buscarContinente(nome) {
