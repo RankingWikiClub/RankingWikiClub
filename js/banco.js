@@ -1023,6 +1023,10 @@ function salvarEdicaoTitulo(event, id) {
 }
 
 async function excluirRegistro(tipo, id) {
+  if (tipo === "titulos" && typeof excluirTituloSupabase === "function") {
+    excluirTituloSupabase(id);
+    return;
+  }
   if (!confirm("Deseja excluir este registro?")) return;
 
   const mapa = { clubes:"times", competicoes:"competicoes", selecoes:"selecoes" };

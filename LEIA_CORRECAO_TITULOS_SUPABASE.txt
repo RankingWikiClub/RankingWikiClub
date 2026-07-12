@@ -1,0 +1,5 @@
+1. Execute sql_titulos_futpedia.sql no SQL Editor do Supabase.
+2. Publique todos os arquivos do projeto.
+3. Limpe o cache do navegador.
+
+A correção salva, atualiza, exclui e recarrega campeões e vices pelo Supabase.

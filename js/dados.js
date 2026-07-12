@@ -594,13 +594,14 @@ async function carregarDadosRelacionaisSupabase() {
   if (!supabase) return false;
 
   try {
-    const [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp, rivaisResp] = await Promise.all([
+    const [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp, rivaisResp, titulosResp] = await Promise.all([
       supabase.from("paises").select("id,nome,sigla,continente_id"),
       supabase.from("continentes").select("id,nome"),
       fpBuscarTodasAsLinhasSupabase(supabase, "times", "*", "nome_curto"),
       fpBuscarTodasAsLinhasSupabase(supabase, "competicoes", "*", "nome"),
       fpBuscarTodasAsLinhasSupabase(supabase, "selecoes", "*", "nome"),
-      fpBuscarTodasAsLinhasSupabase(supabase, "time_rivais", "time_id,rival_id", "time_id")
+      fpBuscarTodasAsLinhasSupabase(supabase, "time_rivais", "time_id,rival_id", "time_id"),
+      fpBuscarTodasAsLinhasSupabase(supabase, "titulos", "*", "ano")
     ]);
 
     const erros = [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp]
@@ -622,6 +623,10 @@ async function carregarDadosRelacionaisSupabase() {
     const competicoesSql = competicoesResp.data || [];
     const selecoesSql = selecoesResp.data || [];
     const rivaisSql = rivaisResp && !rivaisResp.error ? (rivaisResp.data || []) : [];
+    const titulosSql = titulosResp && !titulosResp.error ? (titulosResp.data || []) : [];
+    if (titulosResp?.error) {
+      console.warn("Tabela titulos ainda não disponível. Execute sql_titulos_futpedia.sql.", titulosResp.error.message || titulosResp.error);
+    }
 
     const mapaContinentes = new Map(continentes.map(c => [String(c.id), c]));
     const mapaPaises = new Map(paises.map(p => [String(p.id), {
@@ -751,6 +756,21 @@ async function carregarDadosRelacionaisSupabase() {
         status: c.status || "Ativa"
       };
     });
+
+
+    banco.titulos = titulosSql.map(t => ({
+      id: String(t.id),
+      ano: String(t.ano || ""),
+      competicaoId: String(t.competicao_id || ""),
+      competicaoNome: t.competicao_nome || "",
+      abrangencia: t.abrangencia || "",
+      campeaoId: String(t.campeao_id || ""),
+      campeaoNome: t.campeao_nome || "",
+      campeaoTipo: t.campeao_tipo || "clube",
+      viceId: String(t.vice_id || ""),
+      viceNome: t.vice_nome || "",
+      viceTipo: t.vice_tipo || "clube"
+    }));
 
     localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(prepararBancoFutpedia(banco)));
     atualizarTelasAposSincronizacao();
