@@ -1,0 +1,6 @@
+1. Execute recriar_tabela_titulos_compativel.sql no Supabase.
+2. A tabela antiga será preservada como titulos_backup_futpedia.
+3. Publique todos os arquivos deste projeto.
+4. Limpe o cache do navegador.
+
+A tabela nova usa IDs em texto e aceita campeões/vices de clubes e seleções.

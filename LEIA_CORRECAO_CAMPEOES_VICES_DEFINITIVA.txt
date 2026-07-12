@@ -1,0 +1,12 @@
+PASSOS OBRIGATÓRIOS:
+
+1. Execute sql_criar_titulos_futpedia_definitivo.sql no Supabase.
+2. Publique todos os arquivos deste projeto.
+3. Limpe o cache do navegador.
+
+A tabela antiga public.titulos não é mais usada pelo site.
+A nova tabela public.titulos_futpedia usa IDs TEXT e aceita clubes e seleções.
+O erro da tabela public.futpedia_dados também foi removido do código.
+
+O arquivo sql_migrar_titulos_antigos_opcional.sql serve apenas para copiar
+registros antigos de clubes, caso você queira recuperá-los.

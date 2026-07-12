@@ -434,77 +434,15 @@ function salvarBanco(banco) {
 }
 
 async function salvarBancoNaNuvem(banco = carregarBanco()) {
-  const supabase = typeof clienteSupabase === "function" ? clienteSupabase() : null;
-  if (!supabase) return false;
-
-  try {
-    const { data: sessao } = await supabase.auth.getSession();
-    if (!sessao?.session) return false;
-
-    const preparado = prepararBancoFutpedia(banco);
-    const { error } = await supabase
-      .from("futpedia_dados")
-      .upsert({
-        id: 1,
-        dados: preparado,
-        atualizado_em: new Date().toISOString()
-      }, { onConflict: "id" });
-
-    if (error) {
-      console.warn("Não foi possível sincronizar o FutPédia com o Supabase.", error.message || error);
-      return false;
-    }
-    return true;
-  } catch (erro) {
-    console.warn("Erro ao salvar dados do FutPédia na nuvem.", erro);
-    return false;
-  }
+  // O FutPédia usa tabelas relacionais do Supabase.
+  // A tabela antiga public.futpedia_dados não é mais utilizada.
+  return false;
 }
 
 async function carregarBancoDaNuvem() {
-  const supabase = typeof clienteSupabase === "function" ? clienteSupabase() : null;
-  if (!supabase || FUTPEDIA_CARREGOU_NUVEM) return;
-
-  try {
-    const { data, error } = await supabase
-      .from("futpedia_dados")
-      .select("dados, atualizado_em")
-      .eq("id", 1)
-      .maybeSingle();
-
-    if (error) {
-      console.warn("Não foi possível carregar os dados do Supabase.", error.message || error);
-      return;
-    }
-
-    FUTPEDIA_CARREGOU_NUVEM = true;
-
-    const local = prepararBancoFutpedia(carregarBancoLocalBruto() || dadosIniciais());
-    const nuvem = data?.dados ? prepararBancoFutpedia(data.dados) : null;
-    const qtdLocal = quantidadeRegistrosFutpedia(local);
-    const qtdNuvem = quantidadeRegistrosFutpedia(nuvem);
-
-    // Sincronização segura:
-    // 1) Se o banco local foi editado mais recentemente, envia o local para o Supabase.
-    // 2) Se a nuvem for mais recente, Estados Unidos os dados da nuvem.
-    // 3) Se não houver data confiável, Estados Unidos a regra antiga por quantidade de registros.
-    const dataLocal = local?.atualizadoLocalEm ? Date.parse(local.atualizadoLocalEm) : 0;
-    const dataNuvem = data?.atualizado_em ? Date.parse(data.atualizado_em) : 0;
-
-    if (dataLocal && (!dataNuvem || dataLocal > dataNuvem)) {
-      await salvarBancoNaNuvem(local);
-    } else if (nuvem && dataNuvem && dataNuvem >= dataLocal && qtdNuvem > 0) {
-      localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(nuvem));
-      atualizarTelasAposSincronizacao();
-    } else if (nuvem && qtdNuvem >= qtdLocal && qtdNuvem > 0) {
-      localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(nuvem));
-      atualizarTelasAposSincronizacao();
-    } else if (qtdLocal > qtdNuvem) {
-      await salvarBancoNaNuvem(local);
-    }
-  } catch (erro) {
-    console.warn("Erro ao carregar dados do FutPédia na nuvem.", erro);
-  }
+  // O carregamento é feito diretamente pelas tabelas relacionais.
+  // Mantida apenas por compatibilidade com chamadas antigas.
+  return false;
 }
 
 function atualizarTelasAposSincronizacao() {
@@ -601,7 +539,7 @@ async function carregarDadosRelacionaisSupabase() {
       fpBuscarTodasAsLinhasSupabase(supabase, "competicoes", "*", "nome"),
       fpBuscarTodasAsLinhasSupabase(supabase, "selecoes", "*", "nome"),
       fpBuscarTodasAsLinhasSupabase(supabase, "time_rivais", "time_id,rival_id", "time_id"),
-      fpBuscarTodasAsLinhasSupabase(supabase, "titulos", "*", "ano")
+      fpBuscarTodasAsLinhasSupabase(supabase, "titulos_futpedia", "*", "ano")
     ]);
 
     const erros = [paisesResp, continentesResp, clubesResp, competicoesResp, selecoesResp]
@@ -625,7 +563,7 @@ async function carregarDadosRelacionaisSupabase() {
     const rivaisSql = rivaisResp && !rivaisResp.error ? (rivaisResp.data || []) : [];
     const titulosSql = titulosResp && !titulosResp.error ? (titulosResp.data || []) : [];
     if (titulosResp?.error) {
-      console.warn("Tabela titulos ainda não disponível. Execute sql_titulos_futpedia.sql.", titulosResp.error.message || titulosResp.error);
+      console.warn("Tabela titulos_futpedia ainda não disponível. Execute sql_criar_titulos_futpedia_definitivo.sql.", titulosResp.error.message || titulosResp.error);
     }
 
     const mapaContinentes = new Map(continentes.map(c => [String(c.id), c]));

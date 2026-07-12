@@ -1,0 +1,6 @@
+A página Edição agora usa uma única função de salvamento.
+O registro é enviado ao Supabase por upsert, retornado pelo banco e
+confirmado antes de atualizar a tela local.
+
+Use primeiro o arquivo recriar_tabela_titulos_compativel.sql.
+Para conferir os dados, execute sql_verificar_titulos_salvos.sql.
