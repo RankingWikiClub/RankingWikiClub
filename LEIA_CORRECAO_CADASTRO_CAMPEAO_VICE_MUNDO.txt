@@ -1,0 +1,19 @@
+CORREÇÃO — CADASTRO DE CAMPEÃO E VICE / CLUBES / MUNDO
+
+Ao selecionar:
+- O que deseja cadastrar: Campeão e Vice de Competição
+- Categoria: Competição de clubes
+- Abrangência: Mundo
+
+O formulário passa a exibir, nesta ordem:
+1. Ano
+2. Competição cadastrada de nível Mundo
+3. País do campeão
+4. País do vice
+5. Time campeão
+6. Time vice
+
+A lista de competições aceita cadastros identificados como Mundo, Mundial,
+Campeonato Mundial, Mundial de Clubes ou Intercontinental.
+
+Cada campo de time é filtrado de forma independente pelo país selecionado.

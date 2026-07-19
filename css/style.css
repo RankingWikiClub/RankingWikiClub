@@ -5071,3 +5071,81 @@ button.campeao-atual-clicavel {
   background: #eef6ff !important;
   background-color: #eef6ff !important;
 }
+
+/* Editor de times: filtro por país */
+.filtro-editor-times {
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.filtro-editor-times > div:first-child {
+  min-width: min(100%, 320px);
+}
+.contador-filtro-editor {
+  padding: 10px 0;
+  font-weight: 700;
+  opacity: .82;
+}
+@media (max-width: 700px) {
+  .filtro-editor-times {
+    align-items: stretch;
+  }
+  .filtro-editor-times > div:first-child,
+  .filtro-editor-times select {
+    width: 100%;
+  }
+  .contador-filtro-editor {
+    padding-top: 0;
+  }
+}
+
+
+/* Atalho para cadastrar campeão e vice em Competição > Detalhes */
+.atalho-cadastro-titulo-competicao {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0;
+}
+.btn-atalho-campeao-vice {
+  width: 100%;
+  max-width: 360px;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Pesquisa de logos na web */
+.fp-logo-web{margin:10px 0 18px;padding:12px;border:1px solid rgba(255,255,255,.16);border-radius:10px;background:rgba(255,255,255,.04)}
+.fp-logo-web-cabecalho{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fp-logo-web-cabecalho button{width:auto;margin:0;padding:8px 12px}
+.fp-logo-web-status{margin:8px 0;font-size:.9rem;opacity:.85}
+.fp-logo-web-links{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.fp-logo-web-links a{display:inline-flex;padding:7px 10px;border-radius:8px;background:rgba(255,193,7,.14);text-decoration:none;font-size:.88rem}
+.fp-logo-web-preview{display:flex;align-items:center;gap:10px;margin:8px 0}
+.fp-logo-web-preview img{width:72px;height:72px;object-fit:contain;background:#fff;border-radius:8px;padding:4px}
+.fp-logo-web-resultados{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin-top:10px}
+.fp-logo-web-item{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:132px;padding:8px;margin:0;border:2px solid transparent;border-radius:9px;background:rgba(255,255,255,.06);overflow:hidden}
+.fp-logo-web-item img{width:82px;height:82px;object-fit:contain;background:#fff;border-radius:7px;padding:3px}
+.fp-logo-web-item span{font-size:.72rem;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fp-logo-web-item.selecionado{border-color:#f5c400;box-shadow:0 0 0 2px rgba(245,196,0,.18)}
+@media(max-width:600px){.fp-logo-web-resultados{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Bandeira do país nos aniversariantes da página inicial */
+.aniversario-info .aniversario-pais {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 18px;
+}
+
+.aniversario-info .aniversario-pais .bandeira-img-pequena {
+  width: 22px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .12);
+}
+
+.aniversario-bandeira-emoji {
+  font-size: 16px;
+  line-height: 1;
+}

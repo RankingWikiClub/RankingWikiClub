@@ -1,0 +1,12 @@
+CORREÇÃO APLICADA — FILTRO POR PAÍS NO EDITOR DE TIMES
+
+1. A tela Editor > Editar Times agora possui o campo "Filtrar times por país".
+2. Ao selecionar um país, somente os times cadastrados daquele país são exibidos.
+3. O filtro selecionado é mantido ao abrir um time para edição.
+4. Depois de salvar ou cancelar a edição, a lista volta com o mesmo país selecionado.
+5. A tela também informa quantos times estão sendo exibidos pelo filtro.
+
+Arquivos alterados:
+- editor.html
+- js/banco.js
+- css/style.css

@@ -1,0 +1,9 @@
+ALTERAÇÃO: filtro de país no cadastro de campeão e vice (Clubes > Mundo)
+
+- Ao selecionar Categoria: Clubes e Abrangência: Mundo, são exibidos os filtros:
+  - País do campeão
+  - País do vice-campeão
+- Os campos Campeão e Vice exibem somente os clubes cadastrados no país escolhido.
+- Campeão e vice podem ser de países diferentes.
+- O comportamento existente para abrangência País foi preservado.
+- Em competições continentais, permanece o filtro automático por continente, sem exigir país.

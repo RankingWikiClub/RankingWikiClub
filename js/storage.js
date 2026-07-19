@@ -73,8 +73,8 @@ async function fpUploadArquivoStorage(bucket, arquivo, nomeBase) {
 async function fpUploadImagemInput(inputId, bucket, nomeBase) {
   const input = document.getElementById(inputId);
   const arquivo = input?.files?.[0];
-  if (!arquivo) return "";
-  return await fpUploadArquivoStorage(bucket, arquivo, nomeBase || inputId);
+  if (arquivo) return await fpUploadArquivoStorage(bucket, arquivo, nomeBase || inputId);
+  return input?.dataset?.webLogoUrl || "";
 }
 
 function fpCriarPreviewImagem(inputId, previewId) {

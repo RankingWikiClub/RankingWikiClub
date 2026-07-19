@@ -1,0 +1,17 @@
+PESQUISA DE LOGOS NA WEB
+
+Foi adicionada pesquisa automática de imagens nos formulários de cadastro e edição de:
+- Times
+- Seleções
+- Competições
+
+COMO USAR
+1. Digite ou edite o nome da entidade.
+2. Aguarde as sugestões automáticas ou clique em "Pesquisar agora".
+3. Clique na logo desejada.
+4. Salve normalmente.
+
+Também foram adicionados atalhos para Google Imagens e Bing Imagens.
+O envio manual de arquivo continua disponível e tem prioridade quando um arquivo é escolhido.
+
+A pesquisa automática usa a API pública do Wikimedia Commons e depende de conexão com a internet.

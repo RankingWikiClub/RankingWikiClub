@@ -4139,7 +4139,7 @@ window.salvarEdicaoCompeticao = function salvarEdicaoCompeticao(event, id) {
 async function fpUploadEscudoEdicaoFinal(inputId, bucket, nomeBase, urlAtual = "") {
   const input = document.getElementById(inputId);
   const arquivo = input?.files?.[0];
-  if (!arquivo) return urlAtual || "";
+  if (!arquivo) return input?.dataset?.webLogoUrl || urlAtual || "";
 
   if (typeof fpUploadArquivoStorage === "function") {
     return await fpUploadArquivoStorage(bucket, arquivo, nomeBase || arquivo.name);
@@ -4387,3 +4387,94 @@ salvarEdicaoTitulo = function salvarEdicaoTituloCorrigido(event, id) {
 };
 window.salvarEdicaoTitulo = salvarEdicaoTitulo;
 window.carregarParticipantesEdicaoTituloSelect = carregarParticipantesEdicaoTituloSelect;
+
+/* ===== Editor de Times: filtro persistente por país ===== */
+const FP_FILTRO_PAIS_EDITOR_TIMES = 'futpedia.editor.times.pais';
+
+function fpObterFiltroPaisEditorTimes() {
+  try {
+    return sessionStorage.getItem(FP_FILTRO_PAIS_EDITOR_TIMES) || '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function fpSalvarFiltroPaisEditorTimes(valor) {
+  try {
+    sessionStorage.setItem(FP_FILTRO_PAIS_EDITOR_TIMES, valor || '');
+  } catch (_) {}
+}
+
+function aplicarFiltroPaisEditorTimes() {
+  const select = document.getElementById('filtroPaisEditorTimes');
+  const pais = select?.value || '';
+  fpSalvarFiltroPaisEditorTimes(pais);
+
+  document.querySelectorAll('#tabelaEditorTimes tbody tr[data-pais]').forEach(linha => {
+    linha.style.display = !pais || linha.dataset.pais === pais ? '' : 'none';
+  });
+
+  const contador = document.getElementById('contadorFiltroEditorTimes');
+  if (contador) {
+    const total = document.querySelectorAll('#tabelaEditorTimes tbody tr[data-pais]').length;
+    const visiveis = document.querySelectorAll('#tabelaEditorTimes tbody tr[data-pais]:not([style*="display: none"])').length;
+    contador.textContent = pais ? `${visiveis} time(s) encontrado(s)` : `${total} time(s) cadastrado(s)`;
+  }
+}
+
+function tabelaClubes(banco) {
+  const clubesOrdenados = (banco.clubes || []).slice().sort((a, b) =>
+    (typeof fpNomeCurtoTime === 'function' ? fpNomeCurtoTime(a) : (a.nome || '')).localeCompare(
+      typeof fpNomeCurtoTime === 'function' ? fpNomeCurtoTime(b) : (b.nome || ''),
+      'pt-BR',
+      { sensitivity: 'base' }
+    )
+  );
+
+  const paises = [...new Set(clubesOrdenados.map(c => String(c.pais || '').trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
+  const filtroAtual = fpObterFiltroPaisEditorTimes();
+  const filtroValido = paises.includes(filtroAtual) ? filtroAtual : '';
+  if (filtroAtual && !filtroValido) fpSalvarFiltroPaisEditorTimes('');
+
+  const opcoes = paises.map(nome => {
+    const pais = typeof buscarPais === 'function' ? buscarPais(nome) : null;
+    const bandeira = pais?.bandeira || clubesOrdenados.find(c => c.pais === nome)?.bandeira || '';
+    return `<option value="${limparTexto(nome)}" ${nome === filtroValido ? 'selected' : ''}>${bandeira ? bandeira + ' ' : ''}${limparTexto(nome)}</option>`;
+  }).join('');
+
+  const linhas = clubesOrdenados.map(c => `
+    <tr data-pais="${limparTexto(c.pais || '')}" ${filtroValido && c.pais !== filtroValido ? 'style="display:none"' : ''}>
+      <td><span class="link-detalhe" onclick="abrirDetalhesTime('${c.id}')">${imagemNome(c.escudo, c.nome, '⚽')}</span></td>
+      <td>${bandeiraPaisHTML(c.pais, c.bandeira)} ${limparTexto(c.pais || '')}</td>
+      <td>${limparTexto(c.siglaEstado || '')}</td>
+      <td>${limparTexto(formatarDataFundacao(c.fundacao) || '')}</td>
+      <td>${(c.rivais || []).map(id => {
+        const rival = banco.clubes.find(clube => String(clube.id) === String(id));
+        return rival ? (typeof fpNomeCurtoTime === 'function' ? fpNomeCurtoTime(rival) : rival.nome) : '';
+      }).filter(Boolean).sort((a,b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })).map(limparTexto).join(', ')}</td>
+      <td>${botoesEditarExcluir('clubes', c.id)}</td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="filtros filtros-edicao filtro-editor-times">
+      <div>
+        <label for="filtroPaisEditorTimes">Filtrar times por país</label>
+        <select id="filtroPaisEditorTimes" onchange="aplicarFiltroPaisEditorTimes()">
+          <option value="">Todos os países</option>
+          ${opcoes}
+        </select>
+      </div>
+      <div class="contador-filtro-editor" id="contadorFiltroEditorTimes">
+        ${filtroValido ? clubesOrdenados.filter(c => c.pais === filtroValido).length + ' time(s) encontrado(s)' : clubesOrdenados.length + ' time(s) cadastrado(s)'}
+      </div>
+    </div>
+    <div class="tabela-container">
+      ${linhas ? `<table class="tabela" id="tabelaEditorTimes"><thead><tr><th>Time</th><th>País</th><th>Estado</th><th>Fundação</th><th>Rivais</th><th>Ações</th></tr></thead><tbody>${linhas}</tbody></table>` : '<p>Nenhum time cadastrado para editar.</p>'}
+    </div>
+  `;
+}
+
+window.tabelaClubes = tabelaClubes;
+window.aplicarFiltroPaisEditorTimes = aplicarFiltroPaisEditorTimes;

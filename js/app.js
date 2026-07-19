@@ -160,6 +160,11 @@ function carregarAniversariantesHoje() {
       ? `<img src="${escudoUrl}" alt="Escudo de ${limparTexto(fpNomeCurtoClube(clube))}">`
       : `<span class="aniversario-fallback">⚽</span>`;
 
+    const paisClube = String(clube.pais || clube.local || clube.pais_nome || "").trim();
+    const bandeiraPais = paisClube
+      ? bandeiraPaisPequenaHTML(paisClube, clube.bandeira || "")
+      : (clube.bandeira ? `<span class="aniversario-bandeira-emoji">${limparTexto(clube.bandeira)}</span>` : "");
+
     const fundacao = formatarDataFundacao(clube.fundacao);
     const idade = calcularIdadeFundacao(clube.fundacao);
     const textoIdade = idade !== ""
@@ -171,6 +176,7 @@ function carregarAniversariantesHoje() {
         <div class="aniversario-escudo">${escudo}</div>
         <div class="aniversario-info">
           <h3>🎂 ${limparTexto(fpNomeCurtoClube(clube))}</h3>
+          ${paisClube || bandeiraPais ? `<p class="aniversario-pais">${bandeiraPais} ${limparTexto(paisClube)}</p>` : ""}
           <p>📅 Fundação: ${limparTexto(fundacao)}</p>
           <p class="aniversario-idade">${limparTexto(textoIdade)}</p>
         </div>

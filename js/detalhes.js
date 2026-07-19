@@ -592,6 +592,16 @@ function abrirDetalhesLiga(id) {
     ${liga.estado ? `<p><strong>Estado:</strong> ${limparTexto(liga.estado)}</p>` : ""}
     <p><strong>Edições:</strong> ${edicoes.length}</p>
 
+    <div class="atalho-cadastro-titulo-competicao">
+      <button
+        type="button"
+        class="btn-editar btn-atalho-campeao-vice"
+        onclick="abrirCadastroCampeaoViceCompeticao('${liga.id}')"
+      >
+        + Adicionar campeão e vice
+      </button>
+    </div>
+
     <div class="campeao-atual-detalhe">
       <span class="campeao-atual-rotulo">Campeão atual</span>
       ${
@@ -905,3 +915,15 @@ function abrirDetalhesSelecao(id) {
   painel.classList.add("ativo");
   configurarBotaoEditarDetalhes("selecao", id);
 }
+
+
+/* Atalho da página de detalhes para cadastrar campeão e vice da competição aberta. */
+function abrirCadastroCampeaoViceCompeticao(competicaoId) {
+  const params = new URLSearchParams({
+    tipo: "titulo",
+    competicao: String(competicaoId || ""),
+    origem: "competicao-detalhes"
+  });
+  window.location.href = `./cadastros.html?${params.toString()}`;
+}
+window.abrirCadastroCampeaoViceCompeticao = abrirCadastroCampeaoViceCompeticao;

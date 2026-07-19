@@ -1,0 +1,1 @@
+Execute 00_EXECUTAR_PRIMEIRO_criar_titulos_futpedia.sql no Supabase antes de publicar o projeto.
