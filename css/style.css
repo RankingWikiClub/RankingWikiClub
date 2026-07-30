@@ -5263,3 +5263,45 @@ button.campeao-atual-clicavel {
     max-height: 100px !important;
   }
 }
+
+/* Correção mobile: linhas do menu permanecem à direita do logo */
+@media (max-width: 768px) {
+  .topo .menu {
+    display: grid !important;
+    grid-template-columns: 100px repeat(4, max-content) !important;
+    grid-auto-rows: minmax(38px, auto) !important;
+    align-items: center !important;
+    justify-content: start !important;
+    column-gap: 10px !important;
+    row-gap: 4px !important;
+  }
+
+  .topo .menu .logo-menu {
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
+    align-self: center !important;
+    margin: 0 4px 0 0 !important;
+  }
+
+  .topo .menu > a:not(.logo-menu) {
+    margin: 0 !important;
+    padding: 7px 0 !important;
+    align-self: center !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .topo .menu {
+    grid-template-columns: 100px repeat(3, minmax(0, max-content)) !important;
+    column-gap: 8px !important;
+  }
+
+  .topo .menu .logo-menu {
+    grid-row: 1 / span 3 !important;
+  }
+
+  .topo .menu > a:not(.logo-menu) {
+    font-size: 14px !important;
+  }
+}

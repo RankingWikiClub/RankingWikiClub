@@ -1,0 +1,11 @@
+ARQUIVOS PARA ATUALIZAR O GITHUB — MENU MOBILE ALINHADO
+
+1. Abra o repositório RankingWikiClub no GitHub.
+2. Envie/substitua os arquivos deste pacote mantendo exatamente as pastas:
+   - arquivos .html na raiz do repositório
+   - css/style.css dentro da pasta css
+3. Confirme o commit.
+4. Aguarde o GitHub Pages concluir a publicação.
+5. Feche e abra novamente o aplicativo.
+
+A alteração mantém o logo à esquerda e alinha todas as linhas do menu à direita dele no celular.
