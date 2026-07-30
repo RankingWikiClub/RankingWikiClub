@@ -1,0 +1,11 @@
+OTIMIZAÇÃO DA PÁGINA ESTATÍSTICAS
+
+Alterações aplicadas:
+- Cache único do banco durante o uso da página.
+- Índices Map para localizar clubes, seleções e competições sem percorrer listas repetidamente.
+- Filtro de títulos com Set, evitando buscas lentas com includes.
+- Campo de pesquisa com debounce de 250 ms.
+- Histórico renderizado inicialmente em blocos de 200 linhas.
+- Botão "Carregar mais" para exibir os registros restantes sem travar a página.
+- Rankings continuam calculados usando todo o histórico filtrado.
+- Cache invalidado automaticamente quando o armazenamento local é alterado por outra aba.

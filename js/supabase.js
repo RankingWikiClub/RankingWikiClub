@@ -1,4 +1,4 @@
-/* FutPédia - Configuração central do Supabase
+/* RankingWikiClub - Configuração central do Supabase
    Este arquivo centraliza a URL e a Publishable Key do projeto.
    Alterações aqui não apagam nem modificam os dados já cadastrados no Supabase.
 */

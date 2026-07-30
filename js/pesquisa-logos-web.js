@@ -2,10 +2,10 @@
   "use strict";
 
   const configuracoes = {
-    escudo: { titulo: "Pesquisar escudo do time", tipo: "clube", nomeIds: ["nomeCompleto", "nomeCurto", "nome"] },
-    escudoSelecao: { titulo: "Pesquisar escudo da seleção", tipo: "selecao", nomeIds: ["paisSelecao", "nome"] },
-    escudoCompeticao: { titulo: "Pesquisar logo da competição", tipo: "competicao", nomeIds: ["nomeCompeticao", "nome"] },
-    editEscudo: { titulo: "Pesquisar logo na web", tipo: "auto", nomeIds: ["editNomeCompleto", "editNome", "editNomeCompeticao", "editPaisSelecao", "editPais"] }
+    escudo: { titulo: "Pesquisar escudo do time", tipo: "clube", nomeIds: ["termoLogoClube", "nomeCompleto", "nomeCurto", "nome"] },
+    escudoSelecao: { titulo: "Pesquisar escudo da seleção", tipo: "selecao", nomeIds: ["termoLogoSelecao", "nomeSelecao", "paisSelecao", "nome"] },
+    escudoCompeticao: { titulo: "Pesquisar logo da competição", tipo: "competicao", nomeIds: ["termoLogoCompeticao", "nomeCompeticao", "nome"] },
+    editEscudo: { titulo: "Pesquisar logo na web", tipo: "auto", nomeIds: ["editTermoLogoSelecao", "editTermoLogoClube", "editTermoLogoCompeticao", "editNomeSelecao", "editNomeCompleto", "editNome", "editNomeCompeticao", "editPaisSelecao", "editPais"] }
   };
 
   function textoSeguro(valor) {
@@ -20,11 +20,22 @@
   }
 
   function nomeAtual(input, config) {
-    // Para clubes, o nome completo sempre tem prioridade absoluta.
+    // Os termos manuais têm prioridade e permitem pesquisar por sigla,
+    // nome oficial, nome internacional, patrocinador ou denominação histórica.
+    const camposManuais = {
+      escudo: "termoLogoClube",
+      escudoSelecao: "termoLogoSelecao",
+      escudoCompeticao: "termoLogoCompeticao"
+    };
+    const termoManual = valorCampo(camposManuais[input.id]);
+    if (termoManual) return termoManual;
+
+    // Sem termo manual, o nome completo do clube é a consulta principal.
     if (config.tipo === "clube" || (config.tipo === "auto" && document.getElementById("editNomeCompleto"))) {
       const completo = valorCampo(input.id === "escudo" ? "nomeCompleto" : "editNomeCompleto");
       if (completo) return completo;
     }
+
     for (const id of config.nomeIds || []) {
       const valor = valorCampo(id);
       if (valor) return valor;
@@ -45,14 +56,30 @@
   function termosPesquisa(nome, tipo) {
     const n = nome.trim();
     // A consulta principal exibida ao usuário sempre usa o nome completo + "logo".
-    if (tipo === "competicao") return [`${n} logo`, `${n} competition logo`, `${n} emblem`];
-    if (tipo === "selecao") return [`${n} logo`, `${n} national football team crest`, `${n} escudo`];
+    if (tipo === "competicao") return [
+      `${n} logo`,
+      `${n} logotipo oficial`,
+      `${n} competition logo`,
+      `${n} tournament logo`,
+      `${n} trophy logo`,
+      `${n} emblem`,
+      `${n} brand`
+    ];
+    if (tipo === "selecao") return [
+      `${n} logo`,
+      `${n} federação de futebol`,
+      `${n} football federation logo`,
+      `${n} national football team crest`,
+      `${n} escudo`
+    ];
     return [
       `${n} logo`,
-      `${n} escudo`,
+      `${n} escudo oficial`,
+      `${n} brasão`,
       `${n} football club logo`,
       `${n} football club crest`,
-      `${n} badge`
+      `${n} soccer club badge`,
+      `${n} emblem`
     ];
   }
 
@@ -144,6 +171,25 @@
     }).filter(Boolean);
   }
 
+  async function pesquisarOpenverse(termo, limite = 20) {
+    const url = new URL("https://api.openverse.org/v1/images/");
+    url.searchParams.set("q", termo);
+    url.searchParams.set("page_size", String(Math.min(limite, 20)));
+    url.searchParams.set("mature", "false");
+
+    const resposta = await fetch(url.toString(), {
+      headers: { "Accept": "application/json" }
+    });
+    if (!resposta.ok) return [];
+    const dados = await resposta.json();
+    return (dados?.results || []).map(item => ({
+      titulo: item.title || item.creator || termo,
+      miniatura: item.thumbnail || item.url || "",
+      url: item.url || item.thumbnail || "",
+      origem: item.source ? `Openverse · ${item.source}` : "Openverse"
+    })).filter(item => item.url);
+  }
+
   function removerDuplicadas(itens) {
     const vistos = new Set();
     return itens.filter(item => {
@@ -155,8 +201,10 @@
   }
 
   async function buscarImagens(nome, tipo) {
-    const termoExato = `${nome.trim()} logo`;
-    const termos = [termoExato, ...termosPesquisa(nome, tipo).filter(t => t !== termoExato)];
+    const nomeLimpo = nome.trim();
+    const jaTemPalavraDeLogo = /\b(logo|crest|badge|emblem|escudo|bras[aã]o|insignia)\b/i.test(nomeLimpo);
+    const termoExato = jaTemPalavraDeLogo ? nomeLimpo : `${nomeLimpo} logo`;
+    const termos = [termoExato, ...termosPesquisa(nomeLimpo, tipo).filter(t => t !== termoExato)];
     let resultados = [];
 
     // Primeiro consulta o termo solicitado literalmente: "nome completo + logo".
@@ -171,9 +219,20 @@
       if (resultados.length >= 12) break;
     }
 
-    // A página principal do clube na Wikipédia costuma fornecer o escudo mesmo
-    // quando o arquivo não contém a palavra "logo" no nome.
-    const consultasWiki = [nome.trim(), `${nome.trim()} futebol`, `${nome.trim()} football club`];
+    // Openverse amplia a pesquisa para acervos Creative Commons de várias fontes.
+    // É consultado separadamente do Wikimedia Commons e da Wikipédia.
+    const respostasOpenverse = await Promise.allSettled(
+      termos.slice(0, 3).map(termo => pesquisarOpenverse(termo, 20))
+    );
+    for (const resposta of respostasOpenverse) {
+      if (resposta.status === "fulfilled") resultados.push(...resposta.value);
+    }
+
+    // A página principal na Wikipédia costuma fornecer o escudo mesmo quando
+    // o arquivo não contém a palavra "logo" no nome.
+    const consultasWiki = tipo === "selecao"
+      ? [nome.trim(), `${nome.trim()} football federation`, `${nome.trim()} national team`]
+      : [nome.trim(), `${nome.trim()} futebol`, `${nome.trim()} football club`];
     const promessas = [];
     for (const consulta of consultasWiki) {
       promessas.push(pesquisarWikipedia(consulta, "pt"));
@@ -207,15 +266,17 @@
     const status = painel.querySelector(".fp-logo-web-status");
     const links = painel.querySelector(".fp-logo-web-links");
     if (!nome || nome.length < 2) {
-      status.textContent = "Digite o nome completo para carregar sugestões.";
+      status.textContent = "Digite o nome da entidade ou o termo do logo para carregar sugestões.";
       resultados.innerHTML = "";
       links.innerHTML = "";
       return;
     }
     const tipo = tipoReal(input, config);
-    const termoLink = `${nome} logo`;
+    const termoLink = /\b(logo|crest|badge|emblem|escudo|bras[aã]o|insignia)\b/i.test(nome)
+      ? nome
+      : `${nome} logo`;
     const codificado = encodeURIComponent(termoLink);
-    links.innerHTML = `<a href="https://www.google.com/search?tbm=isch&q=${codificado}" target="_blank" rel="noopener noreferrer">Abrir Google Imagens</a><a href="https://www.bing.com/images/search?q=${codificado}" target="_blank" rel="noopener noreferrer">Abrir Bing Imagens</a>`;
+    links.innerHTML = `<a href="https://www.google.com/search?tbm=isch&q=${codificado}" target="_blank" rel="noopener noreferrer">Google Imagens</a><a href="https://www.bing.com/images/search?q=${codificado}" target="_blank" rel="noopener noreferrer">Bing Imagens</a><a href="https://duckduckgo.com/?q=${codificado}&iax=images&ia=images" target="_blank" rel="noopener noreferrer">DuckDuckGo</a><a href="https://yandex.com/images/search?text=${codificado}" target="_blank" rel="noopener noreferrer">Yandex Imagens</a><a href="https://www.ecosia.org/images?q=${codificado}" target="_blank" rel="noopener noreferrer">Ecosia Imagens</a><a href="https://www.flickr.com/search/?text=${codificado}" target="_blank" rel="noopener noreferrer">Flickr</a><a href="https://www.behance.net/search/projects?search=${codificado}" target="_blank" rel="noopener noreferrer">Behance</a>`;
     status.textContent = `Pesquisando por “${termoLink}”...`;
     resultados.innerHTML = "";
     try {
@@ -229,7 +290,7 @@
       resultados.querySelectorAll(".fp-logo-web-item").forEach(botao => botao.addEventListener("click", () => selecionarLogo(input, botao.dataset.logoUrl, painel)));
     } catch (erro) {
       console.error("Erro na pesquisa de logos:", erro);
-      status.textContent = "A pesquisa automática não respondeu. Use Google Imagens ou Bing Imagens.";
+      status.textContent = "A pesquisa automática não respondeu. Use os atalhos de Google, Bing, DuckDuckGo, Yandex, Ecosia, Flickr ou Behance.";
     }
   }
 
@@ -240,7 +301,7 @@
     input.dataset.logoWebAtivado = "1";
     const painel = document.createElement("section");
     painel.className = "fp-logo-web";
-    painel.innerHTML = `<div class="fp-logo-web-cabecalho"><strong>${textoSeguro(config.titulo)}</strong><button type="button" class="fp-logo-web-pesquisar">Pesquisar agora</button></div><p class="fp-logo-web-status">Digite o nome completo para carregar sugestões automaticamente.</p><div class="fp-logo-web-links"></div><div class="fp-logo-web-preview"></div><div class="fp-logo-web-resultados"></div><small>O envio manual de arquivo continua disponível e tem prioridade.</small>`;
+    painel.innerHTML = `<div class="fp-logo-web-cabecalho"><strong>${textoSeguro(config.titulo)}</strong><button type="button" class="fp-logo-web-pesquisar">Pesquisar agora</button></div><p class="fp-logo-web-status">Digite o nome da entidade ou um termo personalizado para carregar sugestões automaticamente.</p><div class="fp-logo-web-links"></div><div class="fp-logo-web-preview"></div><div class="fp-logo-web-resultados"></div><small>O envio manual de arquivo continua disponível e tem prioridade.</small>`;
     input.insertAdjacentElement("afterend", painel);
     painel.querySelector(".fp-logo-web-pesquisar").addEventListener("click", () => executarPesquisa(input, painel, config));
     let temporizador;

@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FutPedia - Inserir</title>
+  <title>RankingWikiClub - Inserir</title>
   <link rel="stylesheet" href="./css/style.css?v=20260711c">
   <script src="js/normalizar-paises-portugues.js?v=1"></script>
 </head>
 <body data-protected="editor">
 <header class="topo">
   <nav class="menu">
-    <a href="./index.html" class="logo-menu" aria-label="FutPédia Início"><img class="logo-futpedia-topo" src="./assets/logo-futpedia.png" alt="FutPedia Banco de Dados"></a>
+    <a href="./index.html" class="logo-menu" aria-label="RankingWikiClub Início"><img class="logo-rankingwikiclub-topo" src="./assets/logo-rankingwikiclub.png" alt="RankingWikiClub Banco de Dados"></a>
     <a href="./index.html">Início</a>
     <a href="./clubes.html">Clubes</a>
     <a href="./selecoes.html">Seleções</a>
@@ -57,6 +57,13 @@
       <label>País da seleção</label>
       <select id="paisSelecao"></select>
 
+      <label>Nome da seleção ou confederação</label>
+      <input type="text" id="nomeSelecao" placeholder="Ex: Confederação Brasileira de Futebol">
+      <small>Este será o nome exibido para a seleção.</small>
+
+      <label>Nome para pesquisar o logo</label>
+      <input type="text" id="termoLogoSelecao" placeholder="Ex: CBF logo, Brazil football federation emblem">
+      <small>Opcional. Quando preenchido, este texto será usado na pesquisa do logo.</small>
 
       <label>Escudo da seleção</label>
       <input type="file" id="escudoSelecao" accept="image/*">
@@ -83,6 +90,10 @@
       <small>Digite no formato DD/MM/AAAA ou selecione no calendário abaixo.</small>
       <input type="date" id="fundacaoCalendario">
 
+
+      <label>Nome para pesquisar o escudo</label>
+      <input type="text" id="termoLogoClube" placeholder="Ex: Corinthians crest, SCCP escudo oficial">
+      <small>Opcional. Use sigla, nome oficial ou outro termo para ampliar a pesquisa.</small>
 
       <label>Escudo do time</label>
       <input type="file" id="escudo" accept="image/*">
@@ -164,6 +175,10 @@
         <option value="Campeonato Intercontinental">Campeonato Intercontinental</option>
       </select>
 
+      <label>Nome para pesquisar o logo</label>
+      <input type="text" id="termoLogoCompeticao" placeholder="Ex: Copa Libertadores trophy logo, CONMEBOL Libertadores emblem">
+      <small>Opcional. Permite pesquisar por sigla, patrocinador, nome antigo ou nome internacional.</small>
+
       <label>Escudo da competição</label>
       <input type="file" id="escudoCompeticao" accept="image/*">
     </div>
@@ -185,10 +200,17 @@
         </select>
       </div>
 
+      <div id="grupoContinenteCampeaoTitulo" class="grupo oculto">
+        <label>Continente do campeão</label>
+        <select id="continenteCampeaoTitulo">
+          <option value="">Selecione o continente do campeão</option>
+        </select>
+      </div>
+
       <div id="grupoPaisCampeaoTitulo" class="grupo">
-        <label>País</label>
+        <label>País do campeão</label>
         <select id="paisCampeaoTitulo">
-          <option value="">Selecione o país</option>
+          <option value="">Selecione o país do campeão</option>
         </select>
       </div>
 
@@ -200,6 +222,13 @@
 
       <label>Campeão</label>
       <select id="campeao"></select>
+
+      <div id="grupoContinenteViceTitulo" class="grupo oculto">
+        <label>Continente do vice-campeão</label>
+        <select id="continenteViceTitulo">
+          <option value="">Selecione o continente do vice</option>
+        </select>
+      </div>
 
       <div id="grupoPaisViceTitulo" class="grupo">
         <label>País do vice-campeão</label>
@@ -225,10 +254,12 @@
 <script src="./js/cadastros.js?v=20260719-abrangencia-definitiva"></script>
 <script src="./js/auth.js"></script>
 <script src="./js/login-edicao-fix.js?v=1"></script>
-<script src="./js/futpedia-supabase-fix.js?v=3"></script>
+<script src="./js/rankingwikiclub-supabase-fix.js?v=3"></script>
   <script src="js/sincronizar-listas-paises.js?v=20260711"></script>
   <script src="./js/titulos-supabase-fix.js?v=20260718-final"></script>
-  <script src="./js/pesquisa-logos-web.js?v=20260719-logo-resultados-corrigido"></script>
+  <script src="./js/pesquisa-logos-web.js?v=20260730-clubes-competicoes-ampliado"></script>
   <script src="./js/cadastro-titulos-mundo-fix.js?v=20260719-definitivo"></script>
+  <script src="./js/cadastro-titulos-continentes.js?v=20260730"></script>
+  <script src="./js/titulos-compartilhados.js?v=20260730"></script>
 </body>
 </html>

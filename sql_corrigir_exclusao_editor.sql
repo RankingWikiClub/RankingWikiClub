@@ -1,4 +1,4 @@
--- FutPedia - exclusão segura de times, seleções e competições pelo Editor
+-- RankingWikiClub - exclusão segura de times, seleções e competições pelo Editor
 CREATE OR REPLACE FUNCTION public.fp_excluir_registro(
   p_tipo text,
   p_id bigint

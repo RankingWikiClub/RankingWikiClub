@@ -1,5 +1,5 @@
 
--- Tabela de campeões e vices do FutPédia
+-- Tabela de campeões e vices do RankingWikiClub
 -- Execute no SQL Editor do Supabase.
 
 CREATE TABLE IF NOT EXISTS public.titulos (

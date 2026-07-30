@@ -1,4 +1,4 @@
--- FutPedia - Correção de permissões para cadastrar/editar e salvar imagens
+-- RankingWikiClub - Correção de permissões para cadastrar/editar e salvar imagens
 -- Execute no Supabase SQL Editor antes de testar os cadastros e uploads.
 
 -- Garante as colunas usadas pelo site

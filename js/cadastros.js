@@ -718,10 +718,11 @@ function salvarSelecao() {
   const banco = carregarBanco();
   const continente = document.getElementById("continenteSelecao").value;
   const paisNome = document.getElementById("paisSelecao").value;
+  const nomeSelecao = document.getElementById("nomeSelecao")?.value.trim() || paisNome;
   const pais = buscarPaisSelecao(paisNome);
 
-  if (!continente || !paisNome) {
-    alert("Selecione o continente e o país da seleção.");
+  if (!continente || !paisNome || !nomeSelecao) {
+    alert("Selecione o continente, o país e informe o nome da seleção ou confederação.");
     return;
   }
 
@@ -735,7 +736,7 @@ function salvarSelecao() {
   lerArquivoImagem("escudoSelecao", escudo => {
     banco.selecoes.push({
       id: gerarId(),
-      nome: paisNome,
+      nome: nomeSelecao,
       pais: paisNome,
       continente,
       bandeira: pais.bandeira,
@@ -756,6 +757,7 @@ function salvarCompeticao() {
   const abrangenciaCampo = document.getElementById("abrangencia")?.value || "";
   const abrangencia = categoriaCompeticao === "selecao" ? "Seleções" : abrangenciaCampo;
   const paisNome = document.getElementById("paisCompeticao")?.value || "";
+  const termoLogo = document.getElementById("termoLogoCompeticao")?.value.trim() || "";
 
   if (!nome || !tipoCompeticao || (categoriaCompeticao === "clube" && !abrangenciaCampo)) {
     alert(categoriaCompeticao === "selecao"
@@ -963,7 +965,7 @@ function converterDataBrasilParaISO(valor) {
   return `${ano}-${mes}-${dia}`;
 }
 
-/* ===== FutPedia Storage + SQL direto nos cadastros ===== */
+/* ===== RankingWikiClub Storage + SQL direto nos cadastros ===== */
 function fpCadastroCliente() {
   return typeof clienteSupabase === "function" ? clienteSupabase() : null;
 }
@@ -1134,6 +1136,7 @@ salvarClube = async function salvarClube() {
       siglaEstado: document.getElementById("siglaEstado").value,
       cidade: document.getElementById("cidade").value.trim(),
       fundacao: document.getElementById("fundacao").value,
+      termoLogo: document.getElementById("termoLogoClube")?.value.trim() || "",
       escudo: escudoUrl,
       rivais: obterRivaisSelecionados()
     };
@@ -1151,6 +1154,7 @@ salvarClube = async function salvarClube() {
       siglaEstado: dados.siglaEstado,
       cidade: dados.cidade,
       fundacao: fpCadastroNormalizarData(dados.fundacao) || "",
+      termoLogo: dados.termoLogo,
       escudo: escudoUrl,
       rivais: dados.rivais
     });
@@ -1170,30 +1174,34 @@ salvarSelecao = async function salvarSelecao() {
   const banco = carregarBanco();
   const continente = document.getElementById("continenteSelecao").value;
   const paisNome = document.getElementById("paisSelecao").value;
+  const nomeSelecao = document.getElementById("nomeSelecao")?.value.trim() || paisNome;
+  const termoLogo = document.getElementById("termoLogoSelecao")?.value.trim() || "";
   const pais = buscarPaisSelecao(paisNome);
 
-  if (!continente || !paisNome) {
-    alert("Selecione o continente e o país da seleção.");
+  if (!continente || !paisNome || !nomeSelecao) {
+    alert("Selecione o continente, o país e informe o nome da seleção ou confederação.");
     return;
   }
 
   try {
-    const escudoUrl = await fpUploadImagemInput("escudoSelecao", "escudos-selecoes", paisNome);
-    const idSql = await fpCadastroInserirOuAtualizarSelecao({ nome: paisNome, pais: paisNome, escudo: escudoUrl });
+    const escudoUrl = await fpUploadImagemInput("escudoSelecao", "escudos-selecoes", nomeSelecao);
+    const idSql = await fpCadastroInserirOuAtualizarSelecao({ nome: nomeSelecao, pais: paisNome, escudo: escudoUrl });
 
     const existenteLocal = banco.selecoes.find(s => String(s.id) === String(idSql) || (s.pais || s.nome) === paisNome);
     if (existenteLocal) {
       existenteLocal.escudo = escudoUrl || existenteLocal.escudo || "";
-      existenteLocal.nome = paisNome;
+      existenteLocal.nome = nomeSelecao;
       existenteLocal.pais = paisNome;
       existenteLocal.continente = continente;
+      existenteLocal.termoLogo = termoLogo;
     } else {
       banco.selecoes.push({
         id: idSql ? String(idSql) : gerarId(),
-        nome: paisNome,
+        nome: nomeSelecao,
         pais: paisNome,
         continente,
         bandeira: pais.bandeira,
+        termoLogo,
         escudo: escudoUrl
       });
     }
@@ -1234,6 +1242,7 @@ salvarCompeticao = async function salvarCompeticao() {
       abrangencia,
       local: "",
       bandeira: "",
+      termoLogo,
       escudo: escudoUrl
     };
 

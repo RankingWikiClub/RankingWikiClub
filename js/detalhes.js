@@ -452,6 +452,15 @@ function contarRankingParticipantesCompeticaoDetalhe(edicoes, campoId, categoria
   });
 }
 
+
+function estrelasRankingCompeticaoDetalhe(total, simbolo = "★") {
+  const quantidade = Math.max(0, Number(total) || 0);
+  if (!quantidade) return "-";
+  const limiteVisual = 10;
+  const estrelas = simbolo.repeat(Math.min(quantidade, limiteVisual));
+  return quantidade > limiteVisual ? `${estrelas}<small class="ranking-estrelas-excedente"> +${quantidade - limiteVisual}</small>` : estrelas;
+}
+
 function tabelaRankingSimplesCompeticaoDetalhe(tituloColuna, ranking, textoVazio) {
   if (!ranking.length) return `<p>${textoVazio}</p>`;
 
@@ -473,7 +482,7 @@ function tabelaRankingSimplesCompeticaoDetalhe(tituloColuna, ranking, textoVazio
               <td>${linkTimeCompeticaoDetalhe(r.id, r.tipo)}</td>
               <td class="coluna-total-ranking total-ranking-com-estrelas">
                 <div class="numero-total-ranking">${r.total}</div>
-                <div class="${classeEstrelas}">${r.total ? "★".repeat(r.total) : "-"}</div>
+                <div class="${classeEstrelas}">${estrelasRankingCompeticaoDetalhe(r.total, ehVice ? "☆" : "★")}</div>
               </td>
             </tr>
           `).join("")}
@@ -577,6 +586,7 @@ function abrirDetalhesLiga(id) {
   const painel = garantirPainelDetalhes();
   const conteudo = document.getElementById("conteudoDetalhesGlobal");
 
+  painel.classList.add("ativo");
   conteudo.innerHTML = `
     <h2>${limparTexto(liga.nome)}</h2>
     ${
@@ -650,7 +660,6 @@ function abrirDetalhesLiga(id) {
     `)}
   `;
 
-  painel.classList.add("ativo");
   configurarBotaoEditarDetalhes("competicao", id);
 }
 

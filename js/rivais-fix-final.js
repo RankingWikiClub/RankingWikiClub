@@ -1,4 +1,4 @@
-/* FutPedia - correção final de rivais e abertura única do editor */
+/* RankingWikiClub - correção final de rivais e abertura única do editor */
 (function () {
   "use strict";
 

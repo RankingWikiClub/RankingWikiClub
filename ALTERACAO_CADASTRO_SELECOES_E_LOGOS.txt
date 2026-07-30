@@ -1,0 +1,8 @@
+ALTERAÇÃO — CADASTRO DE SELEÇÕES E PESQUISA DE LOGOS
+
+1. O cadastro agora possui um campo próprio para o nome da seleção ou confederação.
+2. O país continua sendo salvo separadamente, preservando filtros e evitando duplicações.
+3. Foi adicionado um termo manual para pesquisar o logo por sigla, federação ou expressão personalizada.
+4. A busca automática consulta Wikimedia Commons, Wikipédia e Openverse.
+5. Foram adicionados atalhos para Google, Bing, DuckDuckGo, Yandex e Ecosia Imagens.
+6. O envio manual de imagem continua disponível e tem prioridade.

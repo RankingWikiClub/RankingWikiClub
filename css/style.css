@@ -2131,9 +2131,9 @@ body .pagina {
   max-width: 100% !important;
 }
 
-.logo{display:flex;align-items:center;gap:8px}.logo-futpedia-topo{width:42px;height:42px;object-fit:contain}
+.logo{display:flex;align-items:center;gap:8px}.logo-rankingwikiclub-topo{width:42px;height:42px;object-fit:contain}
 
-/* Logo FutPedia no topo - somente imagem */
+/* Logo RankingWikiClub no topo - somente imagem */
 .topo .logo {
   display: flex !important;
   align-items: center !important;
@@ -2141,7 +2141,7 @@ body .pagina {
   gap: 0 !important;
 }
 
-.logo-futpedia-topo {
+.logo-rankingwikiclub-topo {
   width: 54px !important;
   height: 54px !important;
   object-fit: contain !important;
@@ -2189,7 +2189,7 @@ body .pagina {
 }
 
 @media (max-width: 700px) {
-  .logo-futpedia-topo {
+  .logo-rankingwikiclub-topo {
     width: 42px !important;
     height: 42px !important;
   }
@@ -2272,7 +2272,7 @@ body .pagina {
     padding: 3px 1px !important;
   }
 
-  .logo-futpedia-topo {
+  .logo-rankingwikiclub-topo {
     width: 42px !important;
     height: 42px !important;
   }
@@ -3120,7 +3120,7 @@ body[data-perfil="visitante"] .admin-only, body[data-perfil="editor"] .admin-onl
 }
 
 .menu .logo-menu img,
-.logo-futpedia-topo {
+.logo-rankingwikiclub-topo {
   width: 42px !important;
   height: 42px !important;
   object-fit: contain !important;
@@ -3148,7 +3148,7 @@ body[data-perfil="visitante"] .admin-only, body[data-perfil="editor"] .admin-onl
   }
 
   .menu .logo-menu img,
-  .logo-futpedia-topo {
+  .logo-rankingwikiclub-topo {
     width: 34px !important;
     height: 34px !important;
   }
@@ -3233,7 +3233,7 @@ body .pagina .tabela-estatisticas-campeoes.tabela-estatisticas-esquerda .link-de
   text-align: left !important;
 }
 
-/* Estatísticas - novo layout em dashboard mantendo as cores do FutPédia */
+/* Estatísticas - novo layout em dashboard mantendo as cores do RankingWikiClub */
 .estatisticas-dashboard {
   display: grid;
   gap: 18px;
@@ -5149,3 +5149,23 @@ button.campeao-atual-clicavel {
   font-size: 16px;
   line-height: 1;
 }
+
+
+/* Contador global de visitas da página inicial */
+.status-card-visitas small {
+  display: block;
+  margin-top: .35rem;
+  opacity: .72;
+  font-size: .76rem;
+}
+
+/* Cadastro de títulos compartilhados */
+.area-titulos-compartilhados{margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.15)}
+.btn-adicionar-titulo-compartilhado{width:100%;margin-top:10px;padding:12px;border:1px dashed currentColor;border-radius:10px;background:transparent;font-weight:700;cursor:pointer}
+.titulo-compartilhado-card{margin:14px 0;padding:14px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(255,255,255,.04)}
+.titulo-compartilhado-topo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.btn-remover-titulo-extra{padding:7px 10px;border-radius:8px;border:0;cursor:pointer}
+.titulo-extra-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+.titulo-extra-campo label{display:block;margin-bottom:5px}
+.titulo-extra-campo select{width:100%}
+@media(max-width:700px){.titulo-extra-grid{grid-template-columns:1fr}}

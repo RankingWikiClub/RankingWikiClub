@@ -1,4 +1,4 @@
-/* FutPedia — correção definitiva do cadastro de campeão e vice (clubes / Mundo)
+/* RankingWikiClub — correção definitiva do cadastro de campeão e vice (clubes / Mundo)
    Fluxo: Ano > Competição mundial > País campeão > País vice > Time campeão > Time vice. */
 (function () {
   'use strict';

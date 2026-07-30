@@ -1,4 +1,4 @@
--- FutPedia - Corrigir categoria das competições de seleções
+-- RankingWikiClub - Corrigir categoria das competições de seleções
 -- Execute no Supabase SQL Editor para padronizar as competições de seleções.
 
 UPDATE public.competicoes

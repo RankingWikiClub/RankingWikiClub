@@ -3068,6 +3068,14 @@ function formularioEditarSelecao(selecao, banco) {
         ${opcoesPaises}
       </select>
 
+      <label>Nome da seleção ou confederação</label>
+      <input type="text" id="editNomeSelecao" value="${limparTexto(selecao.nome || paisAtual)}" placeholder="Ex: Confederação Brasileira de Futebol">
+      <small>Este será o nome exibido para a seleção.</small>
+
+      <label>Nome para pesquisar o logo</label>
+      <input type="text" id="editTermoLogoSelecao" value="${limparTexto(selecao.termoLogo || '')}" placeholder="Ex: CBF logo, Brazil football federation emblem">
+      <small>Opcional. Este termo terá prioridade na pesquisa do logo.</small>
+
       <label>Escudo da seleção</label>
       <input type="file" id="editEscudo" accept="image/*">
 
@@ -3822,7 +3830,7 @@ window.atualizarCamposLocalEdicaoTitulo = atualizarCamposLocalEdicaoTitulo;
 window.filtrarCompeticoesEdicaoTitulo = filtrarCompeticoesEdicaoTitulo;
 
 
-/* ===== FutPedia: edição direta vinda da página de detalhes + salvamento nas tabelas SQL =====
+/* ===== RankingWikiClub: edição direta vinda da página de detalhes + salvamento nas tabelas SQL =====
    Esta camada mantém a edição antiga no localStorage, mas também atualiza as tabelas reais
    do Supabase: times, selecoes e competicoes. Assim as alterações permanecem no banco SQL. */
 function fpEdicaoSqlCliente() {
@@ -4270,8 +4278,36 @@ window.salvarEdicaoSelecao = async function salvarEdicaoSelecao(event, id) {
   if (!selecao) return;
 
   try {
-    const escudoUrl = await fpUploadEscudoEdicaoFinal("editEscudo", "escudos-selecoes", selecao.nome || selecao.pais || "selecao", selecao.escudo || "");
+    const paisNome = document.getElementById("editPaisSelecao")?.value || selecao.pais || "";
+    const continente = document.getElementById("editContinenteSelecao")?.value || selecao.continente || "";
+    const nomeSelecao = document.getElementById("editNomeSelecao")?.value.trim() || paisNome;
+    const termoLogo = document.getElementById("editTermoLogoSelecao")?.value.trim() || "";
+
+    if (!continente) throw new Error("Selecione o continente da seleção.");
+    if (!paisNome) throw new Error("Selecione o país da seleção.");
+    if (!nomeSelecao) throw new Error("Informe o nome da seleção ou confederação.");
+
+    selecao.nome = nomeSelecao;
+    selecao.pais = paisNome;
+    selecao.continente = continente;
+    selecao.termoLogo = termoLogo;
+
+    const paisInfo = (typeof buscarPaisSelecao === "function" ? buscarPaisSelecao(paisNome) : null) || {};
+    selecao.bandeira = paisInfo.bandeira || selecao.bandeira || "";
+
+    const escudoUrl = await fpUploadEscudoEdicaoFinal("editEscudo", "escudos-selecoes", termoLogo || nomeSelecao || paisNome || "selecao", selecao.escudo || "");
     if (escudoUrl) selecao.escudo = escudoUrl;
+
+    (banco.titulos || []).forEach(titulo => {
+      if (String(titulo.campeaoId) === String(selecao.id)) {
+        titulo.campeaoNome = selecao.nome;
+        titulo.campeaoTipo = "selecao";
+      }
+      if (String(titulo.viceId) === String(selecao.id)) {
+        titulo.viceNome = selecao.nome;
+        titulo.viceTipo = "selecao";
+      }
+    });
 
     if (typeof fpEdicaoAtualizarSelecaoSql === "function") {
       await fpEdicaoAtualizarSelecaoSql(id, selecao);

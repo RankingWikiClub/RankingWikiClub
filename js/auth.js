@@ -1,4 +1,4 @@
-/* FutPédia - Login e permissões com Supabase Auth
+/* RankingWikiClub - Login e permissões com Supabase Auth
    A configuração do Supabase fica centralizada em js/supabase.js.
 */
 

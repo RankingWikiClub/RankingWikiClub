@@ -37,31 +37,31 @@ CREATE INDEX IF NOT EXISTS idx_titulos_futpedia_vice
 
 ALTER TABLE public.titulos_futpedia ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Leitura pública títulos FutPédia"
+DROP POLICY IF EXISTS "Leitura pública títulos RankingWikiClub"
   ON public.titulos_futpedia;
-CREATE POLICY "Leitura pública títulos FutPédia"
+CREATE POLICY "Leitura pública títulos RankingWikiClub"
 ON public.titulos_futpedia
 FOR SELECT
 USING (true);
 
-DROP POLICY IF EXISTS "Inserção pública títulos FutPédia"
+DROP POLICY IF EXISTS "Inserção pública títulos RankingWikiClub"
   ON public.titulos_futpedia;
-CREATE POLICY "Inserção pública títulos FutPédia"
+CREATE POLICY "Inserção pública títulos RankingWikiClub"
 ON public.titulos_futpedia
 FOR INSERT
 WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Atualização pública títulos FutPédia"
+DROP POLICY IF EXISTS "Atualização pública títulos RankingWikiClub"
   ON public.titulos_futpedia;
-CREATE POLICY "Atualização pública títulos FutPédia"
+CREATE POLICY "Atualização pública títulos RankingWikiClub"
 ON public.titulos_futpedia
 FOR UPDATE
 USING (true)
 WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Exclusão pública títulos FutPédia"
+DROP POLICY IF EXISTS "Exclusão pública títulos RankingWikiClub"
   ON public.titulos_futpedia;
-CREATE POLICY "Exclusão pública títulos FutPédia"
+CREATE POLICY "Exclusão pública títulos RankingWikiClub"
 ON public.titulos_futpedia
 FOR DELETE
 USING (true);

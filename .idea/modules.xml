@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/FutPedia.iml" filepath="$PROJECT_DIR$/.idea/FutPedia.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/RankingWikiClub.iml" filepath="$PROJECT_DIR$/.idea/RankingWikiClub.iml" />
     </modules>
   </component>
 </project>

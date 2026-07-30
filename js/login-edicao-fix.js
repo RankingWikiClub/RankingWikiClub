@@ -1,4 +1,4 @@
-/* FutPedia - Correções de login, botões de edição e carregamento direto do Supabase
+/* RankingWikiClub - Correções de login, botões de edição e carregamento direto do Supabase
    - Esconde Inserir/Editor/Editar quando não há login.
    - Protege páginas de Inserir e Editor.
    - Garante que o botão Editar dos detalhes carregue o registro atual do Supabase.

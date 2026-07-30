@@ -1,4 +1,4 @@
--- FutPedia - Supabase Storage para escudos e logos
+-- RankingWikiClub - Supabase Storage para escudos e logos
 -- Execute no SQL Editor do Supabase.
 
 INSERT INTO storage.buckets (id, name, public)

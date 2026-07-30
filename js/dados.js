@@ -395,19 +395,51 @@ function carregarBancoLocalBruto() {
   try {
     return JSON.parse(salvo);
   } catch (erro) {
-    console.warn("Não foi possível ler o banco local do FutPédia.", erro);
+    console.warn("Não foi possível ler o banco local do RankingWikiClub.", erro);
     return null;
   }
 }
 
+/* Cache em memória: evita reler, converter e normalizar todo o localStorage
+   a cada linha de campeão/vice exibida nas telas de detalhes. */
+let FUTPEDIA_BANCO_CACHE = null;
+let FUTPEDIA_BANCO_CACHE_TEXTO = null;
+
+function invalidarCacheBancoFutpedia() {
+  FUTPEDIA_BANCO_CACHE = null;
+  FUTPEDIA_BANCO_CACHE_TEXTO = null;
+}
+
 function carregarBanco() {
-  const bancoLocal = carregarBancoLocalBruto();
-  if (!bancoLocal) {
+  const salvo = localStorage.getItem(FUTPEDIA_STORAGE_KEY);
+
+  if (FUTPEDIA_BANCO_CACHE && salvo === FUTPEDIA_BANCO_CACHE_TEXTO) {
+    return FUTPEDIA_BANCO_CACHE;
+  }
+
+  if (!salvo) {
     const inicial = prepararBancoFutpedia(dadosIniciais());
-    localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(inicial));
+    const textoInicial = JSON.stringify(inicial);
+    localStorage.setItem(FUTPEDIA_STORAGE_KEY, textoInicial);
+    FUTPEDIA_BANCO_CACHE = inicial;
+    FUTPEDIA_BANCO_CACHE_TEXTO = textoInicial;
     return inicial;
   }
-  return prepararBancoFutpedia(bancoLocal);
+
+  try {
+    const preparado = prepararBancoFutpedia(JSON.parse(salvo));
+    FUTPEDIA_BANCO_CACHE = preparado;
+    FUTPEDIA_BANCO_CACHE_TEXTO = salvo;
+    return preparado;
+  } catch (erro) {
+    console.warn("Não foi possível ler o banco local do RankingWikiClub.", erro);
+    const inicial = prepararBancoFutpedia(dadosIniciais());
+    const textoInicial = JSON.stringify(inicial);
+    localStorage.setItem(FUTPEDIA_STORAGE_KEY, textoInicial);
+    FUTPEDIA_BANCO_CACHE = inicial;
+    FUTPEDIA_BANCO_CACHE_TEXTO = textoInicial;
+    return inicial;
+  }
 }
 
 function quantidadeRegistrosFutpedia(banco) {
@@ -425,7 +457,10 @@ function salvarBanco(banco) {
   // dados antigos do Supabase sobrescrevam uma edição feita agora.
   preparado.atualizadoLocalEm = new Date().toISOString();
 
-  localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(preparado));
+  const textoPreparado = JSON.stringify(preparado);
+  localStorage.setItem(FUTPEDIA_STORAGE_KEY, textoPreparado);
+  FUTPEDIA_BANCO_CACHE = preparado;
+  FUTPEDIA_BANCO_CACHE_TEXTO = textoPreparado;
 
   clearTimeout(FUTPEDIA_SALVAMENTO_TIMER);
   FUTPEDIA_SALVAMENTO_TIMER = setTimeout(() => {
@@ -434,7 +469,7 @@ function salvarBanco(banco) {
 }
 
 async function salvarBancoNaNuvem(banco = carregarBanco()) {
-  // O FutPédia usa tabelas relacionais do Supabase.
+  // O RankingWikiClub usa tabelas relacionais do Supabase.
   // A tabela antiga public.futpedia_dados não é mais utilizada.
   return false;
 }
@@ -608,7 +643,7 @@ async function carregarDadosRelacionaisSupabase() {
       const pais = mapaPaises.get(String(t.pais_id)) || {};
       return {
         id: String(t.id),
-        // Nas listas e páginas gerais o FutPedia Estados Unidos o nome curto.
+        // Nas listas e páginas gerais o RankingWikiClub Estados Unidos o nome curto.
         // O nome completo fica salvo separadamente e aparece apenas na página de detalhes.
         nome: t.nome_curto || t.nome || "",
         nomeCompleto: t.nome || t.nome_curto || "",
@@ -712,7 +747,7 @@ async function carregarDadosRelacionaisSupabase() {
 
     localStorage.setItem(FUTPEDIA_STORAGE_KEY, JSON.stringify(prepararBancoFutpedia(banco)));
     atualizarTelasAposSincronizacao();
-    console.log("FutPédia: dados carregados das tabelas SQL", {
+    console.log("RankingWikiClub: dados carregados das tabelas SQL", {
       clubes: banco.clubes.length,
       selecoes: banco.selecoes.length,
       competicoes: banco.competicoes.length
@@ -1151,3 +1186,9 @@ function fpPreencherSelectTimesComLogo(selectId, times, placeholder = "Selecione
     window.carregarBanco=fn;
   }
 })();
+
+
+window.addEventListener("storage", event => {
+  if (event.key === FUTPEDIA_STORAGE_KEY) invalidarCacheBancoFutpedia();
+});
+window.invalidarCacheBancoFutpedia = invalidarCacheBancoFutpedia;

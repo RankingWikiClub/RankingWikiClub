@@ -1,0 +1,11 @@
+CORREÇÃO — ESTATÍSTICAS DE SELEÇÕES
+
+Arquivo alterado:
+- js/estatisticas.js
+
+Correções:
+- A categoria da competição agora define obrigatoriamente se campeão e vice são clubes ou seleções.
+- IDs iguais entre clubes e seleções não são mais confundidos.
+- Rankings usam a chave composta tipo + ID, evitando somar um clube e uma seleção como se fossem a mesma entidade.
+- Histórico, maior campeão, maior vice e maior finalista abrem e exibem o participante correto.
+- Registros antigos com campeaoTipo/viceTipo incorreto são interpretados pela categoria da competição.

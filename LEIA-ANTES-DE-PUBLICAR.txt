@@ -1,6 +1,6 @@
-FutPedia - pacote de recuperação GitHub Pages
+RankingWikiClub - pacote de recuperação GitHub Pages
 
-Este pacote está organizado para publicar na raiz do repositório FutPedia.
+Este pacote está organizado para publicar na raiz do repositório RankingWikiClub.
 
 Estrutura esperada no GitHub:
 - index.html
@@ -13,14 +13,14 @@ Estrutura esperada no GitHub:
 - login.html
 - css/style.css
 - js/*.js
-- assets/logo-futpedia.png
+- assets/logo-rankingwikiclub.png
 - .nojekyll
 
 Como publicar:
-1. No repositório FutPedia, apague os arquivos/pastas atuais se estiverem quebrados.
+1. No repositório RankingWikiClub, apague os arquivos/pastas atuais se estiverem quebrados.
 2. Envie TODO o conteúdo deste pacote diretamente na raiz do repositório, não dentro de outra pasta.
 3. Em Settings > Pages, deixe: Deploy from a branch / main / root.
 4. Aguarde Actions > pages build and deployment ficar verde.
-5. Acesse: https://futpediabd.github.io/FutPedia/index.html
+5. Acesse: https://futpediabd.github.io/RankingWikiClub/index.html
 
 Observação: este pacote prioriza recuperar o site no GitHub Pages com a estrutura correta.

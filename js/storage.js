@@ -1,4 +1,4 @@
-/* FutPedia - Upload de imagens para Supabase Storage
+/* RankingWikiClub - Upload de imagens para Supabase Storage
    Buckets usados:
    - escudos-times
    - escudos-selecoes

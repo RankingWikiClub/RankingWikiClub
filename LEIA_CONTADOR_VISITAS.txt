@@ -1,0 +1,13 @@
+CONTADOR DE VISITAS — INSTALAÇÃO
+
+1. Abra o painel do seu projeto no Supabase.
+2. Entre em SQL Editor.
+3. Abra o arquivo sql_contador_visitas.sql deste projeto.
+4. Copie todo o conteúdo, cole no SQL Editor e execute uma única vez.
+5. Publique os arquivos atualizados do site.
+
+Funcionamento:
+- O número é global e fica salvo no Supabase.
+- Cada navegador adiciona uma visita por sessão.
+- Atualizar a página repetidamente na mesma sessão não aumenta o contador.
+- Uma nova sessão do navegador será contabilizada como nova visita.

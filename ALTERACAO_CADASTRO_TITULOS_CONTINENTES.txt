@@ -1,0 +1,20 @@
+ALTERAÇÃO — CADASTRO DE CAMPEÕES E VICES POR CONTINENTE
+
+No cadastro de campeões e vices de clubes:
+
+1. Abrangência Mundo
+- Exibe somente competições mundiais cadastradas.
+- Permite escolher separadamente o continente do campeão e do vice.
+- Depois do continente, exibe somente os países com clubes cadastrados naquele continente.
+- Depois do país, exibe somente os clubes daquele país.
+
+2. Abrangência Continente
+- Exibe somente competições continentais cadastradas.
+- O continente é definido automaticamente pela competição selecionada.
+- Depois aparecem somente os países pertencentes ao continente da competição.
+- Campeão e vice possuem país e clube independentes.
+
+3. Abrangência País
+- Mantém o funcionamento anterior.
+
+Nenhuma alteração no banco de dados é necessária.

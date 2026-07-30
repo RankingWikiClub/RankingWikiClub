@@ -1,4 +1,4 @@
--- FutPedia - permissões para editar registros logado
+-- RankingWikiClub - permissões para editar registros logado
 -- Execute no Supabase se aparecer erro de Row Level Security ao salvar.
 
 ALTER TABLE public.times ENABLE ROW LEVEL SECURITY;

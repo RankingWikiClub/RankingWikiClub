@@ -1,0 +1,7 @@
+RankingWikiClub — alteração de identidade concluída
+
+- Nome visível do site atualizado em todas as páginas.
+- Logo principal substituído por assets/logo-rankingwikiclub.png.
+- Títulos da aba, textos alternativos e rótulos atualizados.
+- Nome do script visual atualizado para rankingwikiclub-supabase-fix.js.
+- Identificadores internos antigos do Supabase, eventos e localStorage foram preservados para evitar perda de dados e incompatibilidade com o banco já configurado.

@@ -1,4 +1,4 @@
--- FutPedia - tabela para vincular rivais entre times
+-- RankingWikiClub - tabela para vincular rivais entre times
 CREATE TABLE IF NOT EXISTS public.time_rivais (
   time_id bigint NOT NULL REFERENCES public.times(id) ON DELETE CASCADE,
   rival_id bigint NOT NULL REFERENCES public.times(id) ON DELETE CASCADE,

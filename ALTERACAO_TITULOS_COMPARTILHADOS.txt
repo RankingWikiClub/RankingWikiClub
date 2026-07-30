@@ -1,0 +1,10 @@
+CADASTRO DE TÍTULOS COMPARTILHADOS
+
+Na categoria de clubes, o cadastro de campeão e vice agora possui o botão
+"Adicionar outro campeão e vice".
+
+Cada campo adicional respeita a abrangência, continente e país da competição.
+Todos os registros são salvos com o mesmo ano e a mesma competição, permitindo
+representar oficialmente edições com título ou vice-campeonato compartilhado.
+
+Não é necessário executar SQL adicional.

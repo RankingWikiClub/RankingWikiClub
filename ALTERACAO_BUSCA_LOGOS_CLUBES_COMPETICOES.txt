@@ -1,0 +1,10 @@
+BUSCA DE LOGOS AMPLIADA — CLUBES E COMPETIÇÕES
+
+1. Cadastro de clubes agora possui o campo opcional "Nome para pesquisar o escudo".
+2. Cadastro de competições agora possui o campo opcional "Nome para pesquisar o logo".
+3. O termo manual tem prioridade sobre o nome cadastrado.
+4. A pesquisa automática usa Wikimedia Commons, Wikipédia em português/inglês e Openverse.
+5. Foram ampliadas as variações de pesquisa em português e inglês para escudo, brasão, crest, badge, emblem, tournament e trophy logo.
+6. Atalhos externos disponíveis: Google, Bing, DuckDuckGo, Yandex, Ecosia, Flickr e Behance.
+7. Upload manual continua disponível e tem prioridade sobre a imagem escolhida na web.
+8. O termo personalizado é salvo no banco local para preservar a informação no cadastro.

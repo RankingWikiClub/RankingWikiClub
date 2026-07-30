@@ -1,4 +1,4 @@
--- FutPedia - Correção final para escudos/logos no Supabase
+-- RankingWikiClub - Correção final para escudos/logos no Supabase
 
 ALTER TABLE public.times
 ADD COLUMN IF NOT EXISTS escudo_url text;

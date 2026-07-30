@@ -1,4 +1,4 @@
--- FutPedia - correção para cadastros, edições e upload de escudos/logos
+-- RankingWikiClub - correção para cadastros, edições e upload de escudos/logos
 -- Execute no Supabase SQL Editor.
 
 ALTER TABLE public.times ADD COLUMN IF NOT EXISTS escudo_url text;

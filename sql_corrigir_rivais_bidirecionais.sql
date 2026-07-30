@@ -1,4 +1,4 @@
--- FutPedia: tabela e permissões para rivalidades bidirecionais
+-- RankingWikiClub: tabela e permissões para rivalidades bidirecionais
 
 CREATE TABLE IF NOT EXISTS public.time_rivais (
   time_id bigint NOT NULL REFERENCES public.times(id) ON DELETE CASCADE,

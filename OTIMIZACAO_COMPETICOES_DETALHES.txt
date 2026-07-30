@@ -1,0 +1,21 @@
+OTIMIZAÇÃO — DETALHES DAS COMPETIÇÕES
+
+Alterações aplicadas:
+1. Cache em memória para a base do RankingWikiClub.
+   - Evita reler, fazer JSON.parse e normalizar toda a base para cada campeão, vice e linha exibida.
+   - O cache é atualizado automaticamente ao salvar e invalidado quando o localStorage muda em outra aba.
+
+2. Abertura imediata do painel de detalhes.
+   - O painel é mostrado antes da conclusão da montagem do conteúdo.
+
+3. Limite visual das estrelas nos rankings.
+   - Exibe até 10 estrelas e mostra o excedente como +N.
+   - Evita criar centenas de caracteres e elementos visuais em competições com muitos títulos.
+
+4. Atualização das versões dos scripts no competicoes.html.
+   - Impede o navegador de continuar usando os arquivos antigos em cache.
+
+Arquivos alterados:
+- js/dados.js
+- js/detalhes.js
+- competicoes.html

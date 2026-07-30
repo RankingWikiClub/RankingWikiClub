@@ -1,3 +1,35 @@
+// Cache e índices da página Estatísticas: evita reler e pesquisar o banco a cada célula.
+let estatisticasBancoCache = null;
+let estatisticasIndice = null;
+let estatisticasLimiteHistorico = 200;
+let estatisticasUltimasEdicoes = [];
+
+function bancoEstatisticas() {
+  if (!estatisticasBancoCache) {
+    estatisticasBancoCache = carregarBanco();
+    const banco = estatisticasBancoCache;
+    estatisticasIndice = {
+      competicoes: new Map((banco.competicoes || []).map(item => [String(item.id), item])),
+      clubes: new Map((banco.clubes || []).map(item => [String(item.id), item])),
+      selecoes: new Map((banco.selecoes || []).map(item => [String(item.id), item]))
+    };
+  }
+  return estatisticasBancoCache;
+}
+
+function invalidarCacheEstatisticas() {
+  estatisticasBancoCache = null;
+  estatisticasIndice = null;
+}
+
+function debounceEstatisticas(funcao, espera = 250) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => funcao(...args), espera);
+  };
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   atualizarTotais();
   prepararFiltrosEstatisticas();
@@ -39,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function atualizarTotais() {
-  const banco = carregarBanco();
+  const banco = bancoEstatisticas();
   setText("totalPaises", (banco.paises || []).length);
   setText("totalClubes", (banco.clubes || []).length);
   setText("totalSelecoes", (banco.selecoes || []).length);
@@ -178,7 +210,7 @@ function carregarPaisesEstatisticas() {
   });
 }
 function carregarCompeticoesEstatisticas() {
-  const banco = carregarBanco();
+  const banco = bancoEstatisticas();
   const select = document.getElementById("filtroCompeticaoEstatisticas");
   if (!select) return;
 
@@ -240,7 +272,8 @@ function filtrarCompeticoesEstatisticas(banco, filtros) {
 }
 
 function renderizarHistoricoEstatisticas() {
-  const banco = carregarBanco();
+  estatisticasLimiteHistorico = 200;
+  const banco = bancoEstatisticas();
   const filtros = obterFiltrosEstatisticas();
 
   let competicoes = filtrarCompeticoesEstatisticas(banco, filtros);
@@ -251,9 +284,9 @@ function renderizarHistoricoEstatisticas() {
     competicoes = competicoes.filter(c => c.id === filtros.competicaoId);
   }
 
-  const ids = competicoes.map(c => c.id);
+  const ids = new Set(competicoes.map(c => String(c.id)));
   let edicoes = (banco.titulos || [])
-    .filter(t => ids.includes(t.competicaoId));
+    .filter(t => ids.has(String(t.competicaoId)));
 
   if (filtros.pesquisa) {
     edicoes = edicoes.filter(t => normalizarTextoBusca([t.ano, t.competicaoNome, t.campeaoNome, t.viceNome].join(" ")).includes(filtros.pesquisa));
@@ -280,8 +313,8 @@ function renderizarResumoEstatisticas(competicoes, edicoes) {
   const area = document.getElementById("resumoCompeticaoEstatisticas");
   if (!area) return;
 
-  const rankingCampeoes = contarRankingPorId(edicoes.map(e => e.campeaoId));
-  const rankingVices = contarRankingPorId(edicoes.map(e => e.viceId));
+  const rankingCampeoes = contarRankingParticipantesEstatisticas(edicoes, "campeao");
+  const rankingVices = contarRankingParticipantesEstatisticas(edicoes, "vice");
   const rankingFinalistas = contarRankingFinalistasEstatisticas(edicoes);
   const maiorCampeao = rankingCampeoes[0];
   const maiorVice = rankingVices[0];
@@ -299,9 +332,9 @@ function renderizarResumoEstatisticas(competicoes, edicoes) {
         </thead>
         <tbody>
           <tr>
-            <td>${maiorCampeao ? `${linkParticipanteTabelaEstatistica(maiorCampeao.id)}<br><small>${maiorCampeao.total} título(s)</small>` : `Nenhum campeão cadastrado.`}</td>
-            <td>${maiorVice ? `${linkParticipanteTabelaEstatistica(maiorVice.id)}<br><small>${maiorVice.total} vice(s)</small>` : `Nenhum vice cadastrado.`}</td>
-            <td>${maiorFinalista ? `${linkParticipanteTabelaEstatistica(maiorFinalista.id)}<br><small>${maiorFinalista.finais} final(is)</small>` : `Nenhum finalista cadastrado.`}</td>
+            <td>${maiorCampeao ? `${linkParticipanteTabelaEstatistica(maiorCampeao.id, maiorCampeao.tipo)}<br><small>${maiorCampeao.total} título(s)</small>` : `Nenhum campeão cadastrado.`}</td>
+            <td>${maiorVice ? `${linkParticipanteTabelaEstatistica(maiorVice.id, maiorVice.tipo)}<br><small>${maiorVice.total} vice(s)</small>` : `Nenhum vice cadastrado.`}</td>
+            <td>${maiorFinalista ? `${linkParticipanteTabelaEstatistica(maiorFinalista.id, maiorFinalista.tipo)}<br><small>${maiorFinalista.finais} final(is)</small>` : `Nenhum finalista cadastrado.`}</td>
           </tr>
         </tbody>
       </table>
@@ -314,16 +347,14 @@ function renderizarResumoEstatisticas(competicoes, edicoes) {
 
 
 function nomeCompeticaoEstatistica(id) {
-  const banco = carregarBanco();
-  const competicao = (banco.competicoes || []).find(c => String(c.id) === String(id));
-  return competicao?.nome || "";
+  return estatisticasIndice?.competicoes.get(String(id))?.nome || "";
 }
 
 function renderizarRankingsEstatisticas(edicoes) {
   const area = document.getElementById("rankingsEstatisticas");
   if (!area) return;
 
-  const banco = carregarBanco();
+  const banco = bancoEstatisticas();
   const categoriaFiltro = document.getElementById("filtroCategoriaEstatisticas")?.value || "todas";
 
   const edicoesClubes = filtrarEdicoesRankingPorCategoria(edicoes, banco, "clube");
@@ -347,14 +378,14 @@ function renderizarRankingsEstatisticas(edicoes) {
 
 function filtrarEdicoesRankingPorCategoria(edicoes, banco, categoria) {
   return (edicoes || []).filter(edicao => {
-    const competicao = (banco.competicoes || []).find(c => c.id === edicao.competicaoId);
+    const competicao = estatisticasIndice?.competicoes.get(String(edicao.competicaoId));
     if (competicao) {
       return categoriaCompeticaoEstatisticas(competicao) === categoria;
     }
 
-    const campeao = buscarParticipanteEstatistica(edicao.campeaoId);
-    const vice = buscarParticipanteEstatistica(edicao.viceId);
-    return campeao?.tipo === categoria || vice?.tipo === categoria;
+    const tipoCampeao = tipoParticipanteEdicaoEstatisticas(edicao, "campeao");
+    const tipoVice = tipoParticipanteEdicaoEstatisticas(edicao, "vice");
+    return tipoCampeao === categoria || tipoVice === categoria;
   });
 }
 
@@ -370,19 +401,19 @@ function renderizarGrupoRankingsCategoria(titulo, edicoesCategoria) {
 }
 
 function renderizarTabelaRankingCampeoes(edicoes) {
-  const rankingCampeoes = contarRankingPorId((edicoes || []).map(e => e.campeaoId));
+  const rankingCampeoes = contarRankingParticipantesEstatisticas(edicoes || [], "campeao");
   return tabelaRankingEstatisticas("🥇 Ranking de Campeões", ["Posição", "Campeão", "Total"], rankingCampeoes.slice(0, 10).map((item, index) => [
     `${index + 1}º`,
-    linkParticipanteTabelaEstatistica(item.id),
+    linkParticipanteTabelaEstatistica(item.id, item.tipo),
     `${item.total} título(s)`
   ]), "Nenhum campeão cadastrado.");
 }
 
 function renderizarTabelaRankingVices(edicoes) {
-  const rankingVices = contarRankingPorId((edicoes || []).map(e => e.viceId));
+  const rankingVices = contarRankingParticipantesEstatisticas(edicoes || [], "vice");
   return tabelaRankingEstatisticas("🥈 Ranking de Vices", ["Posição", "Vice", "Total"], rankingVices.slice(0, 10).map((item, index) => [
     `${index + 1}º`,
-    linkParticipanteTabelaEstatistica(item.id),
+    linkParticipanteTabelaEstatistica(item.id, item.tipo),
     `${item.total} vice(s)`
   ]), "Nenhum vice cadastrado.");
 }
@@ -391,7 +422,7 @@ function renderizarTabelaRankingFinalistas(edicoes) {
   const rankingFinalistas = contarRankingFinalistasEstatisticas(edicoes || []);
   return tabelaRankingEstatisticas("⭐ Ranking de Finalistas", ["Posição", "Finalista", "Finais", "Títulos", "Vices"], rankingFinalistas.slice(0, 10).map((item, index) => [
     `${index + 1}º`,
-    linkParticipanteTabelaEstatistica(item.id),
+    linkParticipanteTabelaEstatistica(item.id, item.tipo),
     `${item.finais}`,
     `${item.titulos}`,
     `${item.vices}`
@@ -430,7 +461,7 @@ function renderizarCampeoesCompeticaoSelecionada(banco, competicoes, edicoes, co
   const area = document.getElementById("campeoesCompeticaoSelecionada");
   if (!area) return;
 
-  const competicao = (banco.competicoes || []).find(c => c.id === competicaoId);
+  const competicao = estatisticasIndice?.competicoes.get(String(competicaoId));
   if (!competicao) {
     area.innerHTML = "";
     return;
@@ -472,75 +503,98 @@ function renderizarListaHistorico(competicoes, edicoes) {
 }
 
 function tabelaHistoricoEstatisticas(edicoes) {
+  estatisticasUltimasEdicoes = edicoes || [];
+  const visiveis = estatisticasUltimasEdicoes.slice(0, estatisticasLimiteHistorico);
+  const restantes = Math.max(0, estatisticasUltimasEdicoes.length - visiveis.length);
+
   return `
     <div class="tabela-container">
       <table class="tabela-estatisticas-campeoes tabela-estatisticas-esquerda">
         <thead>
-          <tr>
-            <th>Ano</th>
-            <th>Competição</th>
-            <th>Campeão</th>
-            <th>Vice</th>
-          </tr>
+          <tr><th>Ano</th><th>Competição</th><th>Campeão</th><th>Vice</th></tr>
         </thead>
         <tbody>
-          ${edicoes.map(e => `
+          ${visiveis.map(e => `
             <tr>
               <td><strong>${limparTexto(e.ano)}</strong></td>
               <td>${linkLiga(e.competicaoId)}</td>
-              <td><div class="estatistica-coluna-time sem-label">${linkParticipanteTabelaEstatistica(e.campeaoId)}</div></td>
-              <td><div class="estatistica-coluna-time sem-label">${linkParticipanteTabelaEstatistica(e.viceId)}</div></td>
-            </tr>
-          `).join("")}
+              <td><div class="estatistica-coluna-time sem-label">${linkParticipanteTabelaEstatistica(e.campeaoId, tipoParticipanteEdicaoEstatisticas(e, "campeao"))}</div></td>
+              <td><div class="estatistica-coluna-time sem-label">${linkParticipanteTabelaEstatistica(e.viceId, tipoParticipanteEdicaoEstatisticas(e, "vice"))}</div></td>
+            </tr>`).join("")}
         </tbody>
       </table>
     </div>
+    ${restantes ? `<div class="acoes-paginacao-estatisticas"><button type="button" class="btn-primario" onclick="carregarMaisHistoricoEstatisticas()">Carregar mais (${restantes} restantes)</button></div>` : ""}
   `;
 }
 
+function carregarMaisHistoricoEstatisticas() {
+  estatisticasLimiteHistorico += 200;
+  const area = document.getElementById("historicoCompeticoesEstatisticas");
+  const areaSelecionada = document.getElementById("campeoesCompeticaoSelecionada");
+  if (areaSelecionada?.innerHTML.trim()) areaSelecionada.innerHTML = tabelaHistoricoEstatisticas(estatisticasUltimasEdicoes);
+  else if (area) area.innerHTML = tabelaHistoricoEstatisticas(estatisticasUltimasEdicoes);
+}
 
-function contarRankingFinalistasEstatisticas(edicoes) {
-  const mapa = {};
+function tipoParticipanteEdicaoEstatisticas(edicao, papel) {
+  // A categoria da competição é a fonte principal. Isso impede colisões quando
+  // um clube e uma seleção possuem o mesmo ID e corrige registros antigos cujo
+  // campeaoTipo/viceTipo foi salvo como "clube" por padrão.
+  const competicao = estatisticasIndice?.competicoes.get(String(edicao?.competicaoId || ""));
+  if (competicao) return categoriaCompeticaoEstatisticas(competicao);
+
+  const campoTipo = papel === "vice" ? "viceTipo" : "campeaoTipo";
+  const tipoSalvo = textoNormalEstatisticas(edicao?.[campoTipo]);
+  if (tipoSalvo === "selecao" || tipoSalvo === "seleção") return "selecao";
+  return "clube";
+}
+
+function contarRankingParticipantesEstatisticas(edicoes, papel) {
+  const campoId = papel === "vice" ? "viceId" : "campeaoId";
+  const mapa = new Map();
 
   (edicoes || []).forEach(edicao => {
-    const campeaoId = edicao.campeaoId;
-    const viceId = edicao.viceId;
-
-    if (campeaoId) {
-      if (!mapa[campeaoId]) mapa[campeaoId] = { id: campeaoId, titulos: 0, vices: 0, finais: 0 };
-      mapa[campeaoId].titulos += 1;
-      mapa[campeaoId].finais += 1;
-    }
-
-    if (viceId) {
-      if (!mapa[viceId]) mapa[viceId] = { id: viceId, titulos: 0, vices: 0, finais: 0 };
-      mapa[viceId].vices += 1;
-      mapa[viceId].finais += 1;
-    }
+    const id = edicao?.[campoId];
+    if (!id) return;
+    const tipo = tipoParticipanteEdicaoEstatisticas(edicao, papel);
+    const chave = `${tipo}:${String(id)}`;
+    const atual = mapa.get(chave) || { id, tipo, total: 0 };
+    atual.total += 1;
+    mapa.set(chave, atual);
   });
 
-  return Object.values(mapa).sort((a, b) => {
+  return Array.from(mapa.values()).sort((a, b) => {
+    if (b.total !== a.total) return b.total - a.total;
+    return nomeParticipanteEstatistica(a.id, a.tipo).localeCompare(nomeParticipanteEstatistica(b.id, b.tipo));
+  });
+}
+
+function contarRankingFinalistasEstatisticas(edicoes) {
+  const mapa = new Map();
+
+  (edicoes || []).forEach(edicao => {
+    [["campeao", "titulos"], ["vice", "vices"]].forEach(([papel, campo]) => {
+      const id = papel === "campeao" ? edicao.campeaoId : edicao.viceId;
+      if (!id) return;
+      const tipo = tipoParticipanteEdicaoEstatisticas(edicao, papel);
+      const chave = `${tipo}:${String(id)}`;
+      const atual = mapa.get(chave) || { id, tipo, titulos: 0, vices: 0, finais: 0 };
+      atual[campo] += 1;
+      atual.finais += 1;
+      mapa.set(chave, atual);
+    });
+  });
+
+  return Array.from(mapa.values()).sort((a, b) => {
     if (b.finais !== a.finais) return b.finais - a.finais;
     if (b.titulos !== a.titulos) return b.titulos - a.titulos;
-    return String(nomeParticipanteEstatistica(a.id)).localeCompare(String(nomeParticipanteEstatistica(b.id)));
+    return nomeParticipanteEstatistica(a.id, a.tipo).localeCompare(nomeParticipanteEstatistica(b.id, b.tipo));
   });
 }
 
-function nomeParticipanteEstatistica(id) {
-  const participante = buscarParticipanteEstatistica(id);
+function nomeParticipanteEstatistica(id, tipo) {
+  const participante = buscarParticipanteEstatistica(id, tipo);
   return participante?.nome || "";
-}
-
-function contarRankingPorId(ids) {
-  const mapa = {};
-  ids.forEach(id => {
-    if (!id) return;
-    mapa[id] = (mapa[id] || 0) + 1;
-  });
-
-  return Object.entries(mapa)
-    .map(([id, total]) => ({ id, total }))
-    .sort((a, b) => b.total - a.total);
 }
 
 function categoriaCompeticaoEstatisticas(c) {
@@ -575,7 +629,7 @@ function paisCompeticaoEstatisticas(c) {
 }
 
 function listaPaisesEstatisticas() {
-  const banco = carregarBanco();
+  const banco = bancoEstatisticas();
   const mapa = new Map();
   const base = [
     ...(typeof PAISES_MUNDO_COMPLETO !== "undefined" ? PAISES_MUNDO_COMPLETO : []),
@@ -605,28 +659,24 @@ function continentePaisEstatisticas(nome) {
   return p?.continente || "";
 }
 
-function buscarParticipanteEstatistica(id) {
-  const banco = carregarBanco();
+function buscarParticipanteEstatistica(id, tipoPreferido = "") {
+  bancoEstatisticas();
   const idTexto = String(id || "");
+  const tipo = textoNormalEstatisticas(tipoPreferido);
+  const montarClube = clube => clube ? { id: clube.id, nome: clube.nome, escudo: clube.escudo || "", tipo: "clube" } : null;
+  const montarSelecao = selecao => selecao ? {
+    id: selecao.id,
+    nome: selecao.nome || selecao.pais,
+    escudo: selecao.escudo || "",
+    bandeira: selecao.bandeira || "",
+    pais: selecao.pais || selecao.nome,
+    tipo: "selecao"
+  } : null;
 
-  const clube = (banco.clubes || []).find(c => String(c.id) === idTexto);
-  if (clube) {
-    return { id: clube.id, nome: clube.nome, escudo: clube.escudo || "", tipo: "clube" };
-  }
+  if (tipo === "selecao" || tipo === "seleção") return montarSelecao(estatisticasIndice.selecoes.get(idTexto));
+  if (tipo === "clube") return montarClube(estatisticasIndice.clubes.get(idTexto));
 
-  const selecao = (banco.selecoes || []).find(s => String(s.id) === idTexto);
-  if (selecao) {
-    return {
-      id: selecao.id,
-      nome: selecao.nome || selecao.pais,
-      escudo: selecao.escudo || "",
-      bandeira: selecao.bandeira || "",
-      pais: selecao.pais || selecao.nome,
-      tipo: "selecao"
-    };
-  }
-
-  return null;
+  return montarClube(estatisticasIndice.clubes.get(idTexto)) || montarSelecao(estatisticasIndice.selecoes.get(idTexto));
 }
 
 function abrirDetalhesParticipanteEstatistica(participante) {
@@ -636,8 +686,8 @@ function abrirDetalhesParticipanteEstatistica(participante) {
     : `abrirDetalhesTime('${participante.id}')`;
 }
 
-function linkParticipanteEstatistica(id) {
-  const participante = buscarParticipanteEstatistica(id);
+function linkParticipanteEstatistica(id, tipo) {
+  const participante = buscarParticipanteEstatistica(id, tipo);
   if (!participante) return "Não encontrado";
 
   const escudo = participante.escudo
@@ -654,8 +704,8 @@ function linkParticipanteEstatistica(id) {
   `;
 }
 
-function linkParticipanteTabelaEstatistica(id) {
-  const participante = buscarParticipanteEstatistica(id);
+function linkParticipanteTabelaEstatistica(id, tipo) {
+  const participante = buscarParticipanteEstatistica(id, tipo);
   if (!participante) return "Não encontrado";
 
   const escudo = participante.escudo
@@ -675,5 +725,11 @@ function linkParticipanteTabelaEstatistica(id) {
 
 /* Pesquisa principal da página Estatísticas */
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("pesquisaEstatisticas")?.addEventListener("input", renderizarHistoricoEstatisticas);
+  document.getElementById("pesquisaEstatisticas")?.addEventListener("input", debounceEstatisticas(renderizarHistoricoEstatisticas, 250));
+});
+
+// Atualiza os índices quando outra aba ou rotina altera o banco local.
+window.addEventListener("storage", () => {
+  invalidarCacheEstatisticas();
+  renderizarHistoricoEstatisticas();
 });

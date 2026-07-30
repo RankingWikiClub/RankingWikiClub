@@ -1,0 +1,8 @@
+CORREÇÃO APLICADA — EDIÇÃO DE SELEÇÕES
+
+- Adicionado o campo Nome da seleção ou confederação.
+- Adicionado o campo Nome para pesquisar o logo.
+- O termo salvo é carregado automaticamente ao editar.
+- A pesquisa usa primeiro o termo personalizado, depois o nome da confederação e o país.
+- O nome oficial não é mais substituído pelo nome do país ao salvar.
+- Campeões e vices vinculados recebem o nome atualizado da seleção.
