@@ -1,190 +1,118 @@
-/* RankingWikiClub — títulos compartilhados entre clubes.
-   Permite cadastrar mais de um campeão e/ou vice para a mesma edição. */
+/* RankingWikiClub — campos opcionais e separados para campeão/vice compartilhados. */
 (function () {
   'use strict';
-
   const $ = id => document.getElementById(id);
-  const norm = v => String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-  let contador = 0;
+  const txt = v => String(v || '').trim();
+  const norm = v => txt(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  function bancoAtual() { return typeof carregarBanco === 'function' ? carregarBanco() : { clubes: [], competicoes: [] }; }
+  function banco() { return typeof carregarBanco === 'function' ? carregarBanco() : { clubes: [], competicoes: [], titulos: [] }; }
+  function nome(p) { return txt(p?.nomeCurto || p?.nome_curto || p?.nome || p?.pais); }
+  function cliente() { return typeof window.clienteSupabase === 'function' ? window.clienteSupabase() : null; }
   function categoriaClubes() { return ($('categoriaTitulo')?.value || 'clube') === 'clube'; }
-  function abrangencia() { return $('abrangenciaTitulo')?.value || ''; }
-  function competicaoAtual(banco) {
-    const id = $('competicaoTitulo')?.value || '';
-    return (banco.competicoes || []).find(c => String(c.id) === String(id));
+  function gerar() { return String(typeof gerarId === 'function' ? gerarId() : `${Date.now()}-${Math.random()}`); }
+
+  function payload(t) {
+    return { id:String(t.id), ano:String(t.ano||''), competicao_id:String(t.competicaoId||''), competicao_nome:t.competicaoNome||'', abrangencia:t.abrangencia||'', campeao_id:String(t.campeaoId||''), campeao_nome:t.campeaoNome||'', campeao_tipo:t.campeaoTipo||'clube', vice_id:String(t.viceId||''), vice_nome:t.viceNome||'', vice_tipo:t.viceTipo||'clube' };
   }
-  function continentePais(nomePais) {
-    if (!nomePais) return '';
-    if (typeof buscarPais === 'function') return buscarPais(nomePais)?.continente || '';
-    const b = bancoAtual();
-    return (b.paises || []).find(p => norm(p.nome) === norm(nomePais))?.continente || '';
+
+  function paisesClubes(b) {
+    return [...new Set((b.clubes||[]).map(c=>txt(c.pais)).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
   }
-  function continenteCompeticao(c) {
-    if (!c) return '';
-    return c.continente || (c.abrangencia === 'Continental' ? (c.local || '') : continentePais(c.pais || c.local || ''));
-  }
-  function paisCompeticao(c) {
-    return c?.pais || (c?.abrangencia === 'País' ? (c.local || '') : '');
-  }
-  function opcoes(select, itens, placeholder, valor = '') {
+  function preencherPaises(select, valor='') {
     if (!select) return;
-    select.innerHTML = `<option value="">${placeholder}</option>` + itens.map(i => `<option value="${String(i.valor).replace(/"/g,'&quot;')}">${i.texto}</option>`).join('');
-    if (valor && [...select.options].some(o => o.value === valor)) select.value = valor;
+    const b = banco();
+    select.innerHTML = '<option value="">Selecione o país</option>' + paisesClubes(b).map(p=>`<option value="${p.replace(/"/g,'&quot;')}">${p}</option>`).join('');
+    if (valor) select.value = valor;
   }
-  function continentesDisponiveis(clubes) {
-    return [...new Set(clubes.map(c => c.continente || continentePais(c.pais)).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-  }
-  function paisesDisponiveis(clubes, continente) {
-    return [...new Set(clubes.filter(c => !continente || (c.continente || continentePais(c.pais)) === continente).map(c => c.pais).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-  }
-  function clubesDisponiveis(clubes, pais) {
-    return clubes.filter(c => !pais || c.pais === pais).sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+  function preencherClubes(select, pais, valor='') {
+    if (!select) return;
+    const itens = (banco().clubes||[]).filter(c=>!pais || txt(c.pais)===txt(pais)).sort((a,b)=>nome(a).localeCompare(nome(b)));
+    select.innerHTML = '<option value="">Selecione o clube</option>' + itens.map(c=>`<option value="${String(c.id).replace(/"/g,'&quot;')}">${nome(c)}</option>`).join('');
+    if (valor) select.value = String(valor);
   }
 
-  function atualizarLinha(linha) {
-    const banco = bancoAtual();
-    const clubes = banco.clubes || [];
-    const comp = competicaoAtual(banco);
-    const abr = abrangencia() || comp?.abrangencia || '';
-    const contComp = continenteCompeticao(comp);
-    const paisComp = paisCompeticao(comp);
-
-    ['campeao','vice'].forEach(papel => {
-      const cont = linha.querySelector(`[data-campo="continente-${papel}"]`);
-      const pais = linha.querySelector(`[data-campo="pais-${papel}"]`);
-      const time = linha.querySelector(`[data-campo="${papel}"]`);
-      const valorCont = cont?.value || '';
-      const valorPais = pais?.value || '';
-      const valorTime = time?.value || '';
-
-      const mostrarCont = abr === 'Mundial';
-      const contFixo = abr === 'Continental' ? contComp : '';
-      cont.closest('.titulo-extra-campo').classList.toggle('oculto', !mostrarCont);
-      if (mostrarCont) {
-        opcoes(cont, continentesDisponiveis(clubes).map(x=>({valor:x,texto:x})), `Continente do ${papel}`, valorCont);
-      } else {
-        cont.innerHTML = `<option value="${contFixo}">${contFixo}</option>`;
-        cont.value = contFixo;
-      }
-
-      const continenteEscolhido = mostrarCont ? cont.value : contFixo;
-      const paisFixo = abr === 'País' ? paisComp : '';
-      if (paisFixo) {
-        opcoes(pais, [{valor:paisFixo,texto:paisFixo}], `País do ${papel}`, paisFixo);
-        pais.disabled = true;
-      } else {
-        pais.disabled = false;
-        opcoes(pais, paisesDisponiveis(clubes, continenteEscolhido).map(x=>({valor:x,texto:x})), `País do ${papel}`, valorPais);
-      }
-      opcoes(time, clubesDisponiveis(clubes, pais.value).map(c=>({valor:String(c.id),texto:c.nome})), `Selecione o ${papel}`, valorTime);
-    });
-  }
-
-  function criarLinha() {
-    contador += 1;
-    const linha = document.createElement('div');
-    linha.className = 'titulo-compartilhado-card';
-    linha.dataset.tituloExtra = String(contador);
-    linha.innerHTML = `
-      <div class="titulo-compartilhado-topo">
-        <strong>Outro campeão e vice</strong>
-        <button type="button" class="btn-remover-titulo-extra">Remover</button>
-      </div>
-      <div class="titulo-extra-grid">
-        <div class="titulo-extra-campo"><label>Continente do campeão</label><select data-campo="continente-campeao"></select></div>
-        <div class="titulo-extra-campo"><label>País do campeão</label><select data-campo="pais-campeao"></select></div>
-        <div class="titulo-extra-campo"><label>Campeão compartilhado</label><select data-campo="campeao"></select></div>
-        <div class="titulo-extra-campo"><label>Continente do vice</label><select data-campo="continente-vice"></select></div>
-        <div class="titulo-extra-campo"><label>País do vice</label><select data-campo="pais-vice"></select></div>
-        <div class="titulo-extra-campo"><label>Vice compartilhado</label><select data-campo="vice"></select></div>
-      </div>`;
-    linha.querySelector('.btn-remover-titulo-extra').addEventListener('click', () => linha.remove());
-    linha.querySelectorAll('select[data-campo^="continente-"]').forEach(s => s.addEventListener('change', () => atualizarLinha(linha)));
-    linha.querySelectorAll('select[data-campo^="pais-"]').forEach(s => s.addEventListener('change', () => atualizarLinha(linha)));
-    $('titulosCompartilhadosLista').appendChild(linha);
-    atualizarLinha(linha);
-  }
-
-  function atualizarVisibilidade() {
-    const area = $('areaTitulosCompartilhados');
-    if (!area) return;
-    const mostrar = categoriaClubes();
-    area.classList.toggle('oculto', !mostrar);
-    if (!mostrar) $('titulosCompartilhadosLista').innerHTML = '';
-    document.querySelectorAll('[data-titulo-extra]').forEach(atualizarLinha);
-  }
-
-  function instalarInterface() {
+  function instalarUI() {
     const grupo = $('grupoTitulo');
     const vice = $('vice');
-    if (!grupo || !vice || $('areaTitulosCompartilhados')) return;
+    if (!grupo || !vice || $('opcoesTitulosDivididos')) return;
     const area = document.createElement('div');
-    area.id = 'areaTitulosCompartilhados';
-    area.className = 'area-titulos-compartilhados';
+    area.id = 'opcoesTitulosDivididos';
+    area.className = 'opcoes-titulos-divididos';
     area.innerHTML = `
-      <div id="titulosCompartilhadosLista"></div>
-      <button type="button" id="adicionarTituloCompartilhado" class="btn-adicionar-titulo-compartilhado">＋ Adicionar outro campeão e vice</button>
-      <small>Use esta opção quando o título ou o vice-campeonato da mesma edição tiver sido compartilhado entre clubes.</small>`;
+      <div class="opcao-titulo-dividido">
+        <label class="linha-checkbox"><input type="checkbox" id="usarCampeaoExtra"> Adicionar outro campeão (opcional)</label>
+        <div id="campeaoExtraCampos" class="campos-extra-titulo oculto">
+          <label>País do outro campeão</label><select id="paisCampeaoExtra"></select>
+          <label>Outro campeão</label><select id="campeaoExtra"></select>
+        </div>
+      </div>
+      <div class="opcao-titulo-dividido">
+        <label class="linha-checkbox"><input type="checkbox" id="usarViceExtra"> Adicionar outro vice-campeão (opcional)</label>
+        <div id="viceExtraCampos" class="campos-extra-titulo oculto">
+          <label>País do outro vice-campeão</label><select id="paisViceExtra"></select>
+          <label>Outro vice-campeão</label><select id="viceExtra"></select>
+        </div>
+      </div>
+      <small>Marque somente a opção necessária. Os campos aparecem separadamente para títulos ou vice-campeonatos divididos.</small>`;
     vice.insertAdjacentElement('afterend', area);
-    $('adicionarTituloCompartilhado').addEventListener('click', criarLinha);
-    $('categoriaTitulo')?.addEventListener('change', atualizarVisibilidade);
-    $('abrangenciaTitulo')?.addEventListener('change', atualizarVisibilidade);
-    $('competicaoTitulo')?.addEventListener('change', atualizarVisibilidade);
-    atualizarVisibilidade();
+
+    const alternar = () => {
+      const clubes = categoriaClubes();
+      area.classList.toggle('oculto', !clubes);
+      $('campeaoExtraCampos').classList.toggle('oculto', !$('usarCampeaoExtra').checked || !clubes);
+      $('viceExtraCampos').classList.toggle('oculto', !$('usarViceExtra').checked || !clubes);
+      if (!clubes) { $('usarCampeaoExtra').checked=false; $('usarViceExtra').checked=false; }
+    };
+    preencherPaises($('paisCampeaoExtra'));
+    preencherPaises($('paisViceExtra'));
+    $('paisCampeaoExtra').addEventListener('change', e=>preencherClubes($('campeaoExtra'), e.target.value));
+    $('paisViceExtra').addEventListener('change', e=>preencherClubes($('viceExtra'), e.target.value));
+    $('usarCampeaoExtra').addEventListener('change', alternar);
+    $('usarViceExtra').addEventListener('change', alternar);
+    $('categoriaTitulo')?.addEventListener('change', alternar);
+    alternar();
   }
 
   function instalarSalvamento() {
-    const original = window.salvarTitulo;
-    if (typeof original !== 'function' || original.__compartilhado) return;
-    const novo = function () {
-      const linhas = [...document.querySelectorAll('[data-titulo-extra]')];
-      if (!categoriaClubes() || !linhas.length) return original();
+    const anterior = window.salvarTitulo;
+    if (typeof anterior !== 'function' || anterior.__rwcOpcionais) return;
+    const salvar = async function () {
+      const temCampExtra = categoriaClubes() && !!$('usarCampeaoExtra')?.checked;
+      const temViceExtra = categoriaClubes() && !!$('usarViceExtra')?.checked;
+      if (!temCampExtra && !temViceExtra) return anterior();
 
-      const banco = bancoAtual();
-      const ano = $('ano')?.value || '';
-      const competicaoId = $('competicaoTitulo')?.value || '';
-      const pares = [{ campeaoId: $('campeao')?.value || '', viceId: $('vice')?.value || '' }];
-      linhas.forEach(l => pares.push({
-        campeaoId: l.querySelector('[data-campo="campeao"]')?.value || '',
-        viceId: l.querySelector('[data-campo="vice"]')?.value || ''
-      }));
-      if (!ano || !competicaoId || pares.some(p => !p.campeaoId || !p.viceId)) {
-        alert('Preencha o campeão e o vice em todos os campos adicionados.'); return;
-      }
-      if (pares.some(p => String(p.campeaoId) === String(p.viceId))) {
-        alert('O campeão e o vice de cada campo precisam ser clubes diferentes.'); return;
-      }
-      const campeoes = pares.map(p=>String(p.campeaoId));
-      if (new Set(campeoes).size !== campeoes.length) {
-        alert('O mesmo clube não pode aparecer mais de uma vez como campeão compartilhado.'); return;
-      }
-      const comp = (banco.competicoes || []).find(c => String(c.id) === String(competicaoId));
-      if (!comp) { alert('Não foi possível localizar a competição.'); return; }
-      const registros = [];
-      for (const p of pares) {
-        const campeao = (banco.clubes || []).find(c => String(c.id) === String(p.campeaoId));
-        const vice = (banco.clubes || []).find(c => String(c.id) === String(p.viceId));
-        if (!campeao || !vice) { alert('Não foi possível localizar um dos clubes selecionados.'); return; }
-        registros.push({
-          id: gerarId(), ano, competicaoId: comp.id, competicaoNome: comp.nome,
-          abrangencia: comp.abrangencia, campeaoId: campeao.id, campeaoNome: campeao.nome,
-          campeaoTipo: 'clube', viceId: vice.id, viceNome: vice.nome, viceTipo: 'clube',
-          tituloCompartilhado: true, grupoTituloCompartilhado: `${comp.id}-${ano}`
-        });
-      }
-      banco.titulos = banco.titulos || [];
-      banco.titulos.push(...registros);
-      salvarBanco(banco);
-      alert(`${registros.length} campeão(ões) e vice(s) cadastrados para a mesma edição.`);
-      location.reload();
+      const b = banco();
+      const ano = txt($('ano')?.value), competicaoId = txt($('competicaoTitulo')?.value);
+      const campeaoId = txt($('campeao')?.value), viceId = txt($('vice')?.value);
+      const campeaoExtraId = temCampExtra ? txt($('campeaoExtra')?.value) : campeaoId;
+      const viceExtraId = temViceExtra ? txt($('viceExtra')?.value) : viceId;
+      if (!ano || !competicaoId || !campeaoId || !viceId || (temCampExtra && !campeaoExtraId) || (temViceExtra && !viceExtraId)) { alert('Preencha os campos obrigatórios e os campos opcionais que foram marcados.'); return; }
+      if (campeaoId===viceId || campeaoExtraId===viceExtraId) { alert('Campeão e vice-campeão não podem ser o mesmo clube.'); return; }
+      if (temCampExtra && campeaoExtraId===campeaoId) { alert('Escolha outro clube para o campeão adicional.'); return; }
+      if (temViceExtra && viceExtraId===viceId) { alert('Escolha outro clube para o vice-campeão adicional.'); return; }
+
+      const comp=(b.competicoes||[]).find(c=>String(c.id)===competicaoId);
+      const clubes=b.clubes||[];
+      const cp=clubes.find(c=>String(c.id)===campeaoId), vp=clubes.find(c=>String(c.id)===viceId), ce=clubes.find(c=>String(c.id)===campeaoExtraId), ve=clubes.find(c=>String(c.id)===viceExtraId);
+      if (!comp || !cp || !vp || !ce || !ve) { alert('Não foi possível localizar a competição ou um dos clubes.'); return; }
+      const grupo=`${comp.id}-${ano}-${Date.now()}`;
+      const comum={ano,competicaoId:String(comp.id),competicaoNome:comp.nome||'',abrangencia:comp.abrangencia||'',campeaoTipo:'clube',viceTipo:'clube',tituloCompartilhado:true,grupoTituloCompartilhado:grupo};
+      const registros=[
+        {...comum,id:gerar(),campeaoId:String(cp.id),campeaoNome:nome(cp),viceId:String(vp.id),viceNome:nome(vp)},
+        {...comum,id:gerar(),campeaoId:String(ce.id),campeaoNome:nome(ce),viceId:String(ve.id),viceNome:nome(ve)}
+      ];
+      try {
+        const cli=cliente();
+        if (cli) { const {error}=await cli.from('titulos_futpedia').upsert(registros.map(payload),{onConflict:'id'}); if(error) throw error; }
+        b.titulos ||= []; b.titulos.push(...registros); salvarBanco(b);
+        alert('Campeões e vices cadastrados com os campos opcionais.'); location.reload();
+      } catch(e) { console.error(e); alert('Não foi possível salvar os registros: '+(e?.message||e)); }
     };
-    novo.__compartilhado = true;
-    window.salvarTitulo = novo;
-    try { salvarTitulo = novo; } catch (_) {}
+    salvar.__rwcOpcionais=true;
+    window.salvarTitulo=salvar;
+    try { salvarTitulo=salvar; } catch(_) {}
   }
 
-  function iniciar() { instalarInterface(); instalarSalvamento(); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(iniciar, 0));
-  else setTimeout(iniciar, 0);
+  function iniciar(){ instalarUI(); instalarSalvamento(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(iniciar,30)); else setTimeout(iniciar,30);
 })();

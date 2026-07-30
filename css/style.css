@@ -5169,3 +5169,13 @@ button.campeao-atual-clicavel {
 .titulo-extra-campo label{display:block;margin-bottom:5px}
 .titulo-extra-campo select{width:100%}
 @media(max-width:700px){.titulo-extra-grid{grid-template-columns:1fr}}
+
+/* RankingWikiClub: identidade atualizada e campos opcionais de títulos divididos */
+.nome-rankingwikiclub-topo{font-weight:800;font-size:1.05rem;white-space:nowrap;color:inherit}
+.opcoes-titulos-divididos{margin:18px 0;padding:16px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.035);display:grid;gap:14px}
+.opcao-titulo-dividido{padding:12px;border:1px solid rgba(255,255,255,.12);border-radius:10px}
+.linha-checkbox{display:flex!important;align-items:center;gap:10px;font-weight:700;cursor:pointer}
+.linha-checkbox input[type="checkbox"]{width:20px;height:20px;flex:0 0 20px}
+.campos-extra-titulo{display:grid;gap:8px;margin-top:12px}
+.campos-extra-titulo.oculto,.opcoes-titulos-divididos.oculto{display:none!important}
+@media(max-width:700px){.nome-rankingwikiclub-topo{font-size:.85rem}.opcoes-titulos-divididos{padding:12px}}

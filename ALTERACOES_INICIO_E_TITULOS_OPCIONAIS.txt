@@ -1,0 +1,18 @@
+ALTERAÇÕES REALIZADAS
+
+1. Página inicial
+- Nome RankingWikiClub exibido ao lado do logo.
+- Logo passou a usar um novo nome de arquivo e versão para impedir que o navegador continue mostrando a imagem antiga em cache.
+
+2. Cadastro de campeão e vice (clubes)
+- Caixa separada "Adicionar outro campeão (opcional)".
+- Caixa separada "Adicionar outro vice-campeão (opcional)".
+- Cada caixa abre somente seu próprio campo adicional.
+- É possível marcar apenas uma das opções ou as duas.
+
+3. Edição de campeão e vice
+- As mesmas caixas opcionais aparecem na edição.
+- Registros compartilhados existentes são carregados nos campos adicionais.
+- É possível adicionar, alterar ou remover o campeão/vice adicional.
+
+Não é necessário executar novo SQL.
