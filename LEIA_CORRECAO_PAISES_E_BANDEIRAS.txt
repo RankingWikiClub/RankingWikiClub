@@ -1,0 +1,8 @@
+CORREÇÃO DE PAÍSES E BANDEIRAS
+
+- Nomes de países agora são comparados ignorando acentos, maiúsculas, pontuação e aliases comuns.
+- Corrigido o nome corrompido “País de País de País de Gales”.
+- Corrigidas variações como Holanda/Países Baixos, República Tcheca/Tchéquia, Bielorrússia/Belarus, Moldávia/Moldova, Suazilândia/Essuatíni, EUA/Estados Unidos e outras.
+- As bandeiras agora usam o código ISO obtido de toda a lista de países, não apenas de uma lista reduzida.
+- Página inicial, Estatísticas e Clubes usam imagens de bandeiras compatíveis com desktop, com fallback para emoji.
+- Não é necessário executar SQL para esta correção.

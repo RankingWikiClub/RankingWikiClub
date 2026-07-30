@@ -120,6 +120,66 @@ function detalheSecaoSuspensa(titulo, conteudoHtml, aberta = false) {
 }
 
 
+
+
+/* ===== RankingWikiClub: suporte a campeões e vices adicionais ===== */
+function rwcIdsParticipantesTitulo(registro, papel) {
+  const prefixo = papel === "vice" ? "vice" : "campeao";
+  const candidatos = [
+    registro?.[`${prefixo}Id`],
+    registro?.[`${prefixo}2Id`],
+    registro?.[`${prefixo}ExtraId`],
+    registro?.[papel === "vice" ? "segundoViceId" : "segundoCampeaoId"]
+  ];
+  const lista = registro?.[papel === "vice" ? "vices" : "campeoes"];
+  if (Array.isArray(lista)) {
+    lista.forEach(item => candidatos.push(typeof item === "object" ? (item.id || item[`${prefixo}Id`]) : item));
+  }
+  return [...new Set(candidatos.filter(v => v !== null && v !== undefined && String(v).trim() !== "").map(String))];
+}
+
+function rwcTituloTemParticipante(registro, papel, id) {
+  return rwcIdsParticipantesTitulo(registro, papel).includes(String(id));
+}
+
+function rwcExpandirTitulosAdicionais(registros) {
+  const saida = [];
+  (registros || []).forEach(registro => {
+    const campeoes = rwcIdsParticipantesTitulo(registro, "campeao");
+    const vices = rwcIdsParticipantesTitulo(registro, "vice");
+    const total = Math.max(campeoes.length, vices.length, 1);
+    for (let i = 0; i < total; i += 1) {
+      saida.push({
+        ...registro,
+        campeaoId: campeoes[i] || campeoes[0] || registro.campeaoId,
+        viceId: vices[i] || vices[0] || registro.viceId,
+        __rwcOriginalId: registro.id,
+        __rwcIndiceCompartilhado: i
+      });
+    }
+  });
+  return saida;
+}
+
+function rwcAgruparEdicoesCompartilhadas(edicoes) {
+  const grupos = new Map();
+  (edicoes || []).forEach(e => {
+    const chave = `${String(e.competicaoId || "")}|${String(e.ano || "")}`;
+    if (!grupos.has(chave)) grupos.set(chave, { ano: e.ano, competicaoId: e.competicaoId, campeoes: [], vices: [], registros: [] });
+    const grupo = grupos.get(chave);
+    grupo.registros.push(e);
+    rwcIdsParticipantesTitulo(e, "campeao").forEach(id => {
+      const tipo = e.campeaoTipo || "clube";
+      if (!grupo.campeoes.some(x => String(x.id) === String(id) && x.tipo === tipo)) grupo.campeoes.push({ id, tipo });
+    });
+    rwcIdsParticipantesTitulo(e, "vice").forEach(id => {
+      const tipo = e.viceTipo || "clube";
+      if (!grupo.vices.some(x => String(x.id) === String(id) && x.tipo === tipo)) grupo.vices.push({ id, tipo });
+    });
+  });
+  return Array.from(grupos.values()).sort((a, b) => String(a.ano || "").localeCompare(String(b.ano || ""), "pt-BR", { numeric: true }));
+}
+
 function nomeCurtoTimeDetalheFutpedia(clube) {
   if (typeof fpNomeCurtoTime === "function") return fpNomeCurtoTime(clube);
   return clube?.nomeCurto || clube?.nome_curto || clube?.nome || "";
@@ -135,8 +195,8 @@ function abrirDetalhesTime(id) {
   const clube = banco.clubes.find(c => c.id === id);
   if (!clube) return;
 
-  const titulos = banco.titulos.filter(t => String(t.campeaoId) === String(id));
-  const vices = banco.titulos.filter(t => String(t.viceId) === String(id));
+  const titulos = banco.titulos.filter(t => rwcTituloTemParticipante(t, "campeao", id));
+  const vices = banco.titulos.filter(t => rwcTituloTemParticipante(t, "vice", id));
 
   const ultimoTitulo = [...titulos]
     .sort((a, b) => {
@@ -523,29 +583,25 @@ function tabelaRankingFinalistasCompeticaoDetalhe(ranking) {
 
 function tabelaEdicoesCompeticaoDetalhe(edicoes, categoriaCompeticao = "") {
   if (!edicoes.length) return `<p>Nenhuma edição cadastrada.</p>`;
+  const grupos = rwcAgruparEdicoesCompartilhadas(edicoes);
+  const links = (itens, tipoPadrao) => itens.length
+    ? itens.map(item => linkTimeCompeticaoDetalhe(item.id, item.tipo || tipoPadrao)).join('<span class="separador-titulo-compartilhado"> / </span>')
+    : "-";
 
   return `
     <div class="tabela-container">
       <table class="tabela-detalhe-time tabela-competicao-detalhe tabela-edicoes-competicao-detalhe">
-        <thead>
-          <tr>
-            <th>Ano</th>
-            <th>Campeão</th>
-            <th>Vice</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Ano</th><th>Campeão</th><th>Vice</th></tr></thead>
         <tbody>
-          ${edicoes.map(e => `
+          ${grupos.map(g => `
             <tr class="linha-edicao-competicao-detalhe">
-              <td class="coluna-ano-edicao">${limparTexto(e.ano)}</td>
-              <td>${linkTimeCompeticaoDetalhe(e.campeaoId, e.campeaoTipo || categoriaCompeticao)}</td>
-              <td>${linkTimeCompeticaoDetalhe(e.viceId, e.viceTipo || categoriaCompeticao)}</td>
-            </tr>
-          `).join("")}
+              <td class="coluna-ano-edicao">${limparTexto(g.ano)}</td>
+              <td>${links(g.campeoes, categoriaCompeticao)}</td>
+              <td>${links(g.vices, categoriaCompeticao)}</td>
+            </tr>`).join("")}
         </tbody>
       </table>
-    </div>
-  `;
+    </div>`;
 }
 
 function abrirDetalhesLiga(id) {
@@ -553,7 +609,8 @@ function abrirDetalhesLiga(id) {
   const liga = banco.competicoes.find(c => c.id === id);
   if (!liga) return;
 
-  const edicoes = ordenarEdicoesPorAnoCrescente(banco.titulos.filter(t => String(t.competicaoId) === String(id)));
+  const edicoesOriginais = ordenarEdicoesPorAnoCrescente(banco.titulos.filter(t => String(t.competicaoId) === String(id)));
+  const edicoes = rwcExpandirTitulosAdicionais(edicoesOriginais);
   const categoriaLiga = String(
     liga.categoria ||
     (typeof normalizarCategoriaCompeticao === "function" ? normalizarCategoriaCompeticao(liga) : "") ||
@@ -600,7 +657,7 @@ function abrirDetalhesLiga(id) {
     <p><strong>Local:</strong> ${limparTexto(liga.bandeira || "")} ${limparTexto(liga.local || "Não informado")}</p>
     ${liga.continente ? `<p><strong>Continente:</strong> ${limparTexto(liga.continente)}</p>` : ""}
     ${liga.estado ? `<p><strong>Estado:</strong> ${limparTexto(liga.estado)}</p>` : ""}
-    <p><strong>Edições:</strong> ${edicoes.length}</p>
+    <p><strong>Edições:</strong> ${rwcAgruparEdicoesCompartilhadas(edicoes).length}</p>
 
     <div class="atalho-cadastro-titulo-competicao">
       <button

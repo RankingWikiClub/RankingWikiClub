@@ -1,0 +1,7 @@
+ALTERAÇÃO APLICADA
+
+O contador de visitas foi movido para o canto superior direito do cabeçalho da página inicial, na mesma linha dos menus.
+
+Desktop: permanece alinhado à direita.
+Celular: permanece no cabeçalho e se reorganiza sem sobrepor os links.
+A integração existente com o Supabase foi preservada.

@@ -1,13 +1,18 @@
-CONTADOR DE VISITAS — INSTALAÇÃO
+CONTADOR DE VISITAS — CORREÇÃO
 
-1. Abra o painel do seu projeto no Supabase.
+O problema mais provável era o SQL anterior não ser totalmente reutilizável: ao ser executado novamente, ele podia parar na criação de uma política que já existia e não chegar à criação/liberação da função de contagem.
+
+Para corrigir:
+1. Abra o Supabase.
 2. Entre em SQL Editor.
 3. Abra o arquivo sql_contador_visitas.sql deste projeto.
-4. Copie todo o conteúdo, cole no SQL Editor e execute uma única vez.
+4. Copie TODO o conteúdo e execute.
 5. Publique os arquivos atualizados do site.
+6. Abra o site em uma nova aba anônima para testar uma nova sessão.
 
-Funcionamento:
-- O número é global e fica salvo no Supabase.
-- Cada navegador adiciona uma visita por sessão.
-- Atualizar a página repetidamente na mesma sessão não aumenta o contador.
-- Uma nova sessão do navegador será contabilizada como nova visita.
+O contador agora:
+- fica no topo da página inicial;
+- usa a função registrar_visita_rankingwikiclub;
+- mantém compatibilidade com registrar_visita_futpedia;
+- mostra uma mensagem específica quando faltar tabela, função, permissão ou conexão;
+- contabiliza uma visita por sessão do navegador.

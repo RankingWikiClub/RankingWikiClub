@@ -52,72 +52,23 @@
   }
 
   const ALIASES_PAISES_SUPABASE = {
-    "Países Baixos": "paises baixos",
-    "Países Baixos": "paises baixos",
-    "Países Baixos": "paises baixos",
-
-    "Moldávia": "moldavia",
-    "republica da Moldávia": "moldavia",
-    "Moldávia": "moldavia",
-
-    "tchequia": "republica tcheca",
-    "Tchéquia": "republica tcheca",
-    "Tchéquia": "republica tcheca",
-    "Tchéquia": "republica tcheca",
-
-    "bielorrussia": "belarus",
-    "bielo Rússia": "belarus",
-    "Belarus": "belarus",
-
-    "Macedônia do Norte": "Macedônia do Norte do norte",
-    "Macedônia do Norte": "Macedônia do Norte do norte",
-
-    "Essuatíni": "essuatini",
-    "suazilandia": "essuatini",
-    "Essuatíni": "essuatini",
-
-    "cabo verde": "cabo verde",
-    "Cabo Verde": "cabo verde",
-
-    "estados unidos da america": "estados unidos",
-    "Estados Unidos": "estados unidos",
-    "Estados Unidos": "estados unidos",
-
-    "coreia norte": "coreia do norte",
-    "Coreia do Norte": "coreia do norte",
-
-    "coreia sul": "coreia do sul",
-    "Coreia do Sul": "coreia do sul",
-
-    "emirados arabes": "emirados arabes unidos",
-    "Emirados Árabes Unidos": "emirados arabes unidos",
-
-    "republica da irlanda": "irlanda",
-    "Irlanda": "irlanda",
-
-    "pais de País de País de Gales": "pais de País de País de Gales",
-    "País de País de Gales": "pais de País de País de Gales",
-    "País de País de Gales": "pais de País de País de Gales",
-
-    "vaticano": "vaticano",
-    "Vaticano": "vaticano",
-    "Vaticano": "vaticano",
-
-    "turkiye": "turquia",
-    "Turquia": "turquia",
-
-    "Rússia": "Rússia",
-    "Ucrânia": "ucrania",
-    "Sérvia": "servia",
-    "Suécia": "suecia",
-    "Suíça": "suica",
-    "Noruega": "noruega",
-    "Polônia": "polonia",
-    "Romênia": "romenia",
-    "Armênia": "Armênia",
-    "montenegro": "montenegro",
-    "andorra": "andorra",
-    "san marino": "san marino"
+    "holanda":"paises baixos", "netherlands":"paises baixos",
+    "republica tcheca":"tchequia", "czechia":"tchequia", "czech republic":"tchequia",
+    "bielorrussia":"belarus", "belorussia":"belarus",
+    "moldova":"moldavia", "republica da moldavia":"moldavia",
+    "macedonia":"macedonia do norte",
+    "suazilandia":"essuatini", "eswatini":"essuatini",
+    "eua":"estados unidos", "usa":"estados unidos", "estados unidos da america":"estados unidos",
+    "emirados arabes":"emirados arabes unidos", "uae":"emirados arabes unidos",
+    "coreia sul":"coreia do sul", "coreia norte":"coreia do norte",
+    "republica da irlanda":"irlanda", "eire":"irlanda",
+    "pais de pais de gales":"pais de gales", "pais de pais de pais de gales":"pais de gales", "wales":"pais de gales",
+    "turkiye":"turquia", "federacao russa":"russia",
+    "czech republic":"tchequia", "cote d ivoire":"costa do marfim",
+    "rd congo":"republica democratica do congo", "republica do congo":"congo",
+    "caboverde":"cabo verde", "sao tome principe":"sao tome e principe",
+    "antigua barbuda":"antigua e barbuda", "trinidad tobago":"trinidad e tobago",
+    "bosnia herzegovina":"bosnia e herzegovina"
   };
 
   function chaveCanonicaPais(valor) {

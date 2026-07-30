@@ -1,4 +1,15 @@
 
+/* RankingWikiClub: reconhece participantes adicionais em títulos compartilhados. */
+function rwcClubeIdsTitulo(registro, papel) {
+  const p = papel === "vice" ? "vice" : "campeao";
+  const valores = [registro?.[`${p}Id`], registro?.[`${p}2Id`], registro?.[`${p}ExtraId`], registro?.[papel === "vice" ? "segundoViceId" : "segundoCampeaoId"]];
+  const lista = registro?.[papel === "vice" ? "vices" : "campeoes"];
+  if (Array.isArray(lista)) lista.forEach(x => valores.push(typeof x === "object" ? (x.id || x[`${p}Id`]) : x));
+  return [...new Set(valores.filter(v => v !== null && v !== undefined && String(v).trim() !== "").map(String))];
+}
+function rwcClubeParticipaTitulo(registro, papel, id) { return rwcClubeIdsTitulo(registro, papel).includes(String(id)); }
+
+
 document.addEventListener("DOMContentLoaded", () => {
   carregarFiltrosClubes();
   renderizarClubes();
@@ -136,8 +147,8 @@ function abrirClube(id) {
   const titulo = document.getElementById("tituloClube");
   const info = document.getElementById("infoClube");
 
-  const titulos = banco.titulos.filter(t => t.campeaoId === id);
-  const vices = banco.titulos.filter(t => t.viceId === id);
+  const titulos = banco.titulos.filter(t => rwcClubeParticipaTitulo(t, "campeao", id));
+  const vices = banco.titulos.filter(t => rwcClubeParticipaTitulo(t, "vice", id));
   const rivais = (clube.rivais || [])
     .map(rivalId => banco.clubes.find(c => c.id === rivalId))
     .filter(Boolean);

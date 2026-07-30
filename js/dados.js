@@ -167,7 +167,7 @@ const PAISES_MUNDO_COMPLETO = [
   { nome: "Noruega", continente: "Europa", bandeira: "🇳🇴" },
   { nome: "Nova Zelândia", continente: "Oceania", bandeira: "🇳🇿" },
   { nome: "Omã", continente: "Ásia", bandeira: "🇴🇲" },
-  { nome: "País de País de País de Gales", continente: "Europa", bandeira: "🏴" },
+  { nome: "País de Gales", continente: "Europa", bandeira: "🏴" },
   { nome: "Paquistão", continente: "Ásia", bandeira: "🇵🇰" },
   { nome: "Palau", continente: "Oceania", bandeira: "🇵🇼" },
   { nome: "Palestina", continente: "Ásia", bandeira: "🇵🇸" },

@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RankingWikiClub - Editor</title>
+  <link rel="icon" type="image/png" href="./assets/favicon-rankingwikiclub.png?v=20260730-4">
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png?v=20260730-4">
+  <meta property="og:image" content="./assets/logo-rankingwikiclub-oficial.png?v=20260730-4">
   <meta http-equiv="refresh" content="0; url=./editor.html" />
   <script>
     const destino = './editor.html' + window.location.search + window.location.hash;
@@ -11,9 +14,12 @@
   </script>
   <script src="js/normalizar-paises-portugues.js?v=1"></script>
 </head>
-<body>
+<body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#070907;color:#fff;font-family:Arial,sans-serif;">
+  <main style="text-align:center;padding:24px;">
+    <img class="logo-rankingwikiclub-redirecionamento" src="./assets/logo-rankingwikiclub-oficial.png?v=20260730-4" alt="RankingWikiClub" style="width:min(240px,70vw);height:auto;border-radius:18px;">
   <p>Redirecionando para <a href="./editor.html">Editor</a>...</p>
   <script src="js/sincronizar-listas-paises.js?v=20260711"></script>
   <script src="./js/titulos-supabase-fix.js?v=20260718-final"></script>
+  </main>
 </body>
 </html>
