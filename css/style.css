@@ -5237,3 +5237,109 @@ button.campeao-atual-clicavel {
 .bandeira-img,.bandeira-img-pequena{display:inline-block!important;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.18);vertical-align:middle}
 .bandeira-img{width:28px;height:19px}.bandeira-img-pequena{width:22px;height:15px}
 .bandeira-emoji{font-size:1.15em;vertical-align:middle}
+
+
+/* RankingWikiClub — contador de visitas no canto superior direito do menu */
+body.pagina-inicio .topo {
+  width: 100% !important;
+}
+
+body.pagina-inicio .menu {
+  width: 100% !important;
+  max-width: 1180px !important;
+}
+
+.contador-visitas-menu {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 215, 0, .72);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, .18);
+  color: #fff;
+  line-height: 1.05;
+  box-shadow: 0 3px 10px rgba(0,0,0,.14);
+}
+
+.contador-visitas-menu-icone {
+  font-size: 1.12rem;
+}
+
+.contador-visitas-menu-conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 68px;
+}
+
+.contador-visitas-menu strong {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.contador-visitas-menu small {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .67rem;
+  color: rgba(255,255,255,.84);
+}
+
+.contador-visitas-menu small[data-erro="1"] {
+  color: #ffe184;
+}
+
+@media (max-width: 900px) {
+  .contador-visitas-menu {
+    margin-left: auto;
+    min-height: 36px;
+    padding: 4px 8px;
+  }
+  .contador-visitas-menu small {
+    display: none;
+  }
+  .contador-visitas-menu-conteudo {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  body.pagina-inicio .menu {
+    display: grid !important;
+    grid-template-columns: auto repeat(4, auto) 1fr auto !important;
+    justify-content: start !important;
+  }
+  body.pagina-inicio .menu .logo-menu {
+    grid-row: span 2;
+    align-self: start;
+  }
+  .contador-visitas-menu {
+    grid-column: -2 / -1;
+    grid-row: 1;
+    justify-self: end;
+    align-self: start;
+    margin-left: 8px;
+  }
+}
+
+@media (max-width: 460px) {
+  body.pagina-inicio .menu {
+    display: flex !important;
+  }
+  .contador-visitas-menu {
+    order: 2;
+    margin-left: auto;
+  }
+  body.pagina-inicio .menu a:not(.logo-menu) {
+    order: 3;
+  }
+  body.pagina-inicio .menu .logo-menu {
+    order: 1;
+  }
+}

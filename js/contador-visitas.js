@@ -2,13 +2,16 @@
   'use strict';
 
   const CHAVE_SESSAO = 'rankingwikiclub_visita_contabilizada';
-  const CHAVE_ANTIGA = 'futpedia_visita_contabilizada';
+  const CHAVE_CACHE_TOTAL = 'rankingwikiclub_contador_total';
+  const CHAVE_CACHE_TEMPO = 'rankingwikiclub_contador_atualizado_em';
   const ID_CONTADOR = 'inicioVisitas';
   const ID_STATUS = 'statusContadorVisitas';
+  const CACHE_MS = 5 * 60 * 1000;
+  const TIMEOUT_MS = 5000;
 
   function formatar(total) {
     const numero = Number(total);
-    return Number.isFinite(numero) ? numero.toLocaleString('pt-BR') : '0';
+    return Number.isFinite(numero) ? numero.toLocaleString('pt-BR') : '—';
   }
 
   function atualizarTela(total, status, indisponivel) {
@@ -21,82 +24,91 @@
     }
   }
 
-  function mensagemErro(erro) {
-    const codigo = erro?.code ? String(erro.code) : '';
-    const mensagem = erro?.message ? String(erro.message) : '';
-    const combinado = `${codigo} ${mensagem}`.toLowerCase();
-
-    if (combinado.includes('registrar_visita') || combinado.includes('function')) {
-      return 'Execute o SQL do contador no Supabase';
+  function lerCache() {
+    try {
+      const total = Number(localStorage.getItem(CHAVE_CACHE_TOTAL));
+      const tempo = Number(localStorage.getItem(CHAVE_CACHE_TEMPO));
+      if (!Number.isFinite(total) || !Number.isFinite(tempo)) return null;
+      return { total, recente: Date.now() - tempo < CACHE_MS };
+    } catch (_) {
+      return null;
     }
-    if (combinado.includes('contador_visitas') || combinado.includes('relation')) {
-      return 'Tabela do contador não encontrada no Supabase';
-    }
-    if (combinado.includes('permission') || combinado.includes('policy') || combinado.includes('42501')) {
-      return 'Permissão do contador precisa ser corrigida no Supabase';
-    }
-    if (combinado.includes('failed to fetch') || combinado.includes('network')) {
-      return 'Sem conexão com o Supabase';
-    }
-    return 'Contador temporariamente indisponível';
   }
 
-  async function lerTotal(cliente) {
-    const { data, error } = await cliente
-      .from('contador_visitas')
-      .select('total')
-      .eq('id', 1)
-      .single();
-    if (error) throw error;
-    return Number(data?.total || 0);
+  function salvarCache(total) {
+    try {
+      localStorage.setItem(CHAVE_CACHE_TOTAL, String(Number(total) || 0));
+      localStorage.setItem(CHAVE_CACHE_TEMPO, String(Date.now()));
+    } catch (_) {}
   }
 
-  async function registrar(cliente) {
-    // Tenta primeiro o novo nome. Mantém compatibilidade com a função antiga.
-    let resposta = await cliente.rpc('registrar_visita_rankingwikiclub');
-    if (!resposta.error) return Number(resposta.data || 0);
-
-    const erroNovo = resposta.error;
-    resposta = await cliente.rpc('registrar_visita_futpedia');
-    if (!resposta.error) return Number(resposta.data || 0);
-
-    // Propaga o erro mais útil para o diagnóstico visível.
-    throw resposta.error || erroNovo;
+  function comTimeout(promessa, ms) {
+    let temporizador;
+    const limite = new Promise((_, rejeitar) => {
+      temporizador = setTimeout(() => rejeitar(new Error('contador_timeout')), ms);
+    });
+    return Promise.race([promessa, limite]).finally(() => clearTimeout(temporizador));
   }
 
-  async function carregarContador() {
+  async function consultarEmSegundoPlano() {
     const cliente = typeof window.clienteSupabase === 'function'
       ? window.clienteSupabase()
       : null;
 
     if (!cliente) {
-      atualizarTela(0, 'Supabase não configurado', true);
+      const cache = lerCache();
+      if (!cache) atualizarTela(null, 'contador indisponível', true);
       return;
     }
 
-    try {
-      const jaContabilizada = sessionStorage.getItem(CHAVE_SESSAO) === '1' ||
-        sessionStorage.getItem(CHAVE_ANTIGA) === '1';
+    const jaContabilizada = sessionStorage.getItem(CHAVE_SESSAO) === '1';
 
-      let total;
+    try {
+      let requisicao;
       if (!jaContabilizada) {
-        total = await registrar(cliente);
-        sessionStorage.setItem(CHAVE_SESSAO, '1');
-        sessionStorage.removeItem(CHAVE_ANTIGA);
+        requisicao = cliente.rpc('registrar_visita_rankingwikiclub');
       } else {
-        total = await lerTotal(cliente);
+        requisicao = cliente
+          .from('contador_visitas')
+          .select('total')
+          .eq('id', 1)
+          .maybeSingle();
       }
 
-      atualizarTela(total, 'visitas contabilizadas', false);
+      const { data, error } = await comTimeout(Promise.resolve(requisicao), TIMEOUT_MS);
+      if (error) throw error;
+
+      const total = jaContabilizada ? Number(data?.total || 0) : Number(data || 0);
+      if (!jaContabilizada) sessionStorage.setItem(CHAVE_SESSAO, '1');
+      salvarCache(total);
+      atualizarTela(total, 'visitas ao site', false);
     } catch (erro) {
-      console.error('Falha no contador de visitas:', erro);
-      atualizarTela(0, mensagemErro(erro), true);
+      // O contador nunca deve atrasar nem interromper o restante do site.
+      console.warn('Contador de visitas não respondeu em segundo plano:', erro);
+      const cache = lerCache();
+      if (!cache) atualizarTela(null, 'visitas ao site', true);
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', carregarContador, { once: true });
+  function iniciarSemBloquear() {
+    const cache = lerCache();
+    if (cache) atualizarTela(cache.total, 'visitas ao site', false);
+    else atualizarTela(null, 'carregando...', false);
+
+    const executar = () => consultarEmSegundoPlano();
+
+    // Aguarda a página e os dados principais iniciarem. O contador usa apenas
+    // o tempo ocioso do navegador e jamais participa do carregamento crítico.
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(executar, { timeout: 2500 });
+    } else {
+      setTimeout(executar, 1200);
+    }
+  }
+
+  if (document.readyState === 'complete') {
+    iniciarSemBloquear();
   } else {
-    carregarContador();
+    window.addEventListener('load', iniciarSemBloquear, { once: true });
   }
 })();

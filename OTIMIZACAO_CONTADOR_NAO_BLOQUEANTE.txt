@@ -1,0 +1,11 @@
+OTIMIZAÇÃO DO CONTADOR DE VISITAS
+
+- O contador foi removido do caminho crítico de carregamento.
+- A página e suas informações carregam primeiro.
+- A consulta ao Supabase roda somente após o evento load e em tempo ocioso.
+- O total mais recente fica em cache por 5 minutos.
+- Há limite de 5 segundos para a resposta; falhas não interrompem o site.
+- Foi removida a segunda tentativa sequencial com a função antiga.
+- Continua sendo contabilizada apenas uma visita por sessão do navegador.
+
+Não é necessário executar uma nova query se sql_contador_visitas.sql já foi executado.
