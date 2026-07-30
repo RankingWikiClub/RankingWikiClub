@@ -1,0 +1,6 @@
+ALTERAÇÃO APLICADA
+
+- Desktop/PC: menus centralizados abaixo do logo.
+- Mobile: menus alinhados à esquerda abaixo do logo.
+- Logo permanece centralizado em todos os tamanhos de tela.
+- Alteração aplicada ao projeto para GitHub Pages e à cópia interna do projeto Android.

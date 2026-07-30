@@ -5264,44 +5264,110 @@ button.campeao-atual-clicavel {
   }
 }
 
-/* Correção mobile: linhas do menu permanecem à direita do logo */
+
+/* =========================================================
+   CABEÇALHO FINAL — logo centralizado e menu abaixo à esquerda
+   Compatível com desktop, mobile, GitHub Pages e Android WebView
+   ========================================================= */
+.topo {
+  width: 100% !important;
+  min-height: 0 !important;
+  padding: 12px 16px 14px !important;
+  box-sizing: border-box !important;
+}
+.topo .menu {
+  width: min(100%, 1280px) !important;
+  min-height: 0 !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 8px 14px !important;
+  box-sizing: border-box !important;
+}
+.topo .menu .logo-menu {
+  order: -1 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-width: 100% !important;
+  flex: 0 0 100% !important;
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  line-height: 0 !important;
+}
+.topo .menu .logo-menu img,
+.topo .logo-rankingwikiclub-topo {
+  width: 80px !important;
+  height: 80px !important;
+  max-width: 80px !important;
+  max-height: 80px !important;
+  object-fit: contain !important;
+  display: block !important;
+  image-rendering: auto !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.topo .menu > a:not(.logo-menu) {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+}
 @media (max-width: 768px) {
+  .topo { padding: 10px 12px 12px !important; }
   .topo .menu {
-    display: grid !important;
-    grid-template-columns: 100px repeat(4, max-content) !important;
-    grid-auto-rows: minmax(38px, auto) !important;
-    align-items: center !important;
-    justify-content: start !important;
-    column-gap: 10px !important;
-    row-gap: 4px !important;
+    width: 100% !important;
+    gap: 8px 12px !important;
+    justify-content: flex-start !important;
   }
-
-  .topo .menu .logo-menu {
-    grid-column: 1 !important;
-    grid-row: 1 / span 2 !important;
-    align-self: center !important;
-    margin: 0 4px 0 0 !important;
+  .topo .menu .logo-menu { margin-bottom: 8px !important; }
+  .topo .menu .logo-menu img,
+  .topo .logo-rankingwikiclub-topo {
+    width: 80px !important;
+    height: 80px !important;
+    max-width: 80px !important;
+    max-height: 80px !important;
   }
-
   .topo .menu > a:not(.logo-menu) {
-    margin: 0 !important;
-    padding: 7px 0 !important;
-    align-self: center !important;
-    white-space: nowrap !important;
+    font-size: 0.95rem !important;
+    padding: 8px 9px !important;
+  }
+}
+@media (max-width: 380px) {
+  .topo .menu { gap: 6px 8px !important; }
+  .topo .menu > a:not(.logo-menu) {
+    font-size: 0.88rem !important;
+    padding: 7px 8px !important;
   }
 }
 
-@media (max-width: 520px) {
+/* =========================================================
+   AJUSTE RESPONSIVO FINAL — menus centralizados no PC
+   e alinhados à esquerda no mobile
+   ========================================================= */
+@media (min-width: 769px) {
   .topo .menu {
-    grid-template-columns: 100px repeat(3, minmax(0, max-content)) !important;
-    column-gap: 8px !important;
+    justify-content: center !important;
   }
-
-  .topo .menu .logo-menu {
-    grid-row: 1 / span 3 !important;
-  }
-
   .topo .menu > a:not(.logo-menu) {
-    font-size: 14px !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .topo .menu {
+    justify-content: flex-start !important;
+  }
+  .topo .menu > a:not(.logo-menu) {
+    text-align: left !important;
   }
 }
